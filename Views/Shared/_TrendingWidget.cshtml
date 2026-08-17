@@ -1,0 +1,298 @@
+@* Views/Shared/_TrendingWidget.cshtml *@
+<div class="trending-widget" id="trendingWidget">
+
+    <div class="tw-header">
+        <span class="tw-icon"><i class="fa fa-trophy"></i></span>
+        <span class="tw-title">Xu hướng</span>
+        <button class="tw-refresh" id="twRefresh" title="Làm mới">
+            <i class="fa fa-sync-alt"></i>
+        </button>
+    </div>
+
+    <!-- Tab: loại thống kê -->
+    <div class="tw-tabs">
+        <button class="tw-tab active" data-tab="views">
+            <i class="fa fa-eye"></i><span>Lượt xem</span>
+        </button>
+        <button class="tw-tab" data-tab="sell">
+            <i class="fa fa-shopping-cart"></i><span>Lượt bán</span>
+        </button>
+        <button class="tw-tab" data-tab="wish">
+            <i class="fa fa-heart"></i><span>Yêu thích</span>
+        </button>
+    </div>
+
+    <!-- Tab: khoảng thời gian -->
+    <div class="tw-periods">
+        <button class="tw-period" data-period="day">Ngày</button>
+        <button class="tw-period" data-period="week">Tuần</button>
+        <button class="tw-period" data-period="month">Tháng</button>
+        <button class="tw-period active" data-period="year">Năm</button>
+    </div>
+
+    <!-- Danh sách sản phẩm -->
+    <div class="tw-list" id="twList">
+        <div class="tw-loading"><i class="fa fa-spinner fa-spin"></i></div>
+    </div>
+</div>
+
+<style>
+.trending-widget {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    font-family: 'Barlow', sans-serif;
+    width: 280px;
+}
+
+/* Header */
+.tw-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 16px 10px;
+    background: #111111;
+}
+.tw-icon { font-size: 18px; color: #ff4d00; }
+.tw-title {
+    flex: 1;
+    font-weight: 700;
+    font-size: 15px;
+    color: #fff;
+    letter-spacing: .3px;
+}
+.tw-refresh {
+    background: rgba(255,255,255,.15);
+    border: none;
+    color: #fff;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .2s, transform .3s;
+}
+.tw-refresh:hover { background: rgba(255,255,255,.3); }
+.tw-refresh.spinning i { animation: tw-spin .6s linear infinite; }
+@@keyframes tw-spin { to { transform: rotate(360deg); } }
+
+/* Tabs loại */
+.tw-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-card2);
+}
+.tw-tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 10px 4px;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-family: 'Barlow', sans-serif;
+    cursor: pointer;
+    transition: color .2s, background .2s;
+    border-bottom: 2px solid transparent;
+}
+.tw-tab i { font-size: 15px; }
+.tw-tab:hover { color: var(--accent); background: rgba(0,180,216,.06); }
+.tw-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    background: rgba(0,180,216,.08);
+}
+
+/* Period pills */
+.tw-periods {
+    display: flex;
+    gap: 6px;
+    padding: 10px 12px 6px;
+    background: var(--bg-card2);
+}
+.tw-period {
+    flex: 1;
+    padding: 4px 0;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: none;
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-family: 'Barlow', sans-serif;
+    cursor: pointer;
+    transition: all .2s;
+}
+.tw-period:hover { color: var(--accent); border-color: var(--accent); }
+.tw-period.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    font-weight: 600;
+}
+
+/* Danh sách */
+.tw-list {
+    padding: 8px 0 4px;
+    min-height: 200px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+.tw-list::-webkit-scrollbar { width: 4px; }
+.tw-list::-webkit-scrollbar-track { background: transparent; }
+.tw-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+.tw-loading {
+    display: flex; justify-content: center; align-items: center;
+    height: 120px; color: var(--text-muted); font-size: 20px;
+}
+
+.tw-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    text-decoration: none;
+    color: inherit;
+    transition: background .15s;
+    cursor: pointer;
+}
+.tw-item:hover { background: rgba(0,180,216,.07); }
+
+.tw-rank {
+    font-size: 20px;
+    font-weight: 800;
+    font-family: 'Barlow Condensed', sans-serif;
+    min-width: 24px;
+    text-align: center;
+}
+.tw-rank.r1 { color: #ff4d00; }
+.tw-rank.r2 { color: #111111; }
+.tw-rank.r3 { color: #5a5a5a; }
+.tw-rank.rn { color: var(--text-muted); font-size: 16px; }
+
+.tw-thumb {
+    width: 44px; height: 44px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: var(--bg-card2);
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+}
+.tw-thumb-placeholder {
+    width: 44px; height: 44px;
+    border-radius: 8px;
+    background: var(--bg-card2);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-muted); font-size: 18px;
+    flex-shrink: 0;
+}
+
+.tw-info { flex: 1; min-width: 0; }
+.tw-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.tw-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 1px;
+    display: flex; align-items: center; gap: 4px;
+}
+.tw-sub i { font-size: 10px; color: var(--accent); }
+
+.tw-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+.tw-empty i { font-size: 28px; display: block; margin-bottom: 8px; }
+</style>
+
+<script>
+(function(){
+    var activeTab    = 'views';
+    var activePeriod = 'year';
+    var labelMap = { views: 'Lượt xem', sell: 'Lượt bán', wish: 'Yêu thích' };
+
+    function load(){
+        var list = document.getElementById('twList');
+        list.innerHTML = '<div class="tw-loading"><i class="fa fa-spinner fa-spin"></i></div>';
+
+        fetch('/Trending/Data?tab=' + activeTab + '&period=' + activePeriod)
+            .then(function(r){ return r.json(); })
+            .then(function(data){ render(data); })
+            .catch(function(){
+                list.innerHTML = '<div class="tw-empty"><i class="fa fa-exclamation-circle"></i>Không tải được dữ liệu</div>';
+            });
+    }
+
+    function render(items){
+        var list = document.getElementById('twList');
+        if(!items || items.length === 0){
+            list.innerHTML = '<div class="tw-empty"><i class="fa fa-inbox"></i>Chưa có dữ liệu</div>';
+            return;
+        }
+        var html = '';
+        items.forEach(function(p, i){
+            var rank = i + 1;
+            var rankClass = rank === 1 ? 'r1' : rank === 2 ? 'r2' : rank === 3 ? 'r3' : 'rn';
+            var img = p.imageUrl
+                ? '<img class="tw-thumb" src="' + p.imageUrl + '" alt="" onerror="this.style.display=\'none\';this.nextSibling.style.display=\'flex\'">' +
+                  '<div class="tw-thumb-placeholder" style="display:none"><i class="fa fa-laptop"></i></div>'
+                : '<div class="tw-thumb-placeholder"><i class="fa fa-laptop"></i></div>';
+            var label = labelMap[activeTab] || '';
+            html += '<a class="tw-item" href="/Product/Details/' + p.id + '">' +
+                '<span class="tw-rank ' + rankClass + '">' + rank + '</span>' +
+                img +
+                '<div class="tw-info">' +
+                    '<div class="tw-name">' + p.name + '</div>' +
+                    '<div class="tw-sub"><i class="fa fa-' + (activeTab==='views'?'eye':activeTab==='sell'?'shopping-cart':'heart') + '"></i>' + p.count + ' ' + label + '</div>' +
+                '</div></a>';
+        });
+        list.innerHTML = html;
+    }
+
+    // Gắn sự kiện tabs
+    document.querySelectorAll('.tw-tab').forEach(function(btn){
+        btn.addEventListener('click', function(){
+            document.querySelectorAll('.tw-tab').forEach(function(b){ b.classList.remove('active'); });
+            btn.classList.add('active');
+            activeTab = btn.dataset.tab;
+            load();
+        });
+    });
+
+    // Gắn sự kiện period
+    document.querySelectorAll('.tw-period').forEach(function(btn){
+        btn.addEventListener('click', function(){
+            document.querySelectorAll('.tw-period').forEach(function(b){ b.classList.remove('active'); });
+            btn.classList.add('active');
+            activePeriod = btn.dataset.period;
+            load();
+        });
+    });
+
+    // Refresh
+    var refreshBtn = document.getElementById('twRefresh');
+    if(refreshBtn){
+        refreshBtn.addEventListener('click', function(){
+            refreshBtn.classList.add('spinning');
+            setTimeout(function(){ refreshBtn.classList.remove('spinning'); }, 700);
+            load();
+        });
+    }
+
+    // Load lần đầu
+    load();
+})();
+</script>

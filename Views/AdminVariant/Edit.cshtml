@@ -1,0 +1,94 @@
+@model AsusLaptop.Models.ProductVariant
+@{
+    ViewData["Title"] = "Sửa biến thể";
+    Layout = "_Layout";
+    var ramOptions = new[] { "8 GB DDR4","16 GB DDR4","16 GB DDR5","16 GB LPDDR5","16 GB LPDDR5X","32 GB DDR4","32 GB DDR5","32 GB LPDDR5","32 GB LPDDR5X","64 GB DDR5","96 GB DDR5" };
+}
+
+<div class="admin-wrap">
+    <div class="admin-header">
+        <div style="display:flex;align-items:center;gap:12px">
+            <a asp-action="Index" asp-route-productId="@Model.ProductId" style="color:var(--text-muted);font-size:18px"><i class="fa fa-arrow-left"></i></a>
+            <h1 class="admin-title"><i class="fa fa-edit"></i> Sửa biến thể — <span>@Model.Product?.Name</span></h1>
+        </div>
+    </div>
+
+    <div class="admin-section" style="margin:24px;max-width:600px">
+        <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+            @Html.AntiForgeryToken()
+
+            <div style="margin-bottom:16px">
+                <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text-muted)">RAM *</label>
+                <select name="RAM" class="form-select" required style="background:var(--bg-card2);border:1px solid var(--border);color:var(--text-primary);border-radius:8px;padding:8px 12px;width:100%">
+                    @foreach (var r in ramOptions)
+                    {
+                        if (Model.RAM == r)
+                        {
+                            <option value="@r" selected>@r</option>
+                        }
+                        else
+                        {
+                            <option value="@r">@r</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div style="margin-bottom:16px">
+                <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text-muted)">Màu sắc *</label>
+                <input name="Color" class="form-control" value="@Model.Color" required
+                       style="background:var(--bg-card2);border:1px solid var(--border);color:var(--text-primary);border-radius:8px;padding:8px 12px;width:100%" />
+            </div>
+
+            <div style="margin-bottom:16px">
+                <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text-muted)">Mã màu HEX *</label>
+                <div style="display:flex;gap:8px;align-items:center">
+                    <input type="color" name="ColorHex" id="colorPicker" value="@Model.ColorHex"
+                           style="width:48px;height:40px;border:1px solid var(--border);border-radius:8px;padding:2px;background:var(--bg-card2);cursor:pointer" />
+                    <input type="text" id="hexText" value="@Model.ColorHex"
+                           style="background:var(--bg-card2);border:1px solid var(--border);color:var(--text-primary);border-radius:8px;padding:8px 12px;flex:1" />
+                </div>
+            </div>
+
+            <div style="margin-bottom:16px">
+                <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text-muted)">Chênh lệch giá (₫)</label>
+                <input name="PriceAdjust" type="number" value="@Model.PriceAdjust"
+                       style="background:var(--bg-card2);border:1px solid var(--border);color:var(--text-primary);border-radius:8px;padding:8px 12px;width:100%" />
+            </div>
+
+            <div style="margin-bottom:16px">
+                <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text-muted)">Nhập thêm hàng (sinh thêm serial)</label>
+                <input name="addStock" type="number" value="0" min="0" max="200"
+                       style="background:var(--bg-card2);border:1px solid var(--border);color:var(--text-primary);border-radius:8px;padding:8px 12px;width:100%" />
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">
+                    Tồn kho hiện tại: <strong>@Model.Stock</strong> |
+                    Serial khả dụng: @Model.SerialNumbers.Count(s => s.Status == "Available") / @Model.SerialNumbers.Count
+                </div>
+            </div>
+
+            <div style="margin-bottom:20px;display:flex;align-items:center;gap:8px">
+                <input type="checkbox" name="IsDefault" value="true" id="chkDefault"
+                       @(Model.IsDefault ? "checked" : "")
+                       style="width:16px;height:16px;accent-color:var(--accent)" />
+                <label for="chkDefault" style="font-size:13px;cursor:pointer">Đặt làm biến thể mặc định</label>
+            </div>
+
+            <div style="display:flex;gap:12px">
+                <button type="submit" class="btn-add"><i class="fa fa-save"></i> Lưu thay đổi</button>
+                <a asp-action="Index" asp-route-productId="@Model.ProductId"
+                   style="padding:8px 20px;border:1px solid var(--border);border-radius:8px;color:var(--text-muted);text-decoration:none">
+                    Hủy
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const colorPicker = document.getElementById('colorPicker');
+    const hexText     = document.getElementById('hexText');
+    colorPicker.addEventListener('input', function () { hexText.value = this.value; });
+    hexText.addEventListener('change', function () {
+        if (/^#[0-9A-Fa-f]{6}$/.test(this.value)) colorPicker.value = this.value;
+    });
+</script>

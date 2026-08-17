@@ -1,0 +1,103 @@
+@{
+    ViewData["Title"] = "Đăng ký tài khoản";
+}
+
+<div class="auth-wrap">
+    <div class="auth-card" style="max-width:520px">
+        <div class="auth-header">
+            <div class="auth-logo">
+                <span class="logo-asus" style="font-size:32px">ASUS</span>
+            </div>
+            <h2 class="auth-title">Đăng ký</h2>
+            <p class="auth-subtitle">Tạo tài khoản để mua sắm tiện lợi hơn</p>
+        </div>
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger">
+                <i class="fa fa-exclamation-circle"></i>
+                <div>
+                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <div>@error.ErrorMessage</div>
+                    }
+                </div>
+            </div>
+        }
+
+        <form asp-action="Register" method="post">
+            @Html.AntiForgeryToken()
+
+            <div class="form-row" style="margin-bottom:14px">
+                <div class="form-group">
+                    <label class="form-label">Họ và tên *</label>
+                    <div class="input-icon-wrap">
+                        <i class="fa fa-id-card fi"></i>
+                        <input type="text" name="fullName" class="form-control" placeholder="Nguyễn Văn A" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Số điện thoại</label>
+                    <div class="input-icon-wrap">
+                        <i class="fa fa-phone fi"></i>
+                        <input type="tel" name="phone" class="form-control" placeholder="0912345678" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:14px">
+                <label class="form-label">Email *</label>
+                <div class="input-icon-wrap">
+                    <i class="fa fa-envelope fi"></i>
+                    <input type="email" name="email" class="form-control" placeholder="email@gmail.com" required />
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:14px">
+                <label class="form-label">Tên đăng nhập *</label>
+                <div class="input-icon-wrap">
+                    <i class="fa fa-user fi"></i>
+                    <input type="text" name="username" class="form-control" placeholder="username" required />
+                </div>
+            </div>
+
+            <div class="form-row" style="margin-bottom:20px">
+                <div class="form-group">
+                    <label class="form-label">Mật khẩu *</label>
+                    <div class="input-icon-wrap">
+                        <i class="fa fa-lock fi"></i>
+                        <input type="password" name="password" id="pw1" class="form-control" placeholder="••••••••" required minlength="6" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Xác nhận mật khẩu *</label>
+                    <div class="input-icon-wrap">
+                        <i class="fa fa-lock fi"></i>
+                        <input type="password" name="confirmPassword" id="pw2" class="form-control" placeholder="••••••••" required />
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit">
+                <i class="fa fa-user-plus"></i> Tạo tài khoản
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            Đã có tài khoản? <a href="/Account/Login">Đăng nhập</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+document.querySelector('form').addEventListener('submit', function(e) {
+    const pw1 = document.getElementById('pw1').value;
+    const pw2 = document.getElementById('pw2').value;
+    if (pw1 !== pw2) {
+        e.preventDefault();
+        alert('Mật khẩu xác nhận không khớp!');
+    }
+});
+</script>
+}

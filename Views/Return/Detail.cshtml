@@ -1,0 +1,87 @@
+@model AsusLaptop.Models.ReturnRequest
+@{
+    ViewData["Title"] = "Chi tiết yêu cầu #" + Model.Id;
+    string badgeColor = Model.Status switch {
+        "Pending" => "var(--tuf-yellow,#e6b800)",
+        "Approved" => "var(--accent)",
+        "Refunded" => "var(--success)",
+        "Completed" => "var(--success)",
+        "Rejected" => "var(--rog-red,#e0393e)",
+        "Cancelled" => "var(--text-muted)",
+        _ => "var(--text-muted)"
+    };
+}
+
+<div class="account-wrap">
+    <div style="max-width:760px;margin:0 auto;padding:24px 20px 60px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:10px;">
+            <h1 class="section-title" style="margin:0;"><i class="fa fa-undo-alt" style="color:var(--accent);margin-right:10px;"></i>Yêu cầu #@Model.Id</h1>
+            <span style="background:@badgeColor;color:#fff;font-size:12px;font-weight:700;padding:5px 14px;border-radius:999px;">@Model.StatusVi</span>
+        </div>
+        <p style="color:var(--text-muted);font-size:13px;margin-bottom:20px;">
+            Đơn hàng <a href="/Account/OrderDetail/@Model.OrderId" style="color:var(--accent)">#@Model.OrderId</a> · @Model.RequestTypeVi · Gửi lúc @Model.CreatedAt.ToString("HH:mm dd/MM/yyyy")
+        </p>
+
+        <div style="background:var(--bg-card2);border:1px solid var(--border);border-radius:var(--radius,10px);padding:16px;margin-bottom:16px;">
+            <h4 style="font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:10px;">Sản phẩm yêu cầu trả</h4>
+            @foreach (var item in Model.Items)
+            {
+                <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;">
+                    <span>@item.OrderDetail?.Product?.Name</span>
+                    <span style="color:var(--text-muted)">x@item.Quantity</span>
+                </div>
+            }
+        </div>
+
+        <div style="background:var(--bg-card2);border:1px solid var(--border);border-radius:var(--radius,10px);padding:16px;margin-bottom:16px;">
+            <h4 style="font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:10px;">Lý do & mô tả</h4>
+            <p style="font-size:13.5px;font-weight:600;margin-bottom:6px;">@Model.Reason</p>
+            @if (!string.IsNullOrEmpty(Model.Description))
+            {
+                <p style="font-size:13px;color:var(--text-secondary);white-space:pre-wrap;">@Model.Description</p>
+            }
+            @if (!string.IsNullOrEmpty(Model.ImageUrls))
+            {
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
+                    @foreach (var url in Model.ImageUrls.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        <a href="@url.Trim()" target="_blank">
+                            <img src="@url.Trim()" style="width:70px;height:70px;object-fit:cover;border-radius:8px;border:1px solid var(--border)" onerror="this.style.display='none'" />
+                        </a>
+                    }
+                </div>
+            }
+        </div>
+
+        @if (Model.Status == "Approved" || Model.Status == "Refunded" || Model.Status == "Completed")
+        {
+            <div style="background:var(--bg-card2);border:1px solid var(--border);border-radius:var(--radius,10px);padding:16px;margin-bottom:16px;">
+                <h4 style="font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:10px;">Thông tin hoàn tiền</h4>
+                <div style="font-size:13px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                    <div><span style="color:var(--text-muted)">Số tiền: </span><strong>@(Model.RefundAmount?.ToString("N0") ?? "—")₫</strong></div>
+                    <div><span style="color:var(--text-muted)">Hình thức: </span><strong>@Model.RefundMethod</strong></div>
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(Model.AdminNote))
+        {
+            <div style="background:rgba(0,150,255,.06);border:1px solid var(--border);border-radius:var(--radius,10px);padding:16px;margin-bottom:16px;">
+                <h4 style="font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:8px;">Phản hồi từ cửa hàng</h4>
+                <p style="font-size:13px;">@Model.AdminNote</p>
+            </div>
+        }
+
+        @if (Model.Status == "Pending")
+        {
+            <form method="post" asp-action="Cancel" asp-route-id="@Model.Id" onsubmit="return confirm('Huỷ yêu cầu này?')">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn-ghost" style="width:100%;padding:11px;"><i class="fa fa-times"></i> Huỷ yêu cầu</button>
+            </form>
+        }
+
+        <a href="/Return/MyReturns" style="display:block;text-align:center;margin-top:14px;font-size:12.5px;color:var(--text-muted);">
+            <i class="fa fa-arrow-left"></i> Quay lại danh sách
+        </a>
+    </div>
+</div>

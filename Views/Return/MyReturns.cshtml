@@ -1,0 +1,52 @@
+@model List<AsusLaptop.Models.ReturnRequest>
+@{
+    ViewData["Title"] = "Yêu cầu trả hàng của tôi";
+}
+
+<div class="account-wrap">
+    <div style="max-width:900px;margin:0 auto;padding:24px 20px 60px;">
+        <h1 class="section-title" style="margin-bottom:20px;"><i class="fa fa-undo-alt" style="color:var(--accent);margin-right:10px;"></i>Yêu cầu trả hàng / hoàn tiền</h1>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+        }
+
+        @if (!Model.Any())
+        {
+            <div class="empty-state">
+                <i class="fa fa-undo-alt"></i>
+                <h3>Bạn chưa có yêu cầu trả hàng/hoàn tiền nào</h3>
+                <p>Nếu sản phẩm có vấn đề, vào chi tiết đơn hàng đã giao để gửi yêu cầu.</p>
+            </div>
+        }
+        else
+        {
+            @foreach (var r in Model)
+            {
+                string badgeColor = r.Status switch {
+                    "Pending" => "var(--tuf-yellow,#e6b800)",
+                    "Approved" => "var(--accent)",
+                    "Refunded" => "var(--success)",
+                    "Completed" => "var(--success)",
+                    "Rejected" => "var(--rog-red,#e0393e)",
+                    "Cancelled" => "var(--text-muted)",
+                    _ => "var(--text-muted)"
+                };
+                <a href="/Return/Detail/@r.Id" style="display:block;background:var(--bg-card2);border:1px solid var(--border);border-radius:var(--radius,10px);padding:16px;margin-bottom:12px;text-decoration:none;color:inherit;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+                        <div>
+                            <div style="font-weight:700;font-size:14px;">Đơn hàng #@r.OrderId — @r.RequestTypeVi</div>
+                            <div style="font-size:12.5px;color:var(--text-muted);margin-top:2px;">@r.Reason · Gửi lúc @r.CreatedAt.ToString("HH:mm dd/MM/yyyy")</div>
+                        </div>
+                        <span style="background:@badgeColor;color:#fff;font-size:11.5px;font-weight:700;padding:4px 12px;border-radius:999px;white-space:nowrap;">@r.StatusVi</span>
+                    </div>
+                </a>
+            }
+        }
+    </div>
+</div>

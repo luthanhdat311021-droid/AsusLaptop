@@ -1,0 +1,133 @@
+{
+  "Files": [
+    {
+      "Id": "D:\\1\\AsusLaptop_NikeStyle_Updated\\AsusLaptop_HoanThien\\AsusLaptop\\wwwroot\\css\\asus-futuristic-3d.css",
+      "PackagePath": "staticwebassets\\css\\asus-futuristic-3d.css"
+    },
+    {
+      "Id": "D:\\1\\AsusLaptop_NikeStyle_Updated\\AsusLaptop_HoanThien\\AsusLaptop\\wwwroot\\css\\scrollytelling.css",
+      "PackagePath": "staticwebassets\\css\\scrollytelling.css"
+    },
+    {
+      "Id": "D:\\1\\AsusLaptop_NikeStyle_Updated\\AsusLaptop_HoanThien\\AsusLaptop\\wwwroot\\css\\site.css",
+      "PackagePath": "staticwebassets\\css\\site.css"
+    },
+    {
+      "Id": "D:\\1\\AsusLaptop_NikeStyle_Updated\\AsusLaptop_HoanThien\\AsusLaptop\\wwwroot\\image\\product\\tk.png",
+      "PackagePath": "staticwebassets\\image\\product\\tk.png"
+    },
+    {
+      "Id": "D:\\1\\AsusLaptop_NikeStyle_Updated\\AsusLaptop_HoanThien\\AsusLaptop\\wwwroot\\image\\rog_bg.png",
+      "PackagePath": "staticwebassets\\image\\rog_bg.png"
+    },
+    {
+      "Id": "D:\\1\\AsusLaptop_NikeStyle_Updated\\AsusLaptop_HoanThien\\AsusLaptop\\wwwroot\\image\\zenbook_bg.png",
+      "PackagePath": "staticwebassets\\image\\zenbook_bg.png"
+    },
+    {
+      "Id": "D:\\1\\AsusLaptop_NikeStyle_Updated\\AsusLaptop_HoanThien\\AsusLaptop\\wwwroot\\js\\asus-3d-engine.js",
+      "PackagePath": "staticwebassets\\js\\asus-3d-engine.js"
+    },
+    {
+      "Id": "D:\\1\\AsusLaptop_NikeStyle_Updated\\AsusLaptop_HoanThien\\AsusLaptop\\wwwroot\\js\\asus-photo-spinner.js",
+      "PackagePath": "staticwebassets\\js\\asus-photo-spinner.js"
+    },
+    {
+      "Id": "D:\\1\\AsusLaptop_NikeStyle_Updated\\AsusLaptop_HoanThien\\AsusLaptop\\wwwroot\\js\\copilot-cloud-voice.js",
+      "PackagePath": "staticwebassets\\js\\copilot-cloud-voice.js"
+    },
+    {
+      "Id": "D:\\1\\AsusLaptop_NikeStyle_Updated\\AsusLaptop_HoanThien\\AsusLaptop\\wwwroot\\js\\product-autofill.js",
+      "PackagePath": "staticwebassets\\js\\product-autofill.js"
+    },
+    {
+      "Id": "D:\\1\\AsusLaptop_NikeStyle_Updated\\AsusLaptop_HoanThien\\AsusLaptop\\wwwroot\\js\\scrollytelling.js",
+      "PackagePath": "staticwebassets\\js\\scrollytelling.js"
+    },
+    {
+      "Id": "D:\\1\\AsusLaptop_NikeStyle_Updated\\AsusLaptop_HoanThien\\AsusLaptop\\wwwroot\\js\\site-automation.js",
+      "PackagePath": "staticwebassets\\js\\site-automation.js"
+    },
+    {
+      "Id": "D:\\1\\AsusLaptop_NikeStyle_Updated\\AsusLaptop_HoanThien\\AsusLaptop\\wwwroot\\js\\site.js",
+      "PackagePath": "staticwebassets\\js\\site.js"
+    },
+    {
+      "Id": "D:\\1\\AsusLaptop_NikeStyle_Updated\\AsusLaptop_HoanThien\\AsusLaptop\\wwwroot\\lib\\face-api\\download-models.ps1",
+      "PackagePath": "staticwebassets\\lib\\face-api\\download-models.ps1"
+    },
+    {
+      "Id": "D:\\1\\AsusLaptop_NikeStyle_Updated\\AsusLaptop_HoanThien\\AsusLaptop\\wwwroot\\lib\\face-api\\face-api.min.js",
+      "PackagePath": "staticwebassets\\lib\\face-api\\face-api.min.js"
+    },
+    {
+      "Id": "D:\\1\\AsusLaptop_NikeStyle_Updated\\AsusLaptop_HoanThien\\AsusLaptop\\wwwroot\\lib\\face-api\\weights\\face_landmark_68_tiny_model-shard1",
+      "PackagePath": "staticwebassets\\lib\\face-api\\weights"
+    },
+    {
+      "Id": "D:\\1\\AsusLaptop_NikeStyle_Updated\\AsusLaptop_HoanThien\\AsusLaptop\\wwwroot\\lib\\face-api\\weights\\face_landmark_68_tiny_model-weights_manifest.json",
+      "PackagePath": "staticwebassets\\lib\\face-api\\weights\\face_landmark_68_tiny_model-weights_manifest.json"
+    },
+    {
+      "Id": "D:\\1\\AsusLaptop_NikeStyle_Updated\\AsusLaptop_HoanThien\\AsusLaptop\\wwwroot\\lib\\face-api\\weights\\face_recognition_model-shard1",
+      "PackagePath": "staticwebassets\\lib\\face-api\\weights"
+    },
+    {
+      "Id": "D:\\1\\AsusLaptop_NikeStyle_Updated\\AsusLaptop_HoanThien\\AsusLaptop\\wwwroot\\lib\\face-api\\weights\\face_recognition_model-shard2",
+      "PackagePath": "staticwebassets\\lib\\face-api\\weights"
+    },
+    {
+      "Id": "D:\\1\\AsusLaptop_NikeStyle_Updated\\AsusLaptop_HoanThien\\AsusLaptop\\wwwroot\\lib\\face-api\\weights\\face_recognition_model-weights_manifest.json",
+      "PackagePath": "staticwebassets\\lib\\face-api\\weights\\face_recognition_model-weights_manifest.json"
+    },
+    {
+      "Id": "D:\\1\\AsusLaptop_NikeStyle_Updated\\AsusLaptop_HoanThien\\AsusLaptop\\wwwroot\\lib\\face-api\\weights\\tiny_face_detector_model-shard1",
+      "PackagePath": "staticwebassets\\lib\\face-api\\weights"
+    },
+    {
+      "Id": "D:\\1\\AsusLaptop_NikeStyle_Updated\\AsusLaptop_HoanThien\\AsusLaptop\\wwwroot\\lib\\face-api\\weights\\tiny_face_detector_model-weights_manifest.json",
+      "PackagePath": "staticwebassets\\lib\\face-api\\weights\\tiny_face_detector_model-weights_manifest.json"
+    },
+    {
+      "Id": "D:\\1\\AsusLaptop_NikeStyle_Updated\\AsusLaptop_HoanThien\\AsusLaptop\\wwwroot\\robots.txt",
+      "PackagePath": "staticwebassets\\robots.txt"
+    },
+    {
+      "Id": "D:\\1\\AsusLaptop_NikeStyle_Updated\\AsusLaptop_HoanThien\\AsusLaptop\\wwwroot\\video\\combo_sinhvien.mp4",
+      "PackagePath": "staticwebassets\\video\\combo_sinhvien.mp4"
+    },
+    {
+      "Id": "D:\\1\\AsusLaptop_NikeStyle_Updated\\AsusLaptop_HoanThien\\AsusLaptop\\wwwroot\\video\\rog_ecosystem.mp4",
+      "PackagePath": "staticwebassets\\video\\rog_ecosystem.mp4"
+    },
+    {
+      "Id": "D:\\1\\AsusLaptop_NikeStyle_Updated\\AsusLaptop_HoanThien\\AsusLaptop\\wwwroot\\video\\rog_strix.mp4",
+      "PackagePath": "staticwebassets\\video\\rog_strix.mp4"
+    },
+    {
+      "Id": "D:\\1\\AsusLaptop_NikeStyle_Updated\\AsusLaptop_HoanThien\\AsusLaptop\\wwwroot\\video\\tuf_gaming.mp4",
+      "PackagePath": "staticwebassets\\video\\tuf_gaming.mp4"
+    },
+    {
+      "Id": "D:\\1\\AsusLaptop_NikeStyle_Updated\\AsusLaptop_HoanThien\\AsusLaptop\\wwwroot\\video\\zenbook.mp4",
+      "PackagePath": "staticwebassets\\video\\zenbook.mp4"
+    },
+    {
+      "Id": "obj\\Release\\net8.0\\staticwebassets\\msbuild.AsusLaptop.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Release\\net8.0\\staticwebassets\\msbuild.build.AsusLaptop.props",
+      "PackagePath": "build\\AsusLaptop.props"
+    },
+    {
+      "Id": "obj\\Release\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.AsusLaptop.props",
+      "PackagePath": "buildMultiTargeting\\AsusLaptop.props"
+    },
+    {
+      "Id": "obj\\Release\\net8.0\\staticwebassets\\msbuild.buildTransitive.AsusLaptop.props",
+      "PackagePath": "buildTransitive\\AsusLaptop.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

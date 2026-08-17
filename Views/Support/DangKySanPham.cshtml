@@ -1,0 +1,79 @@
+@{
+    ViewData["Title"] = "Đăng ký sản phẩm";
+}
+
+<div class="support-page">
+    <div class="support-hero">
+        <i class="fa fa-clipboard-check support-hero-icon" style="color:var(--accent)"></i>
+        <h1>Đăng Ký Sản Phẩm</h1>
+        <p>Kích hoạt bảo hành chính hãng cho máy mua ngoài hệ thống hoặc được tặng</p>
+    </div>
+
+    <div class="support-container">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success mb-2" style="grid-column:1/-1"><i class="fa fa-check-circle"></i> @TempData["SuccessMessage"]</div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger mb-2" style="grid-column:1/-1"><i class="fa fa-exclamation-circle"></i> @TempData["ErrorMessage"]</div>
+        }
+
+        <div class="support-card" style="grid-column:1/-1;max-width:600px;margin:0 auto">
+            <h3><i class="fa fa-laptop" style="color:var(--accent)"></i> Thông tin sản phẩm & khách hàng</h3>
+
+            <form asp-action="DangKySanPham" asp-controller="Support" method="post" style="margin-top:16px;display:flex;flex-direction:column;gap:14px">
+                @Html.AntiForgeryToken()
+
+                <div>
+                    <label style="display:block;margin-bottom:6px;color:var(--text-secondary);font-size:14px">Số serial (in dưới đáy máy) <span style="color:var(--error)">*</span></label>
+                    <input type="text" name="serialNo" required maxlength="30" placeholder="VD: ASU-ROG-26-000123"
+                           style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:var(--text-primary)" />
+                </div>
+
+                <div>
+                    <label style="display:block;margin-bottom:6px;color:var(--text-secondary);font-size:14px">Họ và tên <span style="color:var(--error)">*</span></label>
+                    <input type="text" name="fullName" required maxlength="100"
+                           style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:var(--text-primary)" />
+                </div>
+
+                <div>
+                    <label style="display:block;margin-bottom:6px;color:var(--text-secondary);font-size:14px">Số điện thoại <span style="color:var(--error)">*</span></label>
+                    <input type="tel" name="phone" required maxlength="20"
+                           style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:var(--text-primary)" />
+                </div>
+
+                <div>
+                    <label style="display:block;margin-bottom:6px;color:var(--text-secondary);font-size:14px">Email</label>
+                    <input type="email" name="email" maxlength="100"
+                           style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:var(--text-primary)" />
+                </div>
+
+                <div>
+                    <label style="display:block;margin-bottom:6px;color:var(--text-secondary);font-size:14px">Ngày mua <span style="color:var(--error)">*</span></label>
+                    <input type="date" name="purchaseDate" required max="@DateTime.Now.ToString("yyyy-MM-dd")"
+                           style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:var(--text-primary)" />
+                </div>
+
+                <div>
+                    <label style="display:block;margin-bottom:6px;color:var(--text-secondary);font-size:14px">Nơi mua</label>
+                    <input type="text" name="purchasePlace" maxlength="200" placeholder="VD: Cửa hàng ABC, Q.1, TP.HCM"
+                           style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:var(--text-primary)" />
+                </div>
+
+                <button type="submit" style="background:var(--accent);color:#fff;border:none;padding:12px;border-radius:8px;font-weight:600;cursor:pointer;margin-top:8px">
+                    <i class="fa fa-paper-plane"></i> Đăng ký bảo hành
+                </button>
+            </form>
+        </div>
+
+        <div class="support-card">
+            <h3><i class="fa fa-info-circle" style="color:var(--tuf-yellow)"></i> Vì sao cần đăng ký sản phẩm?</h3>
+            <ul class="support-list">
+                <li><i class="fa fa-check" style="color:var(--success)"></i> Kích hoạt bảo hành chính hãng 24 tháng ngay cả khi mua ngoài hệ thống ASUS Laptop Store</li>
+                <li><i class="fa fa-check" style="color:var(--success)"></i> Lưu thông tin để tra cứu bảo hành nhanh sau này tại mục "Tra cứu bảo hành"</li>
+                <li><i class="fa fa-check" style="color:var(--success)"></i> Nhận thông báo ưu đãi, chương trình bảo trì miễn phí</li>
+            </ul>
+        </div>
+    </div>
+</div>

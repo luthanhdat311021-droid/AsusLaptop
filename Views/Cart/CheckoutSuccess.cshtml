@@ -1,0 +1,77 @@
+@{
+    ViewData["Title"] = "Đặt hàng thành công";
+    var paymentMethod = ViewBag.PaymentMethod as string ?? "COD";
+    var orderTotal = ViewBag.OrderTotal?.ToString() ?? "0";
+    long orderTotalLong = long.TryParse(orderTotal.Replace(",", "").Replace(".", ""), out long parsed) ? parsed : 0;
+    var orderId       = ViewBag.OrderId;
+}
+
+<div class="success-wrap">
+    <div class="success-card">
+        <i class="fa fa-check-circle success-icon"></i>
+        <h2 class="success-title">Đặt hàng thành công!</h2>
+        <p class="success-sub">Cảm ơn bạn đã tin tưởng mua sắm tại ASUS Laptop Store.</p>
+
+        <div class="success-order-id">
+            <i class="fa fa-hashtag"></i> Mã đơn hàng: <strong>#@orderId</strong>
+        </div>
+
+        @if (paymentMethod == "BankTransfer")
+        {
+            <!-- Bank Transfer QR Section -->
+            <div style="background:var(--bg-card2);border:1px solid rgba(0,212,170,0.3);border-radius:var(--radius);padding:20px;margin-bottom:20px;text-align:center">
+                <div style="font-size:13px;font-weight:700;color:var(--success);margin-bottom:14px;text-transform:uppercase;letter-spacing:1px">
+                    <i class="fa fa-qrcode"></i> Quét QR để thanh toán
+                </div>
+                <div style="background:white;border-radius:12px;padding:14px;display:inline-block;margin-bottom:14px;box-shadow:0 4px 20px rgba(0,0,0,0.3)">
+                    <img src="https://img.vietqr.io/image/MB-0819883208-compact2.jpg?amount=@orderTotalLong&addInfo=ASUS%20don%20hang%20@orderId&accountName=ASUS%20LAPTOP%20STORE"
+                         alt="QR Code thanh toán" style="width:200px;height:200px;display:block" />
+                </div>
+                <div style="font-size:12px;line-height:2;color:var(--text-secondary);text-align:left;background:var(--bg-card);border-radius:8px;padding:12px;margin-bottom:10px">
+                    <div><span style="color:var(--text-muted);width:110px;display:inline-block">Ngân hàng:</span> <strong>MB Bank (MBBank)</strong></div>
+                    <div><span style="color:var(--text-muted);width:110px;display:inline-block">Số tài khoản:</span> <strong style="color:var(--accent);font-size:15px">0819883208</strong></div>
+                    <div><span style="color:var(--text-muted);width:110px;display:inline-block">Chủ tài khoản:</span> <strong>ASUS LAPTOP STORE</strong></div>
+                    <div><span style="color:var(--text-muted);width:110px;display:inline-block">Số tiền:</span> <strong style="color:var(--rog-red);font-size:16px">@orderTotal₫</strong></div>
+                    <div><span style="color:var(--text-muted);width:110px;display:inline-block">Nội dung CK:</span> <strong style="color:var(--tuf-yellow)">ASUS don hang @orderId</strong></div>
+                </div>
+                <div style="padding:8px 12px;background:rgba(255,200,0,0.08);border:1px solid rgba(255,200,0,0.25);border-radius:6px;font-size:11px;color:var(--tuf-yellow);text-align:left">
+                    <i class="fa fa-clock"></i> Vui lòng chuyển khoản trong vòng <strong>24 giờ</strong>. Đơn hàng sẽ được xử lý sau khi nhận được thanh toán.
+                </div>
+            </div>
+        }
+        else if (paymentMethod == "VNPay")
+        {
+            <div style="display:flex;flex-direction:column;gap:10px;font-size:13px;color:var(--text-muted);margin-bottom:20px;text-align:left;background:var(--bg-card2);border-radius:var(--radius);padding:16px">
+                <div><i class="fa fa-check-double" style="color:var(--success);width:20px"></i> Đã thanh toán thành công qua VNPay</div>
+                <div><i class="fa fa-truck" style="color:var(--accent);width:20px"></i> Giao hàng toàn quốc 2-5 ngày làm việc</div>
+                <div><i class="fa fa-shield-alt" style="color:var(--success);width:20px"></i> Bảo hành chính hãng 24 tháng</div>
+            </div>
+        }
+        else if (paymentMethod == "Momo")
+        {
+            <div style="display:flex;flex-direction:column;gap:10px;font-size:13px;color:var(--text-muted);margin-bottom:20px;text-align:left;background:var(--bg-card2);border-radius:var(--radius);padding:16px">
+                <div><i class="fa fa-check-double" style="color:var(--success);width:20px"></i> Đã thanh toán thành công qua Ví MoMo</div>
+                <div><i class="fa fa-truck" style="color:var(--accent);width:20px"></i> Giao hàng toàn quốc 2-5 ngày làm việc</div>
+                <div><i class="fa fa-shield-alt" style="color:var(--success);width:20px"></i> Bảo hành chính hãng 24 tháng</div>
+            </div>
+        }
+        else
+        {
+            <div style="display:flex;flex-direction:column;gap:10px;font-size:13px;color:var(--text-muted);margin-bottom:20px;text-align:left;background:var(--bg-card2);border-radius:var(--radius);padding:16px">
+                <div><i class="fa fa-phone" style="color:var(--tuf-yellow);width:20px"></i> Nhân viên sẽ liên hệ xác nhận trong 30 phút</div>
+                <div><i class="fa fa-money-bill-wave" style="color:var(--success);width:20px"></i> Thanh toán khi nhận hàng (COD)</div>
+                <div><i class="fa fa-truck" style="color:var(--accent);width:20px"></i> Giao hàng toàn quốc 2-5 ngày làm việc</div>
+                <div><i class="fa fa-shield-alt" style="color:var(--success);width:20px"></i> Bảo hành chính hãng 24 tháng</div>
+            </div>
+        }
+
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <a href="/Account/MyOrders" class="btn-primary"><i class="fa fa-box"></i> Xem đơn hàng</a>
+                <a href="/Account/Invoice/@orderId" target="_blank" class="btn-ghost"><i class="fa fa-print"></i> In hoá đơn</a>
+            }
+            <a href="/" class="btn-ghost"><i class="fa fa-laptop"></i> Tiếp tục mua sắm</a>
+        </div>
+    </div>
+</div>

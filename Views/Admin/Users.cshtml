@@ -1,0 +1,170 @@
+@model List<AsusLaptop.Models.User>
+@{
+    ViewData["Title"] = "Quản lý người dùng";
+}
+
+<div class="admin-wrap">
+    <div class="admin-header">
+        <h1 class="admin-title"><i class="fa fa-users"></i> QUẢN LÝ <span>NGƯỜI DÙNG</span></h1>
+        <a href="/Admin/Dashboard" class="btn-ghost"><i class="fa fa-arrow-left"></i> Dashboard</a>
+    </div>
+
+    <div id="roleToast" style="display:none;position:fixed;bottom:24px;right:24px;padding:12px 18px;border-radius:var(--radius);font-weight:700;font-size:13px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.4)">
+        <i class="fa fa-check"></i> <span id="roleToastMsg"></span>
+    </div>
+
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3><i class="fa fa-users"></i> Danh sách tài khoản (@Model.Count)</h3>
+        </div>
+
+        <!-- Legend -->
+        <div style="padding:12px 16px;display:flex;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--border)">
+            <span style="background:rgba(230,0,42,0.1);color:var(--rog-red);border:1px solid rgba(230,0,42,0.3);padding:3px 12px;border-radius:99px;font-size:11px;font-weight:700"><i class="fa fa-shield-alt"></i> Admin</span>
+            <span style="background:rgba(255,165,0,0.1);color:orange;border:1px solid rgba(255,165,0,0.3);padding:3px 12px;border-radius:99px;font-size:11px;font-weight:700"><i class="fa fa-user-shield"></i> Phó Admin</span>
+            <span style="background:rgba(0,180,216,0.1);color:var(--accent);border:1px solid rgba(0,180,216,0.3);padding:3px 12px;border-radius:99px;font-size:11px;font-weight:700"><i class="fa fa-user"></i> Khách hàng</span>
+            <span style="margin-left:auto;font-size:12px;color:var(--text-muted)"><i class="fa fa-info-circle"></i> Phó Admin có thể: quản lý kho, thêm sản phẩm, xem doanh thu</span>
+        </div>
+
+        <div style="overflow-x:auto">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>#ID</th>
+                        <th>Tên đăng nhập</th>
+                        <th>Họ và tên</th>
+                        <th>Email</th>
+                        <th>Số điện thoại</th>
+                        <th>Vai trò</th>
+                        <th>Ngày tạo</th>
+                        <th>Phân quyền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var u in Model)
+                    {
+                        <tr id="user-row-@u.Id">
+                            <td><strong style="color:var(--accent)">#@u.Id</strong></td>
+                            <td>
+                                <div class="d-flex align-center gap-2">
+                                    <div style="width:32px;height:32px;background:@(u.Role=="Admin"?"var(--rog-red)":u.Role=="SubAdmin"?"rgba(255,165,0,0.3)":"var(--bg-card2)");border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">
+                                        @u.Username.Substring(0, 1).ToUpper()
+                                    </div>
+                                    <strong>@u.Username</strong>
+                                </div>
+                            </td>
+                            <td>@u.FullName</td>
+                            <td style="color:var(--text-secondary)">@u.Email</td>
+                            <td style="color:var(--text-secondary)">@(string.IsNullOrEmpty(u.Phone) ? "—" : u.Phone)</td>
+                            <td id="role-badge-@u.Id">
+                                @if (u.Role == "Admin")
+                                {
+                                    <span style="background:rgba(230,0,42,0.1);color:var(--rog-red);border:1px solid rgba(230,0,42,0.3);padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700">
+                                        <i class="fa fa-shield-alt"></i> Admin
+                                    </span>
+                                }
+                                else if (u.Role == "SubAdmin")
+                                {
+                                    <span style="background:rgba(255,165,0,0.1);color:orange;border:1px solid rgba(255,165,0,0.3);padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700">
+                                        <i class="fa fa-user-shield"></i> Phó Admin
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span style="background:rgba(0,180,216,0.1);color:var(--accent);border:1px solid rgba(0,180,216,0.3);padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700">
+                                        <i class="fa fa-user"></i> Khách hàng
+                                    </span>
+                                }
+                            </td>
+                            <td style="font-size:12px;color:var(--text-muted)">@u.CreatedAt.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                @if (u.Role == "Admin")
+                                {
+                                    <span style="color:var(--text-muted);font-size:12px">—</span>
+                                }
+                                else if (u.Role == "SubAdmin")
+                                {
+                                    <button class="btn-action btn-delete" onclick="removeSubAdmin(@u.Id, '@u.Username')" title="Thu hồi quyền Phó Admin">
+                                        <i class="fa fa-user-minus"></i> Thu hồi
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn-action btn-edit" onclick="setSubAdmin(@u.Id, '@u.Username')" title="Cấp quyền Phó Admin">
+                                        <i class="fa fa-user-plus"></i> Cấp Phó Admin
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+const token = document.querySelector('input[name=__RequestVerificationToken]')?.value || '';
+
+function getToken() {
+    return document.querySelector('input[name=__RequestVerificationToken]')?.value || '';
+}
+
+function setSubAdmin(userId, username) {
+    if (!confirm(`Cấp quyền Phó Admin cho "${username}"?\n\nHọ sẽ có thể: quản lý kho, thêm/sửa sản phẩm, xem doanh thu.`)) return;
+    callApi('/Admin/SetSubAdmin', userId, username, 'SubAdmin');
+}
+
+function removeSubAdmin(userId, username) {
+    if (!confirm(`Thu hồi quyền Phó Admin của "${username}"?`)) return;
+    callApi('/Admin/RemoveSubAdmin', userId, username, 'Customer');
+}
+
+function callApi(url, userId, username, newRole) {
+    fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `userId=${userId}&__RequestVerificationToken=${encodeURIComponent(getToken())}`
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) {
+            updateRowUI(userId, newRole, username);
+            showToast(d.message, true);
+        } else {
+            showToast(d.message, false);
+        }
+    })
+    .catch(() => showToast('Có lỗi xảy ra!', false));
+}
+
+function updateRowUI(userId, newRole, username) {
+    const badge = document.getElementById('role-badge-' + userId);
+    const row = document.getElementById('user-row-' + userId);
+    const lastCell = row.querySelector('td:last-child');
+    const avatar = row.querySelector('div[style*="border-radius:50%"]');
+
+    if (newRole === 'SubAdmin') {
+        badge.innerHTML = '<span style="background:rgba(255,165,0,0.1);color:orange;border:1px solid rgba(255,165,0,0.3);padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700"><i class="fa fa-user-shield"></i> Phó Admin</span>';
+        lastCell.innerHTML = `<button class="btn-action btn-delete" onclick="removeSubAdmin(${userId}, '${username}')" title="Thu hồi quyền Phó Admin"><i class="fa fa-user-minus"></i> Thu hồi</button>`;
+        if (avatar) avatar.style.background = 'rgba(255,165,0,0.3)';
+    } else {
+        badge.innerHTML = '<span style="background:rgba(0,180,216,0.1);color:var(--accent);border:1px solid rgba(0,180,216,0.3);padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700"><i class="fa fa-user"></i> Khách hàng</span>';
+        lastCell.innerHTML = `<button class="btn-action btn-edit" onclick="setSubAdmin(${userId}, '${username}')" title="Cấp quyền Phó Admin"><i class="fa fa-user-plus"></i> Cấp Phó Admin</button>`;
+        if (avatar) avatar.style.background = 'var(--bg-card2)';
+    }
+}
+
+function showToast(msg, success) {
+    const t = document.getElementById('roleToast');
+    t.style.background = success ? 'var(--success)' : 'var(--rog-red)';
+    t.style.color = success ? '#000' : '#fff';
+    document.getElementById('roleToastMsg').textContent = msg;
+    t.style.display = 'block';
+    clearTimeout(window._toastTimer);
+    window._toastTimer = setTimeout(() => t.style.display = 'none', 3000);
+}
+</script>
+@Html.AntiForgeryToken()
+}

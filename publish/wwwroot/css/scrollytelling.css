@@ -1,0 +1,775 @@
+/* ==========================================================================
+   ASUS STORYTELLING LAYOUT SYSTEM — SCROLLYTELLING EXPERIENCE
+   ========================================================================== */
+
+:root {
+    --st-bg-dark: #07080f;
+    --st-bg-card: rgba(18, 22, 36, 0.75);
+    --st-bg-glass: rgba(255, 255, 255, 0.04);
+    --st-border-glass: rgba(255, 255, 255, 0.12);
+    --st-cyan: #00f3ff;
+    --st-cyan-glow: rgba(0, 243, 255, 0.35);
+    --st-purple: #9d4edd;
+    --st-purple-glow: rgba(157, 78, 221, 0.35);
+    --st-pink: #ff0055;
+    --st-pink-glow: rgba(255, 0, 85, 0.35);
+    --st-amber: #ffb703;
+    --st-text-main: #f1f5f9;
+    --st-text-muted: #94a3b8;
+    --st-font-heading: 'Outfit', 'Barlow Condensed', sans-serif;
+    --st-font-body: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Base container */
+.st-wrapper {
+    background-color: var(--st-bg-dark);
+    color: var(--st-text-main);
+    font-family: var(--st-font-body);
+    position: relative;
+    overflow-x: hidden;
+    padding-bottom: 5rem;
+    line-height: 1.6;
+}
+
+.st-ambient-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    background: 
+        radial-gradient(circle at 20% 30%, rgba(0, 243, 255, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 80% 70%, rgba(157, 78, 221, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 50% 90%, rgba(255, 0, 85, 0.05) 0%, transparent 50%);
+}
+
+.st-grid-overlay {
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+/* ==========================================================================
+   FLOATING SIDEBAR CHAPTER INDICATORS & SOUND CONTROLLER
+   ========================================================================== */
+.st-side-nav {
+    position: fixed;
+    right: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 99;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+}
+
+.st-nav-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.25);
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.st-nav-dot:hover,
+.st-nav-dot.active {
+    background: var(--st-cyan);
+    border-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 15px var(--st-cyan);
+    transform: scale(1.4);
+}
+
+.st-nav-dot .st-nav-label {
+    position: absolute;
+    right: 28px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid var(--st-border-glass);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-family: var(--st-font-heading);
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    color: var(--st-cyan);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+}
+
+.st-nav-dot:hover .st-nav-label {
+    opacity: 1;
+    visibility: visible;
+    right: 24px;
+}
+
+/* Audio control toggle - bottom left to avoid header collision */
+.st-audio-toggle {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    z-index: 100;
+    background: rgba(18, 22, 36, 0.9);
+    border: 1px solid var(--st-border-glass);
+    backdrop-filter: blur(12px);
+    border-radius: 30px;
+    padding: 8px 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.st-audio-toggle:hover {
+    border-color: var(--st-cyan);
+    box-shadow: 0 0 20px var(--st-cyan-glow);
+    transform: translateY(-2px);
+}
+
+.st-sound-waves {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 16px;
+}
+
+.st-sound-bar {
+    width: 3px;
+    height: 100%;
+    background: var(--st-cyan);
+    border-radius: 2px;
+    animation: st-bar-anim 1.2s ease-in-out infinite alternate;
+}
+
+.st-sound-bar:nth-child(2) { animation-delay: 0.2s; }
+.st-sound-bar:nth-child(3) { animation-delay: 0.4s; }
+
+.st-audio-toggle.muted .st-sound-bar {
+    animation: none;
+    height: 4px;
+    background: var(--st-text-muted);
+}
+
+.st-audio-text {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+@keyframes st-bar-anim {
+    0% { height: 20%; }
+    100% { height: 100%; }
+}
+
+/* ==========================================================================
+   CHAPTER 01: PROLOGUE & HERO HOOK (PURE STORYTELLING - NO BUTTONS)
+   ========================================================================== */
+.st-chapter-hero {
+    min-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    padding: 5rem 1.5rem 6rem 1.5rem;
+    z-index: 2;
+}
+
+.st-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 22px;
+    background: rgba(0, 243, 255, 0.1);
+    border: 1px solid rgba(0, 243, 255, 0.35);
+    border-radius: 50px;
+    color: var(--st-cyan);
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+    box-shadow: 0 0 25px rgba(0, 243, 255, 0.2);
+}
+
+.st-hero-title {
+    font-family: var(--st-font-heading);
+    font-size: clamp(2.5rem, 6.5vw, 5rem);
+    font-weight: 900;
+    line-height: 1.15;
+    margin-bottom: 1.8rem;
+    background: linear-gradient(135deg, #ffffff 0%, #a5f3fc 40%, var(--st-cyan) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 40px rgba(0, 243, 255, 0.25);
+    padding: 0 1rem;
+}
+
+.st-hero-subtitle {
+    font-size: clamp(1.1rem, 2.2vw, 1.35rem);
+    color: var(--st-text-muted);
+    max-width: 780px;
+    line-height: 1.7;
+    margin-bottom: 3.5rem;
+    padding: 0 1rem;
+}
+
+/* Animated Scroll Guide (Replaces Buttons) */
+.st-scroll-guide {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-top: 1rem;
+}
+
+.st-scroll-mouse {
+    width: 26px;
+    height: 44px;
+    border: 2px solid var(--st-cyan);
+    border-radius: 20px;
+    position: relative;
+    box-shadow: 0 0 15px var(--st-cyan-glow);
+}
+
+.st-scroll-wheel {
+    width: 4px;
+    height: 8px;
+    background: var(--st-cyan);
+    border-radius: 2px;
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    animation: st-scroll-anim 2s infinite;
+}
+
+@keyframes st-scroll-anim {
+    0% { transform: translate(-50%, 0); opacity: 1; }
+    80% { transform: translate(-50%, 14px); opacity: 0; }
+    100% { transform: translate(-50%, 0); opacity: 0; }
+}
+
+.st-scroll-text {
+    font-family: var(--st-font-heading);
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--st-cyan);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* ==========================================================================
+   SCROLLYTELLING MAIN CONTAINER & STICKY STAGE
+   ========================================================================== */
+.st-scrolly-section {
+    position: relative;
+    padding: 4rem 0;
+    z-index: 2;
+}
+
+.st-scrolly-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3.5rem;
+    align-items: start;
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+/* Sticky Stage (Visual left column) */
+.st-sticky-stage {
+    position: sticky;
+    top: 100px;
+    height: 75vh;
+    border-radius: 24px;
+    background: rgba(15, 20, 32, 0.8);
+    border: 1px solid var(--st-border-glass);
+    backdrop-filter: blur(16px);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    transition: all 0.5s ease;
+}
+
+.st-stage-content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 2rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.6s ease, transform 0.6s ease;
+    transform: scale(0.95);
+}
+
+.st-stage-content.active {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+}
+
+.st-stage-img {
+    max-width: 90%;
+    max-height: 55%;
+    object-fit: contain;
+    filter: drop-shadow(0 15px 30px rgba(0, 243, 255, 0.25));
+    transition: transform 0.4s ease;
+}
+
+.st-stage-badge {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    padding: 6px 16px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid var(--st-cyan);
+    border-radius: 20px;
+    color: var(--st-cyan);
+    font-family: var(--st-font-heading);
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.st-stage-caption {
+    text-align: center;
+    margin-top: 1.5rem;
+}
+
+.st-stage-title {
+    font-family: var(--st-font-heading);
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--st-cyan);
+    margin-bottom: 0.3rem;
+}
+
+.st-stage-desc {
+    font-size: 0.9rem;
+    color: var(--st-text-muted);
+}
+
+/* Narrative Cards Column (Right side) */
+.st-cards-col {
+    display: flex;
+    flex-direction: column;
+    gap: 45vh;
+    padding-bottom: 25vh;
+}
+
+.st-story-card {
+    background: var(--st-bg-card);
+    border: 1px solid var(--st-border-glass);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 2.8rem 2.2rem;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity: 0.4;
+    transform: translateY(30px);
+}
+
+.st-story-card.is-active {
+    opacity: 1;
+    transform: translateY(0);
+    border-color: var(--st-cyan);
+    box-shadow: 0 0 35px var(--st-cyan-glow), 0 20px 40px rgba(0, 0, 0, 0.7);
+}
+
+.st-card-ch-num {
+    font-family: var(--st-font-heading);
+    font-size: 0.9rem;
+    color: var(--st-cyan);
+    letter-spacing: 2px;
+    font-weight: 800;
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.st-card-ch-num::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 2px;
+    background: var(--st-cyan);
+}
+
+.st-card-title {
+    font-family: var(--st-font-heading);
+    font-size: 1.85rem;
+    font-weight: 800;
+    margin-bottom: 1.2rem;
+    color: #ffffff;
+    line-height: 1.3;
+}
+
+.st-card-desc {
+    color: var(--st-text-muted);
+    font-size: 1.05rem;
+    line-height: 1.75;
+    margin-bottom: 1.8rem;
+}
+
+.st-card-specs-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.st-spec-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.st-spec-val {
+    font-family: var(--st-font-heading);
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--st-cyan);
+}
+
+.st-spec-lbl {
+    font-size: 0.8rem;
+    color: var(--st-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Interactive Hotspots */
+.st-hotspots-stage {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.st-hotspot-node {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--st-cyan);
+    border: 3px solid #fff;
+    cursor: pointer;
+    box-shadow: 0 0 20px var(--st-cyan);
+    transition: transform 0.3s ease;
+    z-index: 10;
+}
+
+.st-hotspot-node::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    border: 2px solid var(--st-cyan);
+    animation: st-pulse-ring 1.8s infinite;
+}
+
+@keyframes st-pulse-ring {
+    0% { transform: scale(0.6); opacity: 1; }
+    100% { transform: scale(1.6); opacity: 0; }
+}
+
+.st-hotspot-node:hover {
+    transform: scale(1.3);
+    background: #fff;
+}
+
+.st-hotspot-tooltip {
+    position: absolute;
+    bottom: 35px;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid var(--st-cyan);
+    backdrop-filter: blur(12px);
+    border-radius: 12px;
+    padding: 12px 16px;
+    width: 210px;
+    font-size: 0.85rem;
+    color: #fff;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+    text-align: center;
+    z-index: 20;
+}
+
+.st-hotspot-node:hover .st-hotspot-tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+.st-hp-cpu { top: 38%; left: 42%; }
+.st-hp-gpu { top: 48%; left: 58%; }
+.st-hp-display { top: 22%; left: 50%; }
+.st-hp-fan { top: 65%; left: 35%; }
+
+/* ==========================================================================
+   CHAPTER 04: PERSONA DAY IN THE LIFE (CONTINUOUS STORYLINE MATRIX - NO BUTTON TABS)
+   ========================================================================== */
+.st-persona-section {
+    max-width: 1320px;
+    margin: 7rem auto;
+    padding: 0 1.5rem;
+}
+
+.st-section-header {
+    text-align: center;
+    margin-bottom: 3.5rem;
+}
+
+.st-section-title {
+    font-family: var(--st-font-heading);
+    font-size: clamp(2.2rem, 4.5vw, 3.2rem);
+    font-weight: 800;
+    margin-bottom: 1rem;
+    color: #ffffff;
+}
+
+.st-section-subtitle {
+    color: var(--st-text-muted);
+    font-size: 1.1rem;
+    max-width: 680px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* 3-Column Storyline Matrix (Continuous Stream) */
+.st-storyline-matrix {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+}
+
+.st-storyline-col {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.st-stream-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--st-border-glass);
+    border-radius: 16px;
+    font-family: var(--st-font-heading);
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.st-timeline-card {
+    background: var(--st-bg-card);
+    border: 1px solid var(--st-border-glass);
+    border-radius: 20px;
+    padding: 1.8rem;
+    backdrop-filter: blur(16px);
+    transition: all 0.35s ease;
+    height: 100%;
+}
+
+.st-timeline-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--st-purple);
+    box-shadow: 0 15px 30px var(--st-purple-glow);
+}
+
+.st-tl-time {
+    font-family: var(--st-font-heading);
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--st-amber);
+    margin-bottom: 0.5rem;
+}
+
+.st-tl-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 0.8rem;
+    line-height: 1.35;
+}
+
+.st-tl-desc {
+    color: var(--st-text-muted);
+    font-size: 0.95rem;
+    line-height: 1.65;
+}
+
+/* ==========================================================================
+   CHAPTER 05: FINALE MODEL SHOWCASE (NO BUY BUTTONS - PURE NARRATIVE CARDS)
+   ========================================================================== */
+.st-finale-section {
+    max-width: 1320px;
+    margin: 7rem auto 3rem auto;
+    padding: 0 1.5rem;
+}
+
+.st-compare-matrix {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+}
+
+.st-matrix-card {
+    background: linear-gradient(180deg, rgba(20, 26, 44, 0.85) 0%, rgba(10, 13, 22, 0.95) 100%);
+    border: 1px solid var(--st-border-glass);
+    border-radius: 24px;
+    padding: 2.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    text-decoration: none;
+    color: var(--st-text-main);
+}
+
+.st-matrix-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--st-cyan);
+    box-shadow: 0 0 35px var(--st-cyan-glow);
+}
+
+.st-matrix-tag {
+    font-family: var(--st-font-heading);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    padding: 4px 14px;
+    border-radius: 20px;
+    background: rgba(0, 243, 255, 0.15);
+    color: var(--st-cyan);
+    border: 1px solid rgba(0, 243, 255, 0.35);
+    margin-bottom: 1.2rem;
+}
+
+.st-matrix-img {
+    width: 100%;
+    height: 180px;
+    object-fit: contain;
+    margin-bottom: 1.5rem;
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
+    transition: transform 0.4s ease;
+}
+
+.st-matrix-card:hover .st-matrix-img {
+    transform: scale(1.06);
+}
+
+.st-matrix-name {
+    font-family: var(--st-font-heading);
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 0.6rem;
+    line-height: 1.3;
+}
+
+.st-matrix-price {
+    font-family: var(--st-font-heading);
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--st-cyan);
+    margin-bottom: 1.5rem;
+}
+
+.st-matrix-features {
+    width: 100%;
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    font-size: 0.95rem;
+    color: var(--st-text-muted);
+}
+
+.st-matrix-features li {
+    padding-bottom: 0.6rem;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+.st-model-link-text {
+    font-family: var(--st-font-heading);
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--st-cyan);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: auto;
+    transition: transform 0.25s ease;
+}
+
+.st-matrix-card:hover .st-model-link-text {
+    transform: translateX(5px);
+    color: #ffffff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .st-storyline-matrix,
+    .st-compare-matrix {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 992px) {
+    .st-scrolly-grid {
+        grid-template-columns: 1fr;
+    }
+    .st-sticky-stage {
+        position: relative;
+        top: 0;
+        height: 50vh;
+        margin-bottom: 2rem;
+    }
+    .st-cards-col {
+        gap: 4rem;
+        padding-bottom: 4rem;
+    }
+    .st-side-nav {
+        display: none;
+    }
+}

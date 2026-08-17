@@ -1,0 +1,81 @@
+@model AsusLaptop.Models.ProductVariant
+@{
+    ViewData["Title"] = "Serial - " + Model.DisplayLabel;
+    Layout = "_Layout";
+}
+
+<div class="admin-wrap">
+    <div class="admin-header">
+        <div style="display:flex;align-items:center;gap:12px">
+            <a asp-action="Index" asp-route-productId="@Model.ProductId" style="color:var(--text-muted);font-size:18px"><i class="fa fa-arrow-left"></i></a>
+            <h1 class="admin-title">
+                <i class="fa fa-barcode"></i> Serial numbers —
+                <span>@Model.Product?.Name</span>
+                <small style="font-size:13px;color:var(--text-muted);font-weight:400;margin-left:8px">@Model.DisplayLabel</small>
+            </h1>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center">
+            <span style="font-size:13px;color:var(--text-muted)">
+                Khả dụng: <strong style="color:#51cf66">@Model.SerialNumbers.Count(s => s.Status == "Available")</strong> /
+                Tổng: <strong>@Model.SerialNumbers.Count</strong>
+            </span>
+        </div>
+    </div>
+
+    <div class="admin-section" style="margin:24px">
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Serial Number</th>
+                        <th>Trạng thái</th>
+                        <th>Bảo hành đến</th>
+                        <th>Ngày tạo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{ int i = 1; }
+                    @foreach (var s in Model.SerialNumbers.OrderBy(x => x.CreatedAt))
+                    {
+                        <tr>
+                            <td style="color:var(--text-muted);font-size:12px">@(i++)</td>
+                            <td><code style="color:var(--accent);font-size:13px">@s.SerialNo</code></td>
+                            <td>
+                                @{
+                                    var badgeColor = s.Status switch {
+                                        "Available" => "#51cf66",
+                                        "Reserved"  => "#fcc419",
+                                        "Sold"      => "#868e96",
+                                        "Warranty"  => "#339af0",
+                                        _           => "#868e96"
+                                    };
+                                    var statusVi = s.Status switch {
+                                        "Available" => "Có sẵn",
+                                        "Reserved"  => "Đang giữ",
+                                        "Sold"      => "Đã bán",
+                                        "Warranty"  => "Bảo hành",
+                                        _           => s.Status
+                                    };
+                                }
+                                <span style="background:@(badgeColor)22;color:@badgeColor;border:1px solid @(badgeColor)44;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:600">
+                                    @statusVi
+                                </span>
+                            </td>
+                            <td style="color:var(--text-muted)">@(s.WarrantyEnd?.ToString("dd/MM/yyyy") ?? "—")</td>
+                            <td style="color:var(--text-muted);font-size:12px">@s.CreatedAt.ToString("dd/MM/yyyy")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (!Model.SerialNumbers.Any())
+        {
+            <div style="text-align:center;padding:60px 0;color:var(--text-muted)">
+                <i class="fa fa-barcode" style="font-size:48px;margin-bottom:16px;display:block"></i>
+                <p>Chưa có serial nào cho biến thể này.</p>
+            </div>
+        }
+    </div>
+</div>

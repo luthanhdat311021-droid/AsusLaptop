@@ -1,0 +1,874 @@
+@model AsusLaptop.Models.ChamsocBaoHanhViewModel
+@{
+    ViewData["Title"] = "Trung Tâm Chăm Sóc Sau Mua & Bảo Hành | ASUS Care Hub";
+}
+
+<style>
+    .care-hub-wrap {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 30px 20px 80px;
+        color: #e2e8f0;
+    }
+    
+    .care-hero {
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.85)),
+                    radial-gradient(circle at 10% 20%, rgba(255, 77, 0, 0.15), transparent 40%),
+                    radial-gradient(circle at 90% 80%, rgba(0, 242, 254, 0.12), transparent 40%);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 36px 32px;
+        margin-bottom: 32px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(12px);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .care-hero::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; height: 3px;
+        background: linear-gradient(90deg, #ff4d00, #ff007f, #00f2fe);
+    }
+
+    .care-title {
+        font-size: 2.2rem;
+        font-weight: 800;
+        background: linear-gradient(90deg, #ffffff, #cbd5e1);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .care-title i {
+        color: #ff4d00;
+        -webkit-text-fill-color: initial;
+    }
+
+    .care-subtitle {
+        color: #94a3b8;
+        font-size: 1.05rem;
+        margin-bottom: 24px;
+    }
+
+    .stat-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+    }
+
+    .stat-card {
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        padding: 18px 20px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        transition: transform 0.25s ease, border-color 0.25s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(255, 77, 0, 0.4);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+    }
+
+    .stat-val {
+        font-size: 1.7rem;
+        font-weight: 800;
+        color: #fff;
+        line-height: 1.2;
+    }
+
+    .stat-lbl {
+        font-size: 0.85rem;
+        color: #94a3b8;
+        font-weight: 500;
+    }
+
+    /* Devices Section */
+    .section-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .section-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #f8fafc;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .device-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+        gap: 24px;
+        margin-bottom: 40px;
+    }
+
+    .device-card {
+        background: rgba(30, 41, 59, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(10px);
+        position: relative;
+        transition: all 0.3s ease;
+    }
+
+    .device-card:hover {
+        border-color: rgba(255, 77, 0, 0.5);
+        box-shadow: 0 15px 40px rgba(255, 77, 0, 0.15);
+    }
+
+    .device-header {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    .device-img-box {
+        width: 100px;
+        height: 80px;
+        background: rgba(15, 23, 42, 0.8);
+        border-radius: 10px;
+        padding: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(255,255,255,0.05);
+        flex-shrink: 0;
+    }
+
+    .device-img-box img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    .device-info-name {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 6px;
+        line-height: 1.3;
+    }
+
+    .device-sn-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255, 77, 0, 0.12);
+        color: #ff7733;
+        border: 1px solid rgba(255, 77, 0, 0.3);
+        padding: 3px 10px;
+        border-radius: 6px;
+        font-family: monospace;
+        font-size: 0.82rem;
+        font-weight: 600;
+    }
+
+    /* Warranty progress */
+    .w-bar-wrap {
+        margin-bottom: 20px;
+        background: rgba(15, 23, 42, 0.6);
+        border-radius: 12px;
+        padding: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .w-bar-head {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.83rem;
+        color: #cbd5e1;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+
+    .w-progress-outer {
+        height: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 99px;
+        overflow: hidden;
+    }
+
+    .w-progress-inner {
+        height: 100%;
+        background: linear-gradient(90deg, #ff4d00, #ff007f);
+        border-radius: 99px;
+        transition: width 0.6s ease;
+    }
+
+    /* Health meter */
+    .health-box {
+        background: rgba(15, 23, 42, 0.6);
+        border-radius: 12px;
+        padding: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        margin-bottom: 20px;
+    }
+
+    .health-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .health-title {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .health-score-pill {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.78rem;
+        font-weight: 700;
+    }
+
+    .health-rec {
+        font-size: 0.85rem;
+        color: #cbd5e1;
+        line-height: 1.4;
+    }
+
+    .device-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: auto;
+    }
+
+    .btn-book-care {
+        flex: 1;
+        background: linear-gradient(135deg, #ff4d00, #e03e00);
+        color: #fff;
+        border: none;
+        padding: 10px 14px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.88rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .btn-book-care:hover {
+        background: linear-gradient(135deg, #ff661a, #ff4d00);
+        box-shadow: 0 6px 20px rgba(255, 77, 0, 0.4);
+        transform: translateY(-1px);
+        color: #fff;
+    }
+
+    /* Bookings Table Section */
+    .booking-card {
+        background: rgba(30, 41, 59, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 40px;
+        backdrop-filter: blur(10px);
+    }
+
+    .table-dark-custom {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 8px;
+    }
+
+    .table-dark-custom th {
+        color: #94a3b8;
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 12px 16px;
+        border: none;
+        font-weight: 700;
+    }
+
+    .table-dark-custom td {
+        background: rgba(15, 23, 42, 0.5);
+        padding: 14px 16px;
+        font-size: 0.9rem;
+        color: #e2e8f0;
+        vertical-align: middle;
+        border-top: 1px solid rgba(255,255,255,0.03);
+        border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .table-dark-custom tr td:first-child {
+        border-top-left-radius: 10px;
+        border-bottom-left-radius: 10px;
+        border-left: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .table-dark-custom tr td:last-child {
+        border-top-right-radius: 10px;
+        border-bottom-right-radius: 10px;
+        border-right: 1px solid rgba(255,255,255,0.03);
+    }
+
+    /* Software Hub */
+    .soft-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 20px;
+    }
+
+    .soft-card {
+        background: rgba(30, 41, 59, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: all 0.25s ease;
+    }
+
+    .soft-card:hover {
+        border-color: rgba(0, 242, 254, 0.4);
+        transform: translateY(-2px);
+    }
+
+    .soft-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        background: rgba(0, 242, 254, 0.1);
+        color: #00f2fe;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        margin-bottom: 14px;
+    }
+
+    .soft-name {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 6px;
+    }
+
+    .soft-desc {
+        font-size: 0.83rem;
+        color: #94a3b8;
+        margin-bottom: 16px;
+        line-height: 1.4;
+    }
+
+    .btn-soft-dl {
+        background: rgba(255, 255, 255, 0.08);
+        color: #38bdf8;
+        border: 1px solid rgba(56, 189, 248, 0.3);
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.82rem;
+        text-align: center;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .btn-soft-dl:hover {
+        background: #38bdf8;
+        color: #0f172a;
+    }
+
+    /* Modal styling */
+    .modal-glass .modal-content {
+        background: rgba(15, 23, 42, 0.95);
+        border: 1px solid rgba(255, 77, 0, 0.4);
+        box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+        backdrop-filter: blur(16px);
+        color: #fff;
+        border-radius: 18px;
+    }
+
+    .modal-glass .modal-header {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 20px 24px;
+    }
+
+    .modal-glass .modal-footer {
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 16px 24px;
+    }
+
+    .modal-glass label {
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: #cbd5e1;
+        margin-bottom: 6px;
+    }
+
+    .modal-glass .form-control, .modal-glass .form-select {
+        background: rgba(30, 41, 59, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: #fff;
+        border-radius: 8px;
+    }
+
+    .modal-glass .form-control:focus, .modal-glass .form-select:focus {
+        border-color: #ff4d00;
+        box-shadow: 0 0 0 0.25rem rgba(255, 77, 0, 0.25);
+        background: rgba(30, 41, 59, 0.95);
+        color: #fff;
+    }
+</style>
+
+<div class="care-hub-wrap">
+    <!-- TempData Notifications -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert" style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #6ee7b7; border-radius: 12px;">
+            <i class="fa-solid fa-circle-check me-2"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #fca5a5; border-radius: 12px;">
+            <i class="fa-solid fa-triangle-exclamation me-2"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Hero Header -->
+    <div class="care-hero">
+        <div class="care-title">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>ASUS CARE HUB - Trung Tâm Chăm Sóc Sau Mua</span>
+        </div>
+        <div class="care-subtitle">
+            Quản lý thiết bị Asus của bạn, theo dõi thời hạn bảo hành chính hãng, kiểm tra chỉ số tản nhiệt & đặt lịch vệ sinh tra keo định kỳ 1-Click.
+        </div>
+
+        <div class="stat-row">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(255,77,0,0.15); color: #ff4d00;">
+                    <i class="fa-solid fa-laptop"></i>
+                </div>
+                <div>
+                    <div class="stat-val">@Model.TotalDevicesCount</div>
+                    <div class="stat-lbl">Thiết bị sở hữu</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(16,185,129,0.15); color: #10b981;">
+                    <i class="fa-solid fa-certificate"></i>
+                </div>
+                <div>
+                    <div class="stat-val">@Model.ActiveWarrantyCount</div>
+                    <div class="stat-lbl">Bảo hành Active</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(0,242,254,0.15); color: #00f2fe;">
+                    <i class="fa-solid fa-calendar-check"></i>
+                </div>
+                <div>
+                    <div class="stat-val">@Model.PendingBookingCount</div>
+                    <div class="stat-lbl">Lịch hẹn bảo dưỡng</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 1: My Devices -->
+    <div class="section-head">
+        <div class="section-title">
+            <i class="fa-solid fa-microchip" style="color:#ff4d00"></i>
+            <span>Thiết Bị Của Bạn (@Model.TotalDevicesCount)</span>
+        </div>
+        <div>
+            <a href="/Support/DangKySanPham" class="btn btn-outline-light btn-sm" style="border-radius: 8px; font-weight: 600;">
+                <i class="fa-solid fa-plus me-1"></i> Đăng Ký Serial Mới
+            </a>
+        </div>
+    </div>
+
+    @if (!Model.IsAuthenticated)
+    {
+        <div class="booking-card text-center py-5">
+            <i class="fa-solid fa-user-lock" style="font-size: 50px; color: #ff4d00; margin-bottom: 16px;"></i>
+            <h4 class="fw-bold text-white mb-2">Đăng nhập để xem danh sách thiết bị của bạn</h4>
+            <p class="text-muted mb-4">Sau khi đăng nhập, hệ thống sẽ tự động đồng bộ tất cả Laptop ASUS bạn đã mua hoặc đăng ký bảo hành.</p>
+            <a href="/Account/Login?returnUrl=/Support/ChamsocBaoHanh" class="btn btn-primary px-4 py-2" style="background: #ff4d00; border: none; border-radius: 10px; font-weight: 700;">
+                <i class="fa-solid fa-right-to-bracket me-2"></i> Đăng Nhập Ngay
+            </a>
+        </div>
+    }
+    else if (!Model.Devices.Any())
+    {
+        <div class="booking-card text-center py-5">
+            <i class="fa-solid fa-laptop-code" style="font-size: 50px; color: #94a3b8; margin-bottom: 16px;"></i>
+            <h4 class="fw-bold text-white mb-2">Bạn chưa có thiết bị Asus nào liên kết trong tài khoản</h4>
+            <p class="text-muted mb-4">Nếu bạn đã mua laptop tại ASUS Store hoặc qua đại lý, hãy nhập Số Serial để kích hoạt bảo hành điện tử và theo dõi sức khỏe máy.</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="/Support/DangKySanPham" class="btn btn-primary px-4" style="background: #ff4d00; border: none; border-radius: 10px; font-weight: 700;">
+                    <i class="fa-solid fa-barcode me-2"></i> Đăng Ký Serial Ngay
+                </a>
+                <a href="/Support/TraCuuBaoHanh" class="btn btn-outline-light px-4" style="border-radius: 10px;">
+                    Tra Cứu Nhanh Serial
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="device-grid">
+            @foreach (var dev in Model.Devices)
+            {
+                <div class="device-card">
+                    <div class="device-header">
+                        <div class="device-img-box">
+                            @if (!string.IsNullOrEmpty(dev.ImageUrl))
+                            {
+                                <img src="@dev.ImageUrl" alt="@dev.ProductName" onerror="this.src='';this.style.display='none'" />
+                            }
+                            else
+                            {
+                                <i class="fa-solid fa-laptop" style="font-size: 36px; color: #ff4d00;"></i>
+                            }
+                        </div>
+                        <div>
+                            <div class="device-info-name">@dev.ProductName</div>
+                            <div class="device-sn-badge mb-2">
+                                <i class="fa-solid fa-barcode"></i> SN: @dev.SerialNo
+                            </div>
+                            <div style="font-size: 0.8rem; color: #94a3b8;">
+                                <i class="fa-solid fa-calendar-day me-1"></i> Ngày mua: @dev.PurchaseDate.ToString("dd/MM/yyyy")
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Warranty Bar -->
+                    <div class="w-bar-wrap">
+                        <div class="w-bar-head">
+                            <span><i class="fa-solid fa-shield-virus me-1"></i> Bảo hành chính hãng</span>
+                            @if (dev.IsExpired)
+                            {
+                                <span class="text-danger fw-bold"><i class="fa-solid fa-circle-xmark"></i> Hết hạn bảo hành</span>
+                            }
+                            else if (dev.IsActivated)
+                            {
+                                <span class="text-success fw-bold"><i class="fa-solid fa-circle-check"></i> Còn @dev.DaysLeft ngày</span>
+                            }
+                            else
+                            {
+                                <span class="text-warning">Chưa kích hoạt</span>
+                            }
+                        </div>
+                        <div class="w-progress-outer">
+                            <div class="w-progress-inner" style="width: @dev.WarrantyProgressPercent%;"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-2" style="font-size: 0.75rem; color: #64748b;">
+                            <span>Kích hoạt: @dev.PurchaseDate.ToString("dd/MM/yyyy")</span>
+                            <span>Hạn: @(dev.WarrantyEnd?.ToString("dd/MM/yyyy") ?? "24 Tháng")</span>
+                        </div>
+                    </div>
+
+                    <!-- Thermal Health Status -->
+                    <div class="health-box">
+                        <div class="health-head">
+                            <span class="health-title"><i class="fa-solid fa-temperature-three-quarters me-1"></i> Sức khỏe tản nhiệt</span>
+                            <span class="health-score-pill @dev.ThermalHealthBadgeClass">
+                                @dev.ThermalHealthStatusText (@dev.ThermalHealthScore%)
+                            </span>
+                        </div>
+                        <div class="health-rec">
+                            <i class="fa-solid fa-circle-info me-1 text-info"></i> @dev.MaintenanceRecommendation
+                        </div>
+                    </div>
+
+                    <div class="device-actions">
+                        <button type="button" class="btn-book-care" 
+                                data-serial="@dev.SerialNo"
+                                data-product="@dev.ProductName"
+                                onclick="openBookingModalFromBtn(this)">
+                            <i class="fa-solid fa-screwdriver-wrench"></i> Đặt Lịch Vệ Sinh / Bảo Dưỡng
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    <!-- Section 2: Booking History -->
+    @if (Model.Bookings.Any())
+    {
+        <div class="section-head mt-4">
+            <div class="section-title">
+                <i class="fa-solid fa-clock-rotate-left" style="color:#00f2fe"></i>
+                <span>Lịch Sử Đặt Lịch Bảo Dưỡng / Vệ Sinh Máy</span>
+            </div>
+        </div>
+
+        <div class="booking-card">
+            <div class="table-responsive">
+                <table class="table-dark-custom">
+                    <thead>
+                        <tr>
+                            <th>Mã/Thời gian đặt</th>
+                            <th>Thiết Bị (Serial)</th>
+                            <th>Dịch Vụ Yêu Cầu</th>
+                            <th>Phương Thức</th>
+                            <th>Ngày/Giờ Hẹn</th>
+                            <th>Trạng Thái</th>
+                            <th>Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var b in Model.Bookings)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="fw-bold">#MC-@b.Id</div>
+                                    <div style="font-size:0.75rem; color:#64748b;">@b.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-white">@b.ProductName</div>
+                                    <span class="badge bg-dark border border-secondary text-warning">@b.SerialNo</span>
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-info">@b.ServiceType</div>
+                                    @if (!string.IsNullOrEmpty(b.Note))
+                                    {
+                                        <div style="font-size:0.8rem; color:#94a3b8; max-width:200px;" class="text-truncate">Ghi chú: @b.Note</div>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary text-light"><i class="fa-solid fa-location-dot me-1"></i>@b.ServiceMethod</span>
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-warning">@b.PreferredDate.ToString("dd/MM/yyyy")</div>
+                                    <div style="font-size:0.8rem; color:#cbd5e1;">@b.PreferredTime</div>
+                                </td>
+                                <td>
+                                    <span class="badge @b.StatusBadgeClass px-3 py-2">
+                                        @b.StatusVi
+                                    </span>
+                                </td>
+                                <td>
+                                    @if (b.Status == "Pending")
+                                    {
+                                        <form method="post" action="/Support/CancelMaintenanceBooking" onsubmit="return confirm('Bạn chắc chắn muốn hủy lịch hẹn bảo dưỡng này?')">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@b.Id" />
+                                            <button type="submit" class="btn btn-outline-danger btn-sm" style="border-radius: 6px;">
+                                                <i class="fa-solid fa-xmark"></i> Hủy
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted" style="font-size: 0.85rem;">-</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
+    <!-- Section 3: Official Software & Driver Downloads -->
+    <div class="section-head mt-5">
+        <div class="section-title">
+            <i class="fa-solid fa-download" style="color:#38bdf8"></i>
+            <span>Trung Tâm Tải Phần Mềm & Driver Chính Hãng ASUS</span>
+        </div>
+    </div>
+
+    <div class="soft-grid">
+        <div class="soft-card">
+            <div>
+                <div class="soft-icon"><i class="fa-solid fa-sliders"></i></div>
+                <div class="soft-name">MyASUS Control Hub</div>
+                <div class="soft-desc">Phần mềm tối ưu hóa pin, chẩn đoán lỗi phần cứng, chỉnh chế độ quạt & cập nhật BIOS tự động cho mọi dòng Asus.</div>
+            </div>
+            <a href="https://www.asus.com/support/myasus-deeplink/" target="_blank" class="btn-soft-dl">
+                <i class="fa-solid fa-download me-1"></i> Tải MyASUS App
+            </a>
+        </div>
+
+        <div class="soft-card">
+            <div>
+                <div class="soft-icon" style="color:#ff4d00; background:rgba(255,77,0,0.1);"><i class="fa-solid fa-fire-flame-curved"></i></div>
+                <div class="soft-name">Armoury Crate / G-Helper</div>
+                <div class="soft-desc">Trung tâm tinh chỉnh LED Aura Sync, Ép xung GPU, chuyển đổi chế độ GPU MUX Switch (Eco/Standard/Ultimate) cho ROG & TUF.</div>
+            </div>
+            <a href="https://rog.asus.com/armoury-crate/" target="_blank" class="btn-soft-dl">
+                <i class="fa-solid fa-download me-1"></i> Tải Armoury Crate
+            </a>
+        </div>
+
+        <div class="soft-card">
+            <div>
+                <div class="soft-icon" style="color:#10b981; background:rgba(16,185,129,0.1);"><i class="fa-solid fa-display"></i></div>
+                <div class="soft-name">NVIDIA GeForce Experience</div>
+                <div class="soft-desc">Cập nhật Game Ready Driver mới nhất, bật DLSS 3, Ray Tracing & tối ưu thiết lập Game tự động cho RTX 40 Series.</div>
+            </div>
+            <a href="https://www.nvidia.com/vi-vn/geforce/geforce-experience/" target="_blank" class="btn-soft-dl">
+                <i class="fa-solid fa-download me-1"></i> Tải NVIDIA Driver
+            </a>
+        </div>
+
+        <div class="soft-card">
+            <div>
+                <div class="soft-icon" style="color:#ff007f; background:rgba(255,0,127,0.1);"><i class="fa-solid fa-compact-disc"></i></div>
+                <div class="soft-name">ASUS Driver Support Page</div>
+                <div class="soft-desc">Tra cứu và tải đầy đủ bộ cài Driver Chipset, Audio Realtek, Wi-Fi 6E, Bluetooth & Touchpad cho đúng model laptop của bạn.</div>
+            </div>
+            <a href="https://www.asus.com/vn/support/Download-Center/" target="_blank" class="btn-soft-dl">
+                <i class="fa-solid fa-globe me-1"></i> ASUS Download Center
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Đặt Lịch Bảo Dưỡng -->
+<div class="modal fade modal-glass" id="bookingModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <form method="post" action="/Support/CreateMaintenanceBooking">
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-white display-7">
+                        <i class="fa-solid fa-screwdriver-wrench me-2" style="color:#ff4d00"></i>
+                        Đặt Lịch Đặt Vệ Sinh / Bảo Dưỡng Máy
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label>Số Serial Thiết Bị <span class="text-danger">*</span></label>
+                            <input type="text" id="modalSerialNo" name="serialNo" class="form-control" readonly style="font-family:monospace; font-weight:700; color:#ff7733;" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label>Tên Sản Phẩm <span class="text-danger">*</span></label>
+                            <input type="text" id="modalProductName" name="productName" class="form-control" readonly required />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label>Loại Dịch Vụ <span class="text-danger">*</span></label>
+                            <select name="serviceType" class="form-select" required>
+                                <option value="Vệ sinh tản nhiệt định kỳ (Miễn phí)">Vệ sinh tản nhiệt định kỳ (Miễn phí)</option>
+                                <option value="Thay keo tản nhiệt Liquid Metal / Graphene">Thay keo tản nhiệt Liquid Metal / Graphene</option>
+                                <option value="Kiểm tra & Chẩn đoán tổng thể phần cứng">Kiểm tra & Chẩn đoán tổng thể phần cứng</option>
+                                <option value="Hỗ trợ nâng cấp RAM / SSD chính hãng">Hỗ trợ nâng cấp RAM / SSD chính hãng</option>
+                                <option value="Hỗ trợ Cài đặt phần mềm / Driver / BIOS">Hỗ trợ Cài đặt phần mềm / Driver / BIOS</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label>Hình Thức Phục Vụ <span class="text-danger">*</span></label>
+                            <select name="serviceMethod" class="form-select" required>
+                                <option value="Mang tới Showroom">Mang trực tiếp tới Showroom ASUS</option>
+                                <option value="Gửi nhận tận nhà miễn phí">Gửi nhận tận nhà miễn phí (Ahamove/GHTK)</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label>Ngày Hẹn Bảo Dưỡng <span class="text-danger">*</span></label>
+                            <input type="date" name="preferredDate" class="form-control" value="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")" min="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label>Khung Giờ Mong Muốn <span class="text-danger">*</span></label>
+                            <select name="preferredTime" class="form-select" required>
+                                <option value="09:00 - 11:30">Buổi sáng (09:00 - 11:30)</option>
+                                <option value="13:30 - 17:00">Buổi chiều (13:30 - 17:00)</option>
+                                <option value="17:30 - 20:00">Buổi tối (17:30 - 20:00)</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label>Họ và Tên Khách Hàng <span class="text-danger">*</span></label>
+                            <input type="text" name="customerName" class="form-control" value="@Model.CustomerName" placeholder="Nhập họ tên..." required />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label>Số Điện Thoại Liên Hệ <span class="text-danger">*</span></label>
+                            <input type="tel" name="phone" class="form-control" value="@Model.CustomerPhone" placeholder="Nhập số điện thoại..." required />
+                        </div>
+
+                        <div class="col-12">
+                            <label>Địa Chỉ Khách Hàng (Dành cho dịch vụ gửi nhận tận nhà)</label>
+                            <input type="text" name="address" class="form-control" placeholder="Số nhà, tên đường, Phường/Xã, Quận/Huyện..." />
+                        </div>
+
+                        <div class="col-12">
+                            <label>Ghi Chú Thêm (Nếu có)</label>
+                            <textarea name="note" class="form-control" rows="2" placeholder="Ví dụ: Máy chạy quạt hơi kêu to, muốn vệ sinh sạch bụi và tra keo mới..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Hủy Bỏ</button>
+                    <button type="submit" class="btn btn-primary px-4" style="background: #ff4d00; border: none; border-radius: 8px; font-weight: 700;">
+                        <i class="fa-solid fa-paper-plane me-2"></i> Xác Nhận Đặt Lịch
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openBookingModalFromBtn(btn) {
+        var serialNo = btn.getAttribute('data-serial') || '';
+        var productName = btn.getAttribute('data-product') || '';
+        openBookingModal(serialNo, productName);
+    }
+
+    function openBookingModal(serialNo, productName) {
+        document.getElementById('modalSerialNo').value = serialNo;
+        document.getElementById('modalProductName').value = productName;
+        
+        var modalElem = document.getElementById('bookingModal');
+        var modal = new bootstrap.Modal(modalElem);
+        modal.show();
+    }
+</script>

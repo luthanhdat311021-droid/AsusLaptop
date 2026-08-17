@@ -1,0 +1,239 @@
+@{
+    ViewData["Title"] = "Quản lý Face ID";
+    Layout = "_Layout";
+    bool hasFace = ViewBag.HasFace == true;
+}
+
+<div class="account-wrap">
+    <div class="account-sidebar">
+        <div class="sidebar-user">
+            <div class="sidebar-avatar">@User.Identity!.Name!.Substring(0,1).ToUpper()</div>
+            <div class="sidebar-name">@User.Identity.Name</div>
+        </div>
+        <a href="/Account/Profile" class="sidebar-link"><i class="fa fa-user"></i> Thông tin cá nhân</a>
+        <a href="/Account/MyOrders" class="sidebar-link"><i class="fa fa-box"></i> Đơn hàng của tôi</a>
+        <a href="/Account/ChangePassword" class="sidebar-link"><i class="fa fa-lock"></i> Đổi mật khẩu</a>
+        <a href="/Account/FaceId" class="sidebar-link active"><i class="fa fa-camera"></i> Quản lý Face ID</a>
+    </div>
+
+    <div class="account-content">
+        <div class="account-card">
+            <div class="account-card-header">
+                <h3><i class="fa fa-camera" style="color:#ff4d00"></i> Quản lý Face ID</h3>
+            </div>
+            <div class="account-card-body">
+
+                <!-- Trạng thái -->
+                <div style="display:flex;align-items:center;gap:14px;padding:16px;background:var(--bg-card2);border-radius:var(--radius);margin-bottom:20px;border:1px solid @(hasFace ? "rgba(255,77,0,0.3)" : "var(--border)")">
+                    <div style="width:48px;height:48px;border-radius:50%;background:@(hasFace ? "rgba(255,77,0,0.15)" : "var(--bg-card)");display:flex;align-items:center;justify-content:center;font-size:22px;color:@(hasFace ? "#ff4d00" : "var(--text-muted)")">
+                        <i class="fa @(hasFace ? "fa-check-circle" : "fa-camera")"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight:700;color:var(--text-primary)">
+                            @(hasFace ? "Face ID đã được đăng ký" : "Chưa đăng ký Face ID")
+                        </div>
+                        <div style="font-size:12px;color:var(--text-muted);margin-top:2px">
+                            @(hasFace ? "Bạn có thể đăng nhập bằng khuôn mặt" : "Đăng ký để đăng nhập nhanh bằng khuôn mặt")
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loading models -->
+                <div id="modelLoading" style="text-align:center;padding:20px">
+                    <i class="fa fa-spinner fa-spin" style="font-size:24px;color:#ff4d00"></i>
+                    <p style="color:var(--text-muted);margin-top:8px;font-size:13px">Đang tải AI nhận diện khuôn mặt...</p>
+                </div>
+
+                <!-- Camera (ẩn khi đang load) -->
+                <div id="cameraSection" style="text-align:center;display:none">
+                    <div style="position:relative;display:inline-block;margin-bottom:16px">
+                        <video id="faceVideo" autoplay playsinline muted
+                            style="width:320px;height:240px;border-radius:12px;object-fit:cover;border:2px solid rgba(255,77,0,0.3);background:#000"></video>
+                        <canvas id="overlayCanvas" style="position:absolute;top:0;left:0;border-radius:12px"></canvas>
+                        <div style="position:absolute;inset:0;pointer-events:none">
+                            <div style="position:absolute;top:16px;left:16px;width:36px;height:36px;border-top:3px solid #ff4d00;border-left:3px solid #ff4d00;border-radius:4px 0 0 0"></div>
+                            <div style="position:absolute;top:16px;right:16px;width:36px;height:36px;border-top:3px solid #ff4d00;border-right:3px solid #ff4d00;border-radius:0 4px 0 0"></div>
+                            <div style="position:absolute;bottom:16px;left:16px;width:36px;height:36px;border-bottom:3px solid #ff4d00;border-left:3px solid #ff4d00;border-radius:0 0 0 4px"></div>
+                            <div style="position:absolute;bottom:16px;right:16px;width:36px;height:36px;border-bottom:3px solid #ff4d00;border-right:3px solid #ff4d00;border-radius:0 0 4px 0"></div>
+                        </div>
+                    </div>
+                    <canvas id="faceCanvas" style="display:none"></canvas>
+
+                    <p id="faceStatus" style="font-size:13px;color:var(--text-muted);margin-bottom:14px">Nhấn "Bật camera" để bắt đầu</p>
+
+                    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+                        <button id="startCamBtn" onclick="startCamera()"
+                            style="padding:10px 20px;border-radius:8px;background:var(--bg-card2);color:var(--text-primary);border:1px solid var(--border);cursor:pointer;font-size:14px">
+                            <i class="fa fa-video"></i> Bật camera
+                        </button>
+                        <button id="registerBtn" onclick="registerFace()" disabled
+                            style="padding:10px 20px;border-radius:8px;background:#ff4d00;color:#fff;font-weight:700;border:none;cursor:pointer;font-size:14px;opacity:0.5">
+                            <i class="fa fa-camera"></i> @(hasFace ? "Cập nhật khuôn mặt" : "Đăng ký Face ID")
+                        </button>
+                        @if (hasFace)
+                        {
+                            <button onclick="removeFace()"
+                                style="padding:10px 20px;border-radius:8px;background:rgba(230,0,42,0.1);color:#c62828;border:1px solid rgba(230,0,42,0.3);cursor:pointer;font-size:14px">
+                                <i class="fa fa-trash"></i> Xóa Face ID
+                            </button>
+                        }
+                    </div>
+
+                    <div id="faceResult" style="display:none;margin-top:14px;padding:12px;border-radius:8px;font-size:13px;font-weight:600"></div>
+                </div>
+
+                <!-- Hướng dẫn -->
+                <div style="margin-top:24px;padding:14px;background:var(--bg-card2);border-radius:var(--radius);font-size:12px;color:var(--text-muted)">
+                    <div style="font-weight:700;color:var(--text-primary);margin-bottom:8px"><i class="fa fa-lightbulb" style="color:var(--accent)"></i> Lưu ý khi đăng ký:</div>
+                    <div>• Đảm bảo ánh sáng đủ, không bị ngược sáng</div>
+                    <div>• Nhìn thẳng vào camera, không đeo kính/khẩu trang</div>
+                    <div>• Giữ khuôn mặt trong khung hình</div>
+                    <div>• Mỗi tài khoản chỉ đăng ký được 1 khuôn mặt</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/face-api/face-api.min.js"></script>
+<script>
+let stream = null;
+let modelsLoaded = false;
+        const MODEL_URL = '/lib/face-api/weights';
+
+// Load models khi trang mở
+async function loadModels() {
+    try {
+        await Promise.all([
+            faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+            faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODEL_URL),
+            faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
+        ]);
+        modelsLoaded = true;
+        document.getElementById('modelLoading').style.display = 'none';
+        document.getElementById('cameraSection').style.display = 'block';
+    } catch(e) {
+        document.getElementById('modelLoading').innerHTML =
+            '<p style="color:#c62828"><i class="fa fa-times-circle"></i> Không tải được AI. Kiểm tra kết nối mạng.</p>';
+    }
+}
+
+async function startCamera() {
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { width: 320, height: 240, facingMode: 'user' } });
+        const video = document.getElementById('faceVideo');
+        video.srcObject = stream;
+        await video.play();
+
+        // Resize overlay canvas
+        const overlay = document.getElementById('overlayCanvas');
+        overlay.width = 320;
+        overlay.height = 240;
+
+        document.getElementById('faceStatus').textContent = 'Camera đã bật. Nhìn thẳng vào camera rồi nhấn đăng ký.';
+        document.getElementById('registerBtn').disabled = false;
+        document.getElementById('registerBtn').style.opacity = '1';
+        document.getElementById('startCamBtn').style.display = 'none';
+
+        // Vẽ detection box liên tục
+        detectLoop();
+    } catch(e) {
+        document.getElementById('faceStatus').textContent = 'Không thể bật camera: ' + e.message;
+    }
+}
+
+async function detectLoop() {
+    if (!stream) return;
+    const video = document.getElementById('faceVideo');
+    const overlay = document.getElementById('overlayCanvas');
+    const ctx = overlay.getContext('2d');
+
+    const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions());
+    ctx.clearRect(0, 0, overlay.width, overlay.height);
+
+    if (detection) {
+        const box = detection.box;
+        ctx.strokeStyle = '#ff4d00';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(box.x, box.y, box.width, box.height);
+        document.getElementById('faceStatus').textContent = '✅ Phát hiện khuôn mặt! Nhấn đăng ký.';
+    } else {
+        document.getElementById('faceStatus').textContent = 'Đưa khuôn mặt vào khung hình...';
+    }
+
+    setTimeout(detectLoop, 200);
+}
+
+async function registerFace() {
+    if (!modelsLoaded) return;
+    const btn = document.getElementById('registerBtn');
+    const status = document.getElementById('faceStatus');
+    const result = document.getElementById('faceResult');
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Đang xử lý...';
+    status.textContent = 'Đang phân tích khuôn mặt...';
+
+    const video = document.getElementById('faceVideo');
+
+    try {
+        const detection = await faceapi
+            .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+            .withFaceLandmarks(true)
+            .withFaceDescriptor();
+
+        if (!detection) {
+            showResult(false, 'Không phát hiện khuôn mặt. Hãy nhìn thẳng vào camera.');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa fa-camera"></i> Thử lại';
+            btn.style.opacity = '1';
+            return;
+        }
+
+        const descriptor = Array.from(detection.descriptor);
+
+        const resp = await fetch('/Face/RegisterFace', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ descriptor })
+        });
+        const data = await resp.json();
+
+        if (data.success) {
+            showResult(true, data.message);
+            status.textContent = 'Đăng ký thành công!';
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showResult(false, data.message);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa fa-camera"></i> Thử lại';
+            btn.style.opacity = '1';
+        }
+    } catch(e) {
+        showResult(false, 'Lỗi: ' + e.message);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa fa-camera"></i> Thử lại';
+        btn.style.opacity = '1';
+    }
+}
+
+async function removeFace() {
+    if (!confirm('Xóa Face ID? Bạn sẽ không thể đăng nhập bằng khuôn mặt nữa.')) return;
+    const resp = await fetch('/Face/RemoveFace', { method: 'POST' });
+    const data = await resp.json();
+    if (data.success) location.reload();
+}
+
+function showResult(success, msg) {
+    const result = document.getElementById('faceResult');
+    result.style.display = 'block';
+    result.style.background = success ? 'rgba(255,77,0,0.1)' : 'rgba(230,0,42,0.1)';
+    result.style.color = success ? '#ff4d00' : '#c62828';
+    result.style.border = success ? '1px solid rgba(255,77,0,0.3)' : '1px solid rgba(230,0,42,0.3)';
+    result.innerHTML = `<i class="fa fa-${success ? 'check' : 'times'}-circle"></i> ${msg}`;
+}
+
+loadModels();
+</script>
+}

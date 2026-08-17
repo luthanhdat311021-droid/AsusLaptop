@@ -1,0 +1,160 @@
+@{
+    ViewData["Title"] = "Xác thực OTP";
+    Layout = "_Layout";
+    var email = ViewBag.Email as string ?? "";
+}
+
+<div class="auth-wrap">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-logo">
+                <span class="logo-asus" style="font-size:32px">ASUS</span>
+            </div>
+            <h2 class="auth-title">Xác thực OTP</h2>
+            <p class="auth-subtitle">
+                Nhập mã 6 chữ số đã gửi đến<br>
+                <strong style="color:var(--accent)">@email</strong>
+            </p>
+        </div>
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger">
+                <i class="fa fa-exclamation-circle"></i>
+                <div>
+                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <div>@error.ErrorMessage</div>
+                    }
+                </div>
+            </div>
+        }
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success"><i class="fa fa-check-circle"></i> @TempData["SuccessMessage"]</div>
+        }
+
+        <!-- Step indicator -->
+        <div style="display:flex;align-items:center;gap:0;margin-bottom:24px">
+            <div style="flex:1;text-align:center">
+                <div style="width:32px;height:32px;border-radius:50%;background:rgba(0,212,255,0.2);color:var(--accent);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 4px">✓</div>
+                <div style="font-size:11px;color:var(--text-muted)">Nhập email</div>
+            </div>
+            <div style="flex:1;height:2px;background:var(--accent)"></div>
+            <div style="flex:1;text-align:center">
+                <div style="width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 4px">2</div>
+                <div style="font-size:11px;color:var(--accent)">Xác thực OTP</div>
+            </div>
+            <div style="flex:1;height:2px;background:var(--border)"></div>
+            <div style="flex:1;text-align:center">
+                <div style="width:32px;height:32px;border-radius:50%;background:var(--bg-card2);color:var(--text-muted);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 4px">3</div>
+                <div style="font-size:11px;color:var(--text-muted)">Mật khẩu mới</div>
+            </div>
+        </div>
+
+        <form asp-action="VerifyOtp" method="post">
+            @Html.AntiForgeryToken()
+
+            <div class="form-group" style="margin-bottom:20px">
+                <label class="form-label">Mã OTP (6 chữ số)</label>
+                <!-- OTP Input boxes -->
+                <div id="otpBoxes" style="display:flex;gap:10px;justify-content:center;margin:12px 0">
+                    @for (int i = 0; i < 6; i++)
+                    {
+                        <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]"
+                               class="otp-box"
+                               style="width:48px;height:56px;text-align:center;font-size:24px;font-weight:700;
+                                      border:2px solid var(--border);border-radius:10px;
+                                      background:var(--bg-card2);color:var(--text-primary);
+                                      transition:border-color .2s;outline:none"
+                               onfocus="this.style.borderColor='var(--accent)'"
+                               onblur="this.style.borderColor='var(--border)'" />
+                    }
+                </div>
+                <!-- Hidden input chứa full OTP -->
+                <input type="hidden" name="otp" id="otpHidden" />
+            </div>
+
+            <!-- Countdown timer -->
+            <div style="text-align:center;margin-bottom:16px">
+                <span style="font-size:13px;color:var(--text-muted)">Mã hết hạn sau: </span>
+                <span id="countdown" style="font-size:14px;font-weight:700;color:var(--accent)">10:00</span>
+            </div>
+
+            <button type="submit" class="btn-submit" id="verifyBtn">
+                <i class="fa fa-check-circle"></i> Xác nhận OTP
+            </button>
+        </form>
+
+        <div style="text-align:center;margin-top:16px">
+            <span style="font-size:13px;color:var(--text-muted)">Không nhận được mã? </span>
+            <a href="/Account/ForgotPassword" style="font-size:13px;color:var(--accent)">Gửi lại</a>
+        </div>
+
+        <div class="auth-footer" style="margin-top:12px">
+            <a href="/Account/Login"><i class="fa fa-arrow-left"></i> Quay lại đăng nhập</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+// OTP box navigation
+const boxes = document.querySelectorAll('.otp-box');
+const hidden = document.getElementById('otpHidden');
+
+boxes.forEach((box, idx) => {
+    box.addEventListener('input', (e) => {
+        const val = e.target.value.replace(/[^0-9]/g, '');
+        e.target.value = val;
+        if (val && idx < boxes.length - 1) boxes[idx + 1].focus();
+        updateHidden();
+    });
+
+    box.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !e.target.value && idx > 0) {
+            boxes[idx - 1].focus();
+        }
+    });
+
+    box.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const paste = (e.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g, '');
+        paste.split('').forEach((ch, i) => {
+            if (boxes[idx + i]) boxes[idx + i].value = ch;
+        });
+        updateHidden();
+        const next = Math.min(idx + paste.length, boxes.length - 1);
+        boxes[next].focus();
+    });
+});
+
+function updateHidden() {
+    hidden.value = Array.from(boxes).map(b => b.value).join('');
+}
+
+// Countdown 10 minutes
+let seconds = 600;
+const countEl = document.getElementById('countdown');
+const timer = setInterval(() => {
+    seconds--;
+    if (seconds <= 0) {
+        clearInterval(timer);
+        countEl.textContent = '00:00';
+        countEl.style.color = '#c62828';
+        document.getElementById('verifyBtn').disabled = true;
+        document.getElementById('verifyBtn').innerHTML = '<i class="fa fa-times-circle"></i> OTP đã hết hạn';
+        document.getElementById('verifyBtn').style.opacity = '0.5';
+        return;
+    }
+    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const s = (seconds % 60).toString().padStart(2, '0');
+    countEl.textContent = `${m}:${s}`;
+    if (seconds <= 60) countEl.style.color = '#c62828';
+}, 1000);
+
+// Auto focus first box
+boxes[0].focus();
+</script>
+}

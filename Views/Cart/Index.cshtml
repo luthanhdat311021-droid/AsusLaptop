@@ -1,0 +1,433 @@
+@model List<AsusLaptop.Models.CartItem>
+@{
+    ViewData["Title"] = "Giỏ hàng";
+}
+
+<div class="cart-wrap">
+    <h1 class="cart-title"><i class="fa fa-shopping-cart"></i> Giỏ hàng của bạn</h1>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> @TempData["ErrorMessage"]</div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="cart-empty">
+            <i class="fa fa-cart-arrow-down"></i>
+            <h3>Giỏ hàng trống</h3>
+            <p>Hãy thêm sản phẩm vào giỏ để tiếp tục mua sắm.</p>
+            <a href="/" class="btn-primary"><i class="fa fa-laptop"></i> Mua sắm ngay</a>
+        </div>
+    }
+    else
+    {
+        <div class="cart-layout">
+            <!-- Cart items -->
+            <div>
+                @foreach (var item in Model)
+                {
+                    var unitPrice = (item.Product?.Price ?? 0) + (item.Variant?.PriceAdjust ?? 0);
+                    var subtotal  = unitPrice * item.Quantity;
+                    <div class="cart-item">
+                        <div class="cart-item-img">
+                            @if (!string.IsNullOrEmpty(item.Product?.ImageUrl))
+                            {
+                                <img src="@item.Product.ImageUrl" alt="@item.Product.Name" onerror="this.style.display='none'" />
+                            }
+                            else
+                            {
+                                <i class="fa fa-laptop" style="font-size:32px;color:var(--text-muted)"></i>
+                            }
+                        </div>
+                        <div>
+                            <div class="cart-item-series">@item.Product?.Series</div>
+                            <a href="/Product/Details/@item.ProductId" class="cart-item-name">@item.Product?.Name</a>
+                            @if (item.Variant != null)
+                            {
+                                <div style="margin-top:4px;display:flex;align-items:center;gap:6px">
+                                    <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:@item.Variant.ColorHex;border:1px solid #ccc"></span>
+                                    <span style="font-size:12px;color:var(--text-muted)">@item.Variant.RAM · @item.Variant.Color</span>
+                                </div>
+                            }
+                            <div class="cart-item-price">@unitPrice.ToString("N0")₫</div>
+                        </div>
+                        <div>
+                            <div class="cart-qty-control">
+                                <button class="cart-qty-btn" onclick="changeQty(@item.ProductId, @(item.Quantity - 1), @(item.VariantId ?? 0))">−</button>
+                                <input class="cart-qty-input" type="number" value="@item.Quantity" min="1"
+                                       onchange="changeQty(@item.ProductId, this.value, @(item.VariantId ?? 0))" />
+                                <button class="cart-qty-btn" onclick="changeQty(@item.ProductId, @(item.Quantity + 1), @(item.VariantId ?? 0))">+</button>
+                            </div>
+                            <form asp-action="RemoveFromCart" method="post" style="margin-top:6px">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="productId" value="@item.ProductId" />
+                                <input type="hidden" name="variantId" value="@item.VariantId" />
+                                <button type="submit" class="btn-remove"><i class="fa fa-trash"></i> Xóa</button>
+                            </form>
+                        </div>
+                        <div class="cart-item-total">
+                            <div class="cart-item-subtotal">@subtotal.ToString("N0")₫</div>
+                            <div style="font-size:11px;color:var(--text-muted);margin-top:4px">x@(item.Quantity)</div>
+                        </div>
+                    </div>
+                }
+
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px">
+                    <a href="/" class="btn-ghost"><i class="fa fa-arrow-left"></i> Tiếp tục mua sắm</a>
+                    <span style="font-size:14px;color:var(--text-muted)">@Model.Sum(i => i.Quantity) sản phẩm</span>
+                </div>
+            </div>
+
+            <!-- Summary & Checkout -->
+            <div class="cart-summary">
+                <h3><i class="fa fa-receipt" style="color:var(--accent)"></i> Tóm tắt đơn hàng</h3>
+                <div class="summary-row">
+                    <span>Tạm tính (@Model.Sum(i => i.Quantity) SP)</span>
+                    <span>@ViewBag.CartTotal.ToString("N0")₫</span>
+                </div>
+                <div class="summary-row">
+                    <span>Phí vận chuyển</span>
+                    <span style="color:var(--success)">Miễn phí</span>
+                </div>
+
+                <!-- Voucher -->
+                <div style="margin:12px 0;padding:12px;border:1px dashed var(--border);border-radius:var(--radius);">
+                    <div style="display:flex;gap:8px;">
+                        <input type="text" id="voucherInput" placeholder="Nhập mã giảm giá"
+                               value="@ViewBag.VoucherCode" style="flex:1;padding:8px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg-card2);color:var(--text-primary);text-transform:uppercase;" />
+                        <button type="button" id="btnApplyVoucher" onclick="applyVoucher()" style="padding:8px 14px;border:none;border-radius:6px;background:var(--accent);color:#fff;cursor:pointer;white-space:nowrap;">
+                            Áp dụng
+                        </button>
+                    </div>
+                    <div id="voucherMsg" style="font-size:12.5px;margin-top:6px;
+                        color:@(ViewBag.VoucherDiscount > 0 ? "var(--success)" : "var(--text-muted)")">
+                        @(ViewBag.VoucherDiscount > 0 ? $"Đã áp dụng mã \"{ViewBag.VoucherCode}\"" : "")
+                    </div>
+                </div>
+
+                <div class="summary-row" id="discountRow" style="display:@(ViewBag.VoucherDiscount > 0 ? "flex" : "none");color:var(--success)">
+                    <span>Giảm giá</span>
+                    <span id="discountAmountText">-@(((decimal)ViewBag.VoucherDiscount).ToString("N0"))₫</span>
+                </div>
+
+                <div class="summary-row total">
+                    <span>Tổng cộng</span>
+                    <span id="grandTotalText">@(((decimal)ViewBag.CartTotal - (decimal)ViewBag.VoucherDiscount).ToString("N0"))₫</span>
+                </div>
+
+                <div class="checkout-form">
+                    <p style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px">Thông tin giao hàng</p>
+                    <form asp-action="Checkout" method="post" id="checkoutForm">
+                        @Html.AntiForgeryToken()
+
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <div class="form-group" id="savedAddrWrap" style="display:none;">
+                                <label class="form-label">Địa chỉ đã lưu</label>
+                                <select id="savedAddrSelect" class="form-control" onchange="fillSavedAddress(this.value)">
+                                    <option value="">— Nhập địa chỉ mới bên dưới —</option>
+                                </select>
+                            </div>
+                        }
+
+                        <div class="form-group">
+                            <label class="form-label">Họ và tên *</label>
+                            <div class="input-icon-wrap">
+                                <i class="fa fa-user fi"></i>
+                                <input type="text" name="customerName" id="fCustomerName" class="form-control"
+                                       placeholder="Nguyễn Văn A"
+                                       value="@(User.FindFirst("FullName")?.Value)" required />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Số điện thoại *</label>
+                            <div class="input-icon-wrap">
+                                <i class="fa fa-phone fi"></i>
+                                <input type="tel" name="phone" id="fPhone" class="form-control" placeholder="0912345678"
+                                       value="@(User.FindFirst("Phone")?.Value)" required />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <div class="input-icon-wrap">
+                                <i class="fa fa-envelope fi"></i>
+                                <input type="email" name="email" class="form-control" placeholder="email@gmail.com"
+                                       value="@(User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value)" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Địa chỉ giao hàng *</label>
+                            <div class="input-icon-wrap">
+                                <i class="fa fa-map-marker-alt fi"></i>
+                                <input type="text" name="address" id="fAddress" class="form-control" placeholder="Số nhà, đường, quận, thành phố" required />
+                            </div>
+                            @if (User.Identity?.IsAuthenticated == true)
+                            {
+                                <a href="/Account/Addresses" target="_blank" style="font-size:11.5px;color:var(--accent);display:inline-block;margin-top:5px;">
+                                    <i class="fa fa-plus"></i> Quản lý sổ địa chỉ
+                                </a>
+                            }
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Ghi chú</label>
+                            <textarea name="note" class="form-control" placeholder="Ghi chú thêm (tùy chọn)..." rows="2"></textarea>
+                        </div>
+
+                        <!-- Payment Method -->
+                        <div class="form-group" style="margin-bottom:16px">
+                            <label class="form-label" style="margin-bottom:10px">Phương thức thanh toán *</label>
+                            <div style="display:flex;flex-direction:column;gap:8px">
+                                <label class="payment-option" id="opt-cod">
+                                    <input type="radio" name="paymentMethod" value="COD" checked onchange="switchPayment('COD')" />
+                                    <span class="payment-option-icon"><i class="fa fa-money-bill-wave"></i></span>
+                                    <div>
+                                        <div style="font-weight:700;font-size:13px">Thanh toán khi nhận hàng (COD)</div>
+                                        <div style="font-size:11px;color:var(--text-muted)">Trả tiền mặt khi nhận hàng</div>
+                                    </div>
+                                </label>
+                                <label class="payment-option" id="opt-bank">
+                                    <input type="radio" name="paymentMethod" value="BankTransfer" onchange="switchPayment('BankTransfer')" />
+                                    <span class="payment-option-icon" style="background:rgba(0,212,170,0.15);color:var(--success)"><i class="fa fa-qrcode"></i></span>
+                                    <div>
+                                        <div style="font-weight:700;font-size:13px">Chuyển khoản ngân hàng</div>
+                                        <div style="font-size:11px;color:var(--text-muted)">QR Code / Internet Banking</div>
+                                    </div>
+                                </label>
+
+                                <label class="payment-option" id="opt-vnpay">
+                                    <input type="radio" name="paymentMethod" value="VNPay" onchange="switchPayment('VNPay')" />
+                                    <span class="payment-option-icon" style="background:rgba(0,100,220,0.15);color:#0064dc"><i class="fa fa-credit-card"></i></span>
+                                    <div>
+                                        <div style="font-weight:700;font-size:13px">Thanh toán VNPay <span style="font-size:10px;background:#0064dc;color:#fff;padding:2px 6px;border-radius:4px;margin-left:4px">TỰ ĐỘNG</span></div>
+                                        <div style="font-size:11px;color:var(--text-muted)">ATM / Visa / MasterCard / QR VNPay</div>
+                                    </div>
+                                </label>
+
+                                <label class="payment-option" id="opt-momo">
+                                    <input type="radio" name="paymentMethod" value="Momo" onchange="switchPayment('Momo')" />
+                                    <span class="payment-option-icon" style="background:rgba(215,25,110,0.15);color:#d7196e"><i class="fa fa-wallet"></i></span>
+                                    <div>
+                                        <div style="font-weight:700;font-size:13px">Ví MoMo <span style="font-size:10px;background:#d7196e;color:#fff;padding:2px 6px;border-radius:4px;margin-left:4px">HỖ TRỢ TRẢ SAU</span></div>
+                                        <div style="font-size:11px;color:var(--text-muted)">Quét QR / App MoMo — có thể chọn "Ví trả sau" ngay trong app</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- QR Panel (hidden by default) -->
+                        <div id="qrPanel" style="display:none;background:var(--bg-card2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px;text-align:center">
+                            <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">
+                                <i class="fa fa-university" style="color:var(--success)"></i> Thông tin chuyển khoản
+                            </div>
+                            <div style="background:white;border-radius:10px;padding:12px;display:inline-block;margin-bottom:12px">
+                                <img id="qrImg" src="" alt="QR Code" style="width:180px;height:180px;display:block" />
+                            </div>
+                            <div style="font-size:12px;line-height:1.9;color:var(--text-secondary);text-align:left">
+                                <div><span style="color:var(--text-muted);min-width:90px;display:inline-block">Ngân hàng:</span> <strong>MBBANK</strong></div>
+                                <div><span style="color:var(--text-muted);min-width:90px;display:inline-block">Số tài khoản:</span> <strong style="color:var(--accent)">0819883208</strong></div>
+                                <div><span style="color:var(--text-muted);min-width:90px;display:inline-block">Chủ TK:</span> <strong>ASUS LAPTOP STORE</strong></div>
+                                <div><span style="color:var(--text-muted);min-width:90px;display:inline-block">Số tiền:</span> <strong style="color:var(--rog-red)" id="qrAmount">@ViewBag.CartTotal.ToString("N0")₫</strong></div>
+                                <div><span style="color:var(--text-muted);min-width:90px;display:inline-block">Nội dung:</span> <strong id="qrContent">ASUS [Họ tên] [SĐT]</strong></div>
+                            </div>
+                            <div style="margin-top:10px;padding:8px;background:rgba(255,200,0,0.08);border:1px solid rgba(255,200,0,0.2);border-radius:6px;font-size:11px;color:var(--tuf-yellow);text-align:left">
+                                <i class="fa fa-info-circle"></i> Đơn hàng sẽ được xác nhận sau khi chúng tôi nhận được thanh toán.
+                            </div>
+                        </div>
+
+                        <!-- COD info -->
+                        <div id="codInfo" style="background:var(--bg-card2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:12px;font-size:12px;color:var(--text-muted)">
+                            <i class="fa fa-info-circle" style="color:var(--accent)"></i>
+                            Thanh toán khi nhận hàng (COD). Nhân viên sẽ liên hệ xác nhận.
+                        </div>
+
+                        <!-- VNPay info -->
+                        <div id="vnpayInfo" style="display:none;background:rgba(0,100,220,0.06);border:1px solid rgba(0,100,220,0.25);border-radius:var(--radius);padding:14px;margin-bottom:12px;font-size:12px">
+                            <div style="font-weight:700;color:#0064dc;margin-bottom:8px"><i class="fa fa-shield-alt"></i> Thanh toán qua cổng VNPay</div>
+                            <div style="color:var(--text-secondary);line-height:1.8">
+                                ✔ Hỗ trợ ATM nội địa, Visa, MasterCard, JCB<br>
+                                ✔ QR Pay qua app ngân hàng<br>
+                                ✔ Bảo mật SSL, mã hóa dữ liệu<br>
+                                ✔ Xác nhận đơn hàng tức thì
+                            </div>
+                            <div style="margin-top:8px;padding:6px 10px;background:rgba(255,200,0,0.08);border:1px solid rgba(255,200,0,0.2);border-radius:6px;color:var(--tuf-yellow)">
+                                <i class="fa fa-info-circle"></i> Bạn sẽ được chuyển sang trang VNPay sau khi đặt hàng.
+                            </div>
+                        </div>
+
+                        <!-- Momo info -->
+                        <div id="momoInfo" style="display:none;background:rgba(215,25,110,0.06);border:1px solid rgba(215,25,110,0.25);border-radius:var(--radius);padding:14px;margin-bottom:12px;font-size:12px">
+                            <div style="font-weight:700;color:#d7196e;margin-bottom:8px"><i class="fa fa-wallet"></i> Thanh toán qua Ví MoMo</div>
+                            <div style="color:var(--text-secondary);line-height:1.8">
+                                ✔ Quét mã QR bằng app MoMo để thanh toán<br>
+                                ✔ Nếu tài khoản MoMo của bạn đã bật <strong>"Ví trả sau"</strong>, bạn có thể chọn nguồn tiền này ngay trong app MoMo ở bước xác nhận<br>
+                                ✔ Hạn mức và điều kiện Trả sau do MoMo xét duyệt, cửa hàng không can thiệp
+                            </div>
+                            <div style="margin-top:8px;padding:6px 10px;background:rgba(255,200,0,0.08);border:1px solid rgba(255,200,0,0.2);border-radius:6px;color:var(--tuf-yellow)">
+                                <i class="fa fa-info-circle"></i> Bạn sẽ được chuyển sang trang MoMo sau khi đặt hàng.
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-checkout" id="btnCheckout">
+                            <i class="fa fa-lock"></i> Đặt hàng — @ViewBag.CartTotal.ToString("N0")₫
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Styles {
+<style>
+.payment-option {
+    display:flex;align-items:center;gap:12px;padding:12px 14px;
+    border:2px solid var(--border);border-radius:var(--radius);cursor:pointer;
+    transition:all .2s;background:var(--bg-card2);
+}
+.payment-option:has(input:checked) {
+    border-color:var(--accent);background:rgba(255,77,0,0.06);
+}
+.payment-option input[type=radio] { display:none }
+.payment-option-icon {
+    width:36px;height:36px;border-radius:8px;
+    background:rgba(255,77,0,0.10);color:var(--accent);
+    display:flex;align-items:center;justify-content:center;
+    font-size:16px;flex-shrink:0;
+}
+</style>
+}
+
+@section Scripts {
+<script>
+const subTotal = @ViewBag.CartTotal;
+let totalAmount = subTotal - @ViewBag.VoucherDiscount;
+
+var savedAddresses = [];
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <text>
+    fetch('/Account/AddressesJson').then(r => r.json()).then(data => {
+        savedAddresses = data;
+        var wrap = document.getElementById('savedAddrWrap');
+        var select = document.getElementById('savedAddrSelect');
+        if (data.length > 0) {
+            wrap.style.display = 'block';
+            data.forEach(function (a) {
+                var opt = document.createElement('option');
+                opt.value = a.id;
+                opt.textContent = (a.label ? '[' + a.label + '] ' : '') + a.recipientName + ' - ' + a.addressLine + ', ' + a.city + (a.isDefault ? ' (Mặc định)' : '');
+                select.appendChild(opt);
+            });
+            var def = data.find(function (a) { return a.isDefault; });
+            if (def) { select.value = def.id; fillSavedAddress(def.id); }
+        }
+    }).catch(function () {});
+    </text>
+}
+
+function fillSavedAddress(id) {
+    if (!id) return;
+    var a = savedAddresses.find(function (x) { return x.id == id; });
+    if (!a) return;
+    document.getElementById('fCustomerName').value = a.recipientName;
+    document.getElementById('fPhone').value = a.phone;
+    var full = a.addressLine;
+    if (a.ward) full += ', ' + a.ward;
+    if (a.district) full += ', ' + a.district;
+    full += ', ' + a.city;
+    document.getElementById('fAddress').value = full;
+}
+
+function applyVoucher() {
+    const code = document.getElementById('voucherInput').value.trim();
+    const msg  = document.getElementById('voucherMsg');
+    if (!code) { msg.style.color = 'var(--text-muted)'; msg.textContent = 'Vui lòng nhập mã.'; return; }
+
+    fetch('/Cart/ApplyVoucher', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'code=' + encodeURIComponent(code) + '&cartTotal=' + subTotal
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (!data.success) {
+            msg.style.color = 'var(--error)';
+            msg.textContent = data.message;
+            return;
+        }
+        msg.style.color = 'var(--success)';
+        msg.textContent = data.message;
+        totalAmount = data.newTotal;
+
+        document.getElementById('discountRow').style.display = 'flex';
+        document.getElementById('discountAmountText').textContent = '-' + data.discount.toLocaleString('vi-VN') + '₫';
+        document.getElementById('grandTotalText').textContent = totalAmount.toLocaleString('vi-VN') + '₫';
+
+        const checked = document.querySelector('input[name="paymentMethod"]:checked');
+        if (checked) switchPayment(checked.value);
+    })
+    .catch(() => { msg.style.color = 'var(--error)'; msg.textContent = 'Không thể kết nối server.'; });
+}
+
+function switchPayment(method) {
+    const qrPanel    = document.getElementById('qrPanel');
+    const codInfo    = document.getElementById('codInfo');
+    const vnpayInfo  = document.getElementById('vnpayInfo');
+    const momoInfo   = document.getElementById('momoInfo');
+    const btnCheckout = document.getElementById('btnCheckout');
+    const totalFmt   = totalAmount.toLocaleString('vi-VN') + '₫';
+
+    qrPanel.style.display   = 'none';
+    codInfo.style.display    = 'none';
+    vnpayInfo.style.display  = 'none';
+    momoInfo.style.display   = 'none';
+
+    if (method === 'BankTransfer') {
+        qrPanel.style.display = 'block';
+        generateQR();
+        btnCheckout.innerHTML = '<i class="fa fa-lock"></i> Đặt hàng — ' + totalFmt;
+    } else if (method === 'VNPay') {
+        vnpayInfo.style.display = 'block';
+        btnCheckout.innerHTML = '<i class="fa fa-credit-card"></i> Thanh toán VNPay — ' + totalFmt;
+    } else if (method === 'Momo') {
+        momoInfo.style.display = 'block';
+        btnCheckout.innerHTML = '<i class="fa fa-wallet"></i> Thanh toán MoMo — ' + totalFmt;
+    } else {
+        codInfo.style.display = 'block';
+        btnCheckout.innerHTML = '<i class="fa fa-lock"></i> Đặt hàng — ' + totalFmt;
+    }
+}
+
+function generateQR() {
+    const amount  = totalAmount;
+    const desc    = encodeURIComponent('ASUS thanh toan don hang');
+           const account = '0819883208';
+        const bank    = 'MB'; // MB Bank
+        const qrUrl   = `https://img.vietqr.io/image/${bank}-${account}-compact2.jpg?amount=${amount}&addInfo=${desc}&accountName=ASUS%20LAPTOP%20STORE`;
+    document.getElementById('qrImg').src = qrUrl;
+}
+
+function changeQty(productId, qty, variantId) {
+    qty = parseInt(qty);
+    if (qty < 1) qty = 1;
+    let body = 'productId=' + productId + '&quantity=' + qty;
+    if (variantId) body += '&variantId=' + variantId;
+    fetch('/Cart/UpdateQuantityAjax', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body
+    }).then(r => r.json()).then(d => { if (d.success) location.reload(); });
+}
+
+// Update QR content hint with name/phone
+document.querySelector('input[name=customerName]')?.addEventListener('input', updateQrContent);
+document.querySelector('input[name=phone]')?.addEventListener('input', updateQrContent);
+function updateQrContent() {
+    const name  = document.querySelector('input[name=customerName]')?.value || '[Họ tên]';
+    const phone = document.querySelector('input[name=phone]')?.value || '[SĐT]';
+    const el = document.getElementById('qrContent');
+    if (el) el.textContent = `ASUS ${name} ${phone}`;
+}
+</script>
+}

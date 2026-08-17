@@ -1,0 +1,155 @@
+@{
+    ViewData["Title"] = "Tra cứu bảo hành";
+}
+
+<div class="support-page">
+    <div class="support-hero">
+        <i class="fa fa-shield-alt support-hero-icon" style="color:var(--accent)"></i>
+        <h1>Tra Cứu Bảo Hành</h1>
+        <p>Nhập số serial hoặc mã đơn hàng để kiểm tra thông tin bảo hành sản phẩm</p>
+    </div>
+
+    <div class="support-container">
+        <div class="support-card">
+            <h3><i class="fa fa-search" style="color:var(--accent)"></i> Tìm kiếm bảo hành</h3>
+            <div class="support-form">
+                <div class="form-group">
+                    <label>Số Serial / IMEI</label>
+                    <input type="text" class="form-control" placeholder="Ví dụ: G733ZW-LL123456" id="serialInput" />
+                </div>
+                <div class="form-group">
+                    <label>Hoặc Mã đơn hàng</label>
+                    <input type="text" class="form-control" placeholder="Ví dụ: #1001" id="orderInput" />
+                </div>
+                <button class="btn-primary" onclick="checkWarranty()">
+                    <i class="fa fa-search"></i> Tra cứu ngay
+                </button>
+            </div>
+
+            <div id="warrantyResult" style="display:none;margin-top:24px">
+                <div class="warranty-result-card">
+                    <div class="warranty-status" id="warrantyStatusBox">
+                        <i class="fa fa-check-circle"></i> <span id="warrantyStatusText">Còn bảo hành</span>
+                    </div>
+                    <div class="warranty-info-grid">
+                        <div class="warranty-info-item">
+                            <span class="label">Số serial</span>
+                            <span class="value" id="wrSerial">—</span>
+                        </div>
+                        <div class="warranty-info-item">
+                            <span class="label">Sản phẩm</span>
+                            <span class="value" id="wrProduct">—</span>
+                        </div>
+                        <div class="warranty-info-item">
+                            <span class="label">Mã đơn hàng</span>
+                            <span class="value" id="wrOrder">—</span>
+                        </div>
+                        <div class="warranty-info-item">
+                            <span class="label">Ngày mua</span>
+                            <span class="value" id="wrOrderDate">—</span>
+                        </div>
+                        <div class="warranty-info-item">
+                            <span class="label">Hết hạn bảo hành</span>
+                            <span class="value" id="wrEnd">—</span>
+                        </div>
+                        <div class="warranty-info-item">
+                            <span class="label">Trạng thái đơn vị</span>
+                            <span class="value" id="wrUnitStatus">—</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="warrantyNotFound" style="display:none;margin-top:24px;padding:16px;border-radius:8px;background:rgba(220,50,50,.08);color:#c0392b;font-size:13.5px;">
+                <i class="fa fa-exclamation-circle"></i> <span id="warrantyNotFoundMsg"></span>
+            </div>
+        </div>
+
+        <div class="support-card">
+            <h3><i class="fa fa-info-circle" style="color:var(--tuf-yellow)"></i> Chính sách bảo hành</h3>
+            <ul class="support-list">
+                <li><i class="fa fa-check" style="color:var(--success)"></i> Bảo hành chính hãng <strong>24 tháng</strong> toàn quốc</li>
+                <li><i class="fa fa-check" style="color:var(--success)"></i> Đổi mới trong <strong>30 ngày</strong> nếu lỗi nhà sản xuất</li>
+                <li><i class="fa fa-check" style="color:var(--success)"></i> Hỗ trợ tận nhà tại TP.HCM & Hà Nội</li>
+                <li><i class="fa fa-check" style="color:var(--success)"></i> Miễn phí vận chuyển 2 chiều khi bảo hành</li>
+                <li><i class="fa fa-times" style="color:var(--error)"></i> Không bảo hành do va đập, ngấm nước, tự ý sửa chữa</li>
+            </ul>
+        </div>
+
+        <div class="support-card">
+            <h3><i class="fa fa-map-marker-alt" style="color:var(--rog-red)"></i> Trung tâm bảo hành</h3>
+            <div class="center-list">
+                <div class="center-item">
+                    <strong>TP. Hồ Chí Minh</strong>
+                    <span>123 Nguyễn Huệ, Q.1 &nbsp;|&nbsp; 8:00 - 20:00</span>
+                </div>
+                <div class="center-item">
+                    <strong>Hà Nội</strong>
+                    <span>456 Cầu Giấy, Q. Cầu Giấy &nbsp;|&nbsp; 8:00 - 20:00</span>
+                </div>
+                <div class="center-item">
+                    <strong>Đà Nẵng</strong>
+                    <span>78 Lê Duẩn, Q. Hải Châu &nbsp;|&nbsp; 8:00 - 18:00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function checkWarranty() {
+    var s = document.getElementById('serialInput').value.trim();
+    var o = document.getElementById('orderInput').value.trim();
+    if (!s && !o) { alert('Vui lòng nhập số serial hoặc mã đơn hàng'); return; }
+
+    var resultBox = document.getElementById('warrantyResult');
+    var notFoundBox = document.getElementById('warrantyNotFound');
+    resultBox.style.display = 'none';
+    notFoundBox.style.display = 'none';
+
+    fetch('/Support/CheckWarranty', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'serial=' + encodeURIComponent(s) + '&orderCode=' + encodeURIComponent(o)
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+        if (!data.found) {
+            document.getElementById('warrantyNotFoundMsg').textContent = data.message;
+            notFoundBox.style.display = 'block';
+            notFoundBox.scrollIntoView({ behavior: 'smooth' });
+            return;
+        }
+
+        document.getElementById('wrSerial').textContent = data.serialNo;
+        document.getElementById('wrProduct').textContent = data.productName + (data.variantInfo ? ' (' + data.variantInfo + ')' : '');
+        document.getElementById('wrOrder').textContent = data.orderId ? ('#' + data.orderId) : 'Chưa gắn đơn hàng';
+        document.getElementById('wrOrderDate').textContent = data.orderDate ? new Date(data.orderDate).toLocaleDateString('vi-VN') : '—';
+        document.getElementById('wrUnitStatus').textContent = data.statusVi;
+
+        var statusBox = document.getElementById('warrantyStatusBox');
+        var statusText = document.getElementById('warrantyStatusText');
+        var endEl = document.getElementById('wrEnd');
+
+        if (!data.isActivated) {
+            statusBox.className = 'warranty-status';
+            statusText.textContent = 'Chưa kích hoạt bảo hành (chưa gắn với đơn hàng đã bán)';
+            endEl.textContent = '—';
+        } else if (data.isExpired) {
+            statusBox.className = 'warranty-status expired';
+            statusText.textContent = 'Đã hết hạn bảo hành';
+            endEl.innerHTML = '<span style="color:var(--error,#c0392b)">' + new Date(data.warrantyEnd).toLocaleDateString('vi-VN') + '</span>';
+        } else {
+            statusBox.className = 'warranty-status active';
+            statusText.textContent = 'Còn bảo hành (' + data.daysLeft + ' ngày)';
+            endEl.innerHTML = '<span style="color:var(--success)">' + new Date(data.warrantyEnd).toLocaleDateString('vi-VN') + '</span>';
+        }
+
+        resultBox.style.display = 'block';
+        resultBox.scrollIntoView({ behavior: 'smooth' });
+    })
+    .catch(function () {
+        document.getElementById('warrantyNotFoundMsg').textContent = 'Có lỗi xảy ra khi tra cứu. Vui lòng thử lại sau.';
+        notFoundBox.style.display = 'block';
+    });
+}
+</script>

@@ -1,0 +1,353 @@
+@model List<AsusLaptop.Models.Product>
+@{
+    ViewData["Title"] = "So sánh sản phẩm";
+    int maxItems = ViewBag.MaxItems ?? 4;
+
+    // ── Helper: tách số đầu tiên trong chuỗi (vd "16 GB DDR5" -> 16, "1.5 kg" -> 1.5) ──
+    double? ExtractNumber(string? s)
+    {
+        if (string.IsNullOrWhiteSpace(s)) return null;
+        var m = System.Text.RegularExpressions.Regex.Match(s, @"[\d]+(?:[.,]\d+)?");
+        if (!m.Success) return null;
+        return double.TryParse(m.Value.Replace(',', '.'),
+            System.Globalization.NumberStyles.Any,
+            System.Globalization.CultureInfo.InvariantCulture, out var v) ? v : (double?)null;
+    }
+
+    // higherIsBetter = true => giá trị lớn nhất được tô sáng; false => giá trị nhỏ nhất (vd: giá, trọng lượng)
+    int? BestIndex(IEnumerable<string?> values, bool higherIsBetter)
+    {
+        var nums = values.Select(ExtractNumber).ToList();
+        if (nums.All(n => n == null)) return null;
+        double? best = null;
+        int? idx = null;
+        for (int i = 0; i < nums.Count; i++)
+        {
+            if (nums[i] == null) continue;
+            if (best == null ||
+                (higherIsBetter && nums[i] > best) ||
+                (!higherIsBetter && nums[i] < best))
+            {
+                best = nums[i];
+                idx = i;
+            }
+        }
+        // Nếu tất cả bằng nhau thì không tô nổi bật riêng ai
+        if (nums.Where(n => n != null).Distinct().Count() <= 1) return null;
+        return idx;
+    }
+}
+
+<div class="compare-wrap">
+    <nav class="breadcrumb">
+        <a href="/">Trang chủ</a>
+        <i class="fa fa-chevron-right"></i>
+        <span>So sánh sản phẩm</span>
+    </nav>
+
+    <div class="compare-header">
+        <h1><i class="fa fa-balance-scale"></i> So sánh sản phẩm</h1>
+        <p>So sánh tối đa @maxItems laptop để tìm ra lựa chọn phù hợp nhất với bạn.</p>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="compare-empty">
+            <i class="fa fa-balance-scale"></i>
+            <h3>Chưa có sản phẩm nào để so sánh</h3>
+            <p>Hãy quay lại trang sản phẩm và bấm <strong>“So sánh”</strong> trên những laptop bạn quan tâm.</p>
+            <a href="/" class="btn-back-shop"><i class="fa fa-shopping-bag"></i> Khám phá sản phẩm</a>
+        </div>
+    }
+    else
+    {
+        var prices    = Model.Select(p => (string?)p.Price.ToString()).ToList();
+        var ramIdx    = BestIndex(Model.Select(p => (string?)p.RAM), true);
+        var storageIdx= BestIndex(Model.Select(p => (string?)p.Storage), true);
+        var batteryIdx= BestIndex(Model.Select(p => (string?)p.Battery), true);
+        var weightIdx = BestIndex(Model.Select(p => (string?)p.Weight), false);
+        var priceIdx  = BestIndex(prices, false);
+
+        <div class="compare-toolbar">
+            <span class="compare-count">@Model.Count / @maxItems sản phẩm</span>
+            @if (Model.Count < maxItems)
+            {
+                <a href="/" class="btn-add-more"><i class="fa fa-plus"></i> Thêm sản phẩm khác</a>
+            }
+            <button type="button" class="btn-clear-all" onclick="clearCompareAll()">
+                <i class="fa fa-trash"></i> Xoá tất cả
+            </button>
+        </div>
+
+        <div class="compare-table-scroll">
+            <table class="compare-table">
+                <thead>
+                    <tr>
+                        <th class="row-label">&nbsp;</th>
+                        @foreach (var p in Model)
+                        {
+                            <th>
+                                <div class="compare-product-cell">
+                                    <button type="button" class="compare-remove-btn" title="Bỏ khỏi so sánh"
+                                            onclick="removeCompareItem(@p.Id, this)">
+                                        <i class="fa fa-times"></i>
+                                    </button>
+                                    <a href="/Product/Details/@p.Id" class="compare-img">
+                                        @if (!string.IsNullOrEmpty(p.ImageUrl))
+                                        {
+                                            <img src="@p.ImageUrl" alt="@p.Name" />
+                                        }
+                                        else
+                                        {
+                                            <i class="fa fa-laptop"></i>
+                                        }
+                                    </a>
+                                    <a href="/Product/Details/@p.Id" class="compare-name">@p.Name</a>
+                                    <div class="compare-series">@p.Brand — @p.Series</div>
+                                </div>
+                            </th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="row-label">Giá bán</td>
+                        @for (int i = 0; i < Model.Count; i++)
+                        {
+                            <td class="@(priceIdx == i ? "cell-best" : "")">
+                                <span class="compare-price">@Model[i].Price.ToString("N0")₫</span>
+                                @if (Model[i].OriginalPrice > Model[i].Price)
+                                {
+                                    <span class="compare-original">@Model[i].OriginalPrice.ToString("N0")₫</span>
+                                }
+                                @if (priceIdx == i)
+                                {
+                                    <span class="best-tag"><i class="fa fa-check-circle"></i> Tốt nhất</span>
+                                }
+                            </td>
+                        }
+                    </tr>
+                    <tr>
+                        <td class="row-label">Tình trạng kho</td>
+                        @foreach (var p in Model)
+                        {
+                            <td>
+                                @if (p.Quantity > 0)
+                                {
+                                    <span class="stock-badge in"><i class="fa fa-check"></i> Còn hàng</span>
+                                }
+                                else
+                                {
+                                    <span class="stock-badge out"><i class="fa fa-ban"></i> Hết hàng</span>
+                                }
+                            </td>
+                        }
+                    </tr>
+                    <tr>
+                        <td class="row-label"><i class="fa fa-microchip"></i> CPU</td>
+                        @foreach (var p in Model)
+                        {
+                            <td>@(string.IsNullOrEmpty(p.CPU) ? "—" : p.CPU)</td>
+                        }
+                    </tr>
+                    <tr>
+                        <td class="row-label"><i class="fa fa-memory"></i> RAM</td>
+                        @for (int i = 0; i < Model.Count; i++)
+                        {
+                            <td class="@(ramIdx == i ? "cell-best" : "")">
+                                @(string.IsNullOrEmpty(Model[i].RAM) ? "—" : Model[i].RAM)
+                                @if (ramIdx == i) { <i class="fa fa-star best-star" title="Cao nhất"></i> }
+                            </td>
+                        }
+                    </tr>
+                    <tr>
+                        <td class="row-label"><i class="fa fa-hdd"></i> Ổ cứng</td>
+                        @for (int i = 0; i < Model.Count; i++)
+                        {
+                            <td class="@(storageIdx == i ? "cell-best" : "")">
+                                @(string.IsNullOrEmpty(Model[i].Storage) ? "—" : Model[i].Storage)
+                                @if (storageIdx == i) { <i class="fa fa-star best-star" title="Cao nhất"></i> }
+                            </td>
+                        }
+                    </tr>
+                    <tr>
+                        <td class="row-label"><i class="fa fa-tv"></i> Card đồ hoạ (GPU)</td>
+                        @foreach (var p in Model)
+                        {
+                            <td>@(string.IsNullOrEmpty(p.GPU) ? "—" : p.GPU)</td>
+                        }
+                    </tr>
+                    <tr>
+                        <td class="row-label"><i class="fa fa-desktop"></i> Màn hình</td>
+                        @foreach (var p in Model)
+                        {
+                            <td>
+                                @(string.IsNullOrEmpty(p.ScreenSize) ? "—" : p.ScreenSize)
+                                @if (!string.IsNullOrEmpty(p.ScreenResolution)) { <span> — @p.ScreenResolution</span> }
+                            </td>
+                        }
+                    </tr>
+                    <tr>
+                        <td class="row-label"><i class="fa fa-battery-three-quarters"></i> Pin</td>
+                        @for (int i = 0; i < Model.Count; i++)
+                        {
+                            <td class="@(batteryIdx == i ? "cell-best" : "")">
+                                @(string.IsNullOrEmpty(Model[i].Battery) ? "—" : Model[i].Battery)
+                                @if (batteryIdx == i) { <i class="fa fa-star best-star" title="Cao nhất"></i> }
+                            </td>
+                        }
+                    </tr>
+                    <tr>
+                        <td class="row-label"><i class="fa fa-weight-hanging"></i> Trọng lượng</td>
+                        @for (int i = 0; i < Model.Count; i++)
+                        {
+                            <td class="@(weightIdx == i ? "cell-best" : "")">
+                                @(string.IsNullOrEmpty(Model[i].Weight) ? "—" : Model[i].Weight)
+                                @if (weightIdx == i) { <i class="fa fa-star best-star" title="Nhẹ nhất"></i> }
+                            </td>
+                        }
+                    </tr>
+                    <tr>
+                        <td class="row-label"><i class="fa fa-windows"></i> Hệ điều hành</td>
+                        @foreach (var p in Model)
+                        {
+                            <td>@(string.IsNullOrEmpty(p.OS) ? "—" : p.OS)</td>
+                        }
+                    </tr>
+                    <tr>
+                        <td class="row-label">&nbsp;</td>
+                        @foreach (var p in Model)
+                        {
+                            <td>
+                                <div class="compare-cta">
+                                    @if (p.Quantity > 0)
+                                    {
+                                        <button class="btn-add-cart" onclick="addToCartAjax(@p.Id, this)">
+                                            <i class="fa fa-cart-plus"></i> Thêm giỏ
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn-add-cart" disabled style="opacity:.4;cursor:not-allowed">
+                                            <i class="fa fa-ban"></i> Hết hàng
+                                        </button>
+                                    }
+                                    <a href="/Product/Details/@p.Id" class="btn-detail-link">Xem chi tiết</a>
+                                </div>
+                            </td>
+                        }
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<style>
+    .compare-wrap { max-width: 1280px; margin: 0 auto; padding: 24px 20px 60px; }
+    .compare-header { margin: 18px 0 22px; }
+    .compare-header h1 { font-size: 26px; color: var(--text-primary); display:flex; align-items:center; gap:10px; margin:0 0 6px; }
+    .compare-header p { color: var(--text-secondary); margin:0; }
+
+    .compare-empty {
+        text-align:center; padding: 70px 20px; background: var(--bg-card);
+        border: 1px solid var(--border); border-radius: var(--radius-lg);
+    }
+    .compare-empty i { font-size: 48px; color: var(--accent); margin-bottom: 14px; display:block; }
+    .compare-empty h3 { color: var(--text-primary); margin: 0 0 8px; }
+    .compare-empty p { color: var(--text-secondary); margin: 0 0 18px; }
+    .btn-back-shop {
+        display:inline-flex; align-items:center; gap:8px; background: var(--accent); color:#fff;
+        padding: 10px 22px; border-radius: var(--radius); text-decoration:none; font-weight:600;
+    }
+
+    .compare-toolbar {
+        display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom: 16px;
+    }
+    .compare-count {
+        background: var(--bg-card2); color: var(--text-secondary); padding: 6px 14px;
+        border-radius: 20px; font-size: 13px; border: 1px solid var(--border);
+    }
+    .btn-add-more, .btn-clear-all {
+        display:inline-flex; align-items:center; gap:6px; padding: 8px 16px; border-radius: var(--radius);
+        font-size: 13.5px; font-weight: 600; cursor:pointer; text-decoration:none; border: 1px solid var(--border);
+        background: var(--bg-card2); color: var(--text-primary);
+    }
+    .btn-clear-all { color: var(--error); margin-left:auto; background:none; }
+    .btn-add-more:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-clear-all:hover { border-color: var(--error); }
+
+    .compare-table-scroll { overflow-x:auto; border-radius: var(--radius-lg); border:1px solid var(--border); }
+    .compare-table { width:100%; border-collapse: collapse; background: var(--bg-card); min-width: 640px; }
+    .compare-table th, .compare-table td {
+        border-bottom: 1px solid var(--border); padding: 14px 16px; text-align:center; vertical-align: top;
+        color: var(--text-primary); font-size: 14px; min-width: 190px;
+    }
+    .compare-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+    .row-label {
+        text-align:left !important; color: var(--text-secondary); font-weight:600; font-size: 13.5px;
+        background: var(--bg-card2); min-width: 140px !important; white-space: nowrap;
+    }
+
+    .compare-product-cell { position: relative; display:flex; flex-direction:column; align-items:center; gap:6px; padding-top: 6px; }
+    .compare-remove-btn {
+        position:absolute; top:-10px; right:-6px; width:24px; height:24px; border-radius:50%;
+        background: var(--bg-card2); border: 1px solid var(--border); color: var(--text-secondary);
+        cursor:pointer; font-size: 11px; display:flex; align-items:center; justify-content:center;
+    }
+    .compare-remove-btn:hover { background: var(--error); color:#fff; border-color: var(--error); }
+    .compare-img {
+        width: 110px; height: 90px; display:flex; align-items:center; justify-content:center;
+        background:#fff; border-radius: var(--radius); overflow:hidden;
+    }
+    .compare-img img { max-width:100%; max-height:100%; object-fit:contain; }
+    .compare-img i { font-size: 30px; color:#ccc; }
+    .compare-name { color: var(--text-primary); font-weight:600; font-size: 14px; text-decoration:none; line-height:1.3; }
+    .compare-name:hover { color: var(--accent); }
+    .compare-series { color: var(--text-muted); font-size: 12px; }
+
+    .cell-best { background: rgba(0,196,140,0.08); position:relative; }
+    .best-star { color: var(--success); margin-left: 5px; font-size: 12px; }
+    .best-tag {
+        display:block; margin-top:4px; font-size: 11px; color: var(--success); font-weight:600;
+    }
+    .compare-price { font-weight:700; color: var(--accent2); font-size: 15px; display:block; }
+    .compare-original { font-size: 12px; color: var(--text-muted); text-decoration: line-through; }
+
+    .stock-badge { display:inline-flex; align-items:center; gap:5px; font-size:12.5px; padding:3px 10px; border-radius:20px; }
+    .stock-badge.in { background: rgba(0,196,140,.15); color: var(--success); }
+    .stock-badge.out { background: rgba(230,0,42,.15); color: var(--error); }
+
+    .compare-cta { display:flex; flex-direction:column; gap:8px; align-items:center; }
+    .compare-cta .btn-add-cart {
+        width:100%; background: var(--accent); color:#fff; border:none; padding:9px 10px;
+        border-radius: var(--radius); font-weight:600; cursor:pointer; font-size: 13px;
+    }
+    .compare-cta .btn-detail-link { color: var(--text-secondary); font-size: 12.5px; text-decoration:underline; }
+
+    @@media (max-width: 768px) {
+        .compare-header h1 { font-size: 21px; }
+        .compare-table th, .compare-table td { padding: 10px; font-size: 13px; min-width: 150px; }
+    }
+</style>
+
+<script>
+    function removeCompareItem(id, btn) {
+        fetch('/Compare/Remove', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'id=' + id
+        })
+        .then(r => r.json())
+        .then(() => location.reload())
+        .catch(() => alert('Không thể kết nối server.'));
+    }
+
+    function clearCompareAll() {
+        if (!confirm('Xoá toàn bộ danh sách so sánh?')) return;
+        fetch('/Compare/Clear', { method: 'POST' })
+            .then(r => r.json())
+            .then(() => location.reload())
+            .catch(() => alert('Không thể kết nối server.'));
+    }
+</script>

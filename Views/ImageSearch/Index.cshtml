@@ -1,0 +1,215 @@
+﻿@{
+    ViewData["Title"] = "Tìm kiếm bằng hình ảnh";
+    var products = ViewBag.Products as List<AsusLaptop.Models.Product>;
+    var detectedClass = ViewBag.DetectedClass as string;
+    var confidence = ViewBag.Confidence as string;
+    var allPredictions = ViewBag.AllPredictions as List<AsusLaptop.Services.RoboflowPrediction>;
+}
+
+<div class="section" style="max-width:900px; margin:0 auto; padding: 2rem 1rem;">
+    <div class="section-header">
+        <h2 class="section-title">
+            <i class="fa fa-camera" style="color:var(--accent)"></i> Tìm kiếm bằng hình ảnh
+        </h2>
+        <p style="color:var(--text-muted); margin-top:.5rem">
+            Upload ảnh laptop để tìm sản phẩm tương tự trong cửa hàng
+        </p>
+    </div>
+
+    <!-- Upload Form -->
+    <div class="card" style="padding:2rem; margin-bottom:2rem;">
+        <form asp-controller="ImageSearch" asp-action="Search" method="post"
+              enctype="multipart/form-data" id="imageSearchForm">
+            @Html.AntiForgeryToken()
+
+            <div id="dropZone" style="border: 2px dashed var(--border); border-radius:12px;
+                padding:3rem; text-align:center; cursor:pointer; transition:all .3s;
+                background:var(--bg-card2);"
+                 onclick="document.getElementById('imageInput').click()"
+                 ondragover="event.preventDefault(); this.style.borderColor='var(--accent)'"
+                 ondragleave="this.style.borderColor='var(--border)'"
+                 ondrop="handleDrop(event)">
+                <div id="dropContent">
+                    <i class="fa fa-cloud-upload" style="font-size:3rem; color:var(--accent); margin-bottom:1rem; display:block"></i>
+                    <p style="font-size:1.1rem; font-weight:600; margin-bottom:.5rem">
+                        Kéo thả ảnh vào đây
+                    </p>
+                    <p style="color:var(--text-muted); font-size:.9rem">hoặc nhấn để chọn file</p>
+                    <p style="color:var(--text-muted); font-size:.8rem; margin-top:.5rem">JPG, PNG, WEBP — tối đa 10MB</p>
+                </div>
+                <img id="previewImg" style="display:none; max-height:220px; border-radius:8px; margin:0 auto" />
+            </div>
+
+            <input type="file" id="imageInput" name="image" accept="image/*"
+                   style="display:none" onchange="previewImage(this)" />
+
+            @if (!string.IsNullOrEmpty(ViewBag.Error as string))
+            {
+                <div style="background:rgba(198,40,40,0.06); border:1px solid rgba(198,40,40,0.3); color:#c62828;
+                    padding:.75rem 1rem; border-radius:8px; margin-top:1rem;">
+                    <i class="fa fa-exclamation-circle"></i> @ViewBag.Error
+                </div>
+            }
+
+            <div style="margin-top:1.5rem; display:flex; gap:1rem; justify-content:center;">
+                <button type="submit" class="btn-primary" id="searchBtn" disabled>
+                    <i class="fa fa-search"></i> Tìm kiếm
+                </button>
+                <button type="button" class="btn-ghost" onclick="clearImage()">
+                    <i class="fa fa-times"></i> Xóa
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Detection Result -->
+    @if (!string.IsNullOrEmpty(detectedClass))
+    {
+        <div style="background:#111111; border:1px solid var(--accent);
+            border-radius:12px; padding:1.5rem; margin-bottom:2rem; color:#fff;">
+            <h3 style="margin:0 0 1rem; font-size:1rem; color:var(--accent); text-transform:uppercase; letter-spacing:.1em">
+                <i class="fa fa-robot"></i> Kết quả nhận diện AI
+            </h3>
+            <div style="display:flex; align-items:center; gap:2rem; flex-wrap:wrap;">
+                <div>
+                    <div style="font-size:1.5rem; font-weight:700">@detectedClass</div>
+                    <div style="color:rgba(255,255,255,0.55); font-size:.85rem">Dòng laptop được nhận diện</div>
+                </div>
+                <div>
+                    <div style="font-size:1.5rem; font-weight:700; color:#4ade80">@confidence%</div>
+                    <div style="color:rgba(255,255,255,0.55); font-size:.85rem">Độ chính xác</div>
+                </div>
+                @if (allPredictions != null && allPredictions.Count > 1)
+                {
+                    <div>
+                        <div style="font-size:.85rem; color:rgba(255,255,255,0.55); margin-bottom:.4rem">Các nhận diện khác:</div>
+                        @foreach (var p in allPredictions.Skip(1))
+                        {
+                            <span style="background:rgba(255,255,255,0.12); padding:.2rem .6rem; border-radius:20px;
+                                font-size:.8rem; margin-right:.4rem">
+                                @p.Class (@((p.Confidence * 100).ToString("F0"))%)
+                            </span>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- Product Results -->
+    @if (products != null)
+    {
+        <div class="section-header" style="margin-bottom:1rem">
+            <h3 class="section-title" style="font-size:1.2rem">
+                Sản phẩm tìm thấy
+                <span style="font-size:.9rem; color:var(--text-muted); font-weight:400">
+                    (@products.Count sản phẩm)
+                </span>
+            </h3>
+        </div>
+
+        @if (products.Count == 0)
+        {
+            <div style="text-align:center; padding:3rem; color:var(--text-muted)">
+                <i class="fa fa-search" style="font-size:2.5rem; display:block; margin-bottom:1rem; opacity:.4"></i>
+                <p>Không tìm thấy sản phẩm phù hợp.</p>
+                <a href="/" class="btn-ghost" style="margin-top:1rem; display:inline-block">
+                    Xem tất cả sản phẩm
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="products-grid">
+                @foreach (var p in products)
+                {
+                    <div class="product-card">
+                        @if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Admin") || User.IsInRole("SubAdmin")))
+                        {
+                            <a href="/Product/Edit/@p.Id" class="product-edit-btn" title="Chỉnh sửa sản phẩm">
+                                <i class="fa fa-pen"></i>
+                            </a>
+                        }
+                        <a href="/Product/Details/@p.Id">
+                            <div class="product-img-wrap">
+                                <img src="@p.ImageUrl" alt="@p.Name"
+                                     onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'" />
+                            </div>
+                        </a>
+                        <div class="product-info">
+                            <div class="product-badge">@p.Series</div>
+                            <h3 class="product-name">
+                                <a href="/Product/Details/@p.Id">@p.Name</a>
+                            </h3>
+                            <div class="product-specs">
+                                @if (!string.IsNullOrEmpty(p.CPU))
+                                {
+                                    <span><i class="fa fa-microchip"></i> @p.CPU</span>
+                                }
+                                @if (!string.IsNullOrEmpty(p.RAM))
+                                {
+                                    <span><i class="fa fa-memory"></i> @p.RAM</span>
+                                }
+                            </div>
+                            <div class="product-price">
+                                <span class="price-main">@p.Price.ToString("N0") ₫</span>
+                                @if (p.OriginalPrice > p.Price)
+                                {
+                                    <span class="price-old">@p.OriginalPrice.ToString("N0") ₫</span>
+                                }
+                            </div>
+                            <a href="/Product/Details/@p.Id" class="btn-primary" style="width:100%; text-align:center; margin-top:.75rem">
+                                Xem chi tiết
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const img = document.getElementById('previewImg');
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                    document.getElementById('dropContent').style.display = 'none';
+                    document.getElementById('searchBtn').disabled = false;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            document.getElementById('dropZone').style.borderColor = 'var(--border)';
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const input = document.getElementById('imageInput');
+                const dt = new DataTransfer();
+                dt.items.add(files[0]);
+                input.files = dt.files;
+                previewImage(input);
+            }
+        }
+
+        function clearImage() {
+            document.getElementById('imageInput').value = '';
+            document.getElementById('previewImg').style.display = 'none';
+            document.getElementById('dropContent').style.display = 'block';
+            document.getElementById('searchBtn').disabled = true;
+        }
+
+        // Loading state khi submit
+        document.getElementById('imageSearchForm').addEventListener('submit', function() {
+            const btn = document.getElementById('searchBtn');
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Đang phân tích...';
+            btn.disabled = true;
+        });
+    </script>
+}

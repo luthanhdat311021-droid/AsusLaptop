@@ -1,0 +1,120 @@
+@model List<AsusLaptop.Models.InventoryLog>
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{
+    ViewData["Title"] = "Nhật ký kho hàng";
+    int page = ViewBag.Page;
+    int totalPages = ViewBag.TotalPages;
+    string? reason = ViewBag.Reason;
+}
+
+<div class="admin-wrap">
+    <div class="admin-header">
+        <h1 class="admin-title"><i class="fa fa-warehouse"></i> NHẬT KÝ <span>KHO HÀNG</span></h1>
+        <a href="/Admin/Products" class="btn-ghost"><i class="fa fa-arrow-left"></i> Quản lý sản phẩm</a>
+    </div>
+
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3><i class="fa fa-filter"></i> Bộ lọc</h3>
+            <form asp-controller="Admin" asp-action="InventoryLogs" method="get" class="search-bar" style="gap:8px;">
+                <select name="productId" class="form-control" style="min-width:200px" onchange="this.form.submit()">
+                    <option value="">— Tất cả sản phẩm —</option>
+                    @foreach (var item in (SelectList)ViewBag.Products)
+                    {
+                        <option value="@item.Value" selected="@item.Selected">@item.Text</option>
+                    }
+                </select>
+                <select name="reason" class="form-control" style="min-width:160px" onchange="this.form.submit()">
+                    <option value="">— Tất cả lý do —</option>
+                    <option value="Import" selected="@(reason == "Import")">Nhập kho</option>
+                    <option value="Sale" selected="@(reason == "Sale")">Bán hàng</option>
+                    <option value="Return" selected="@(reason == "Return")">Trả hàng</option>
+                    <option value="Adjustment" selected="@(reason == "Adjustment")">Điều chỉnh tay</option>
+                    <option value="Damage" selected="@(reason == "Damage")">Hư hỏng</option>
+                </select>
+                @if (ViewBag.Products != null || !string.IsNullOrEmpty(reason))
+                {
+                    <a href="/Admin/InventoryLogs" class="btn-action btn-delete"><i class="fa fa-times"></i> Xóa lọc</a>
+                }
+            </form>
+        </div>
+
+        <div style="overflow-x:auto">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Thời gian</th>
+                        <th>Sản phẩm</th>
+                        <th>Biến thể</th>
+                        <th>Thay đổi</th>
+                        <th>Tồn sau đó</th>
+                        <th>Lý do</th>
+                        <th>Ghi chú</th>
+                        <th>Người thực hiện</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text-muted)">Không có nhật ký nào phù hợp bộ lọc.</td></tr>
+                    }
+                    @foreach (var l in Model)
+                    {
+                        <tr>
+                            <td style="white-space:nowrap;font-size:12.5px;">@l.CreatedAt.ToString("HH:mm dd/MM/yyyy")</td>
+                            <td>
+                                <a href="/Product/Details/@l.ProductId" target="_blank">@(l.Product?.Name ?? "#" + l.ProductId)</a>
+                            </td>
+                            <td style="font-size:12.5px;color:var(--text-muted)">
+                                @(l.Variant != null ? $"{l.Variant.RAM} / {l.Variant.Color}" : "—")
+                            </td>
+                            <td style="font-weight:800;color:@(l.QuantityChange >= 0 ? "var(--success)" : "var(--rog-red,#e0393e)")">
+                                @(l.QuantityChange >= 0 ? "+" : "")@l.QuantityChange
+                            </td>
+                            <td>@l.StockAfter</td>
+                            <td>
+                                @{
+                                    string badgeColor = l.Reason switch {
+                                        "Import" => "var(--success)",
+                                        "Sale" => "var(--accent)",
+                                        "Return" => "var(--tuf-yellow,#e6b800)",
+                                        "Damage" => "var(--rog-red,#e0393e)",
+                                        _ => "var(--text-muted)"
+                                    };
+                                    string reasonLabel = l.Reason switch {
+                                        "Import" => "Nhập kho",
+                                        "Sale" => "Bán hàng",
+                                        "Return" => "Trả hàng",
+                                        "Adjustment" => "Điều chỉnh",
+                                        "Damage" => "Hư hỏng",
+                                        _ => l.Reason
+                                    };
+                                }
+                                <span style="background:@badgeColor;color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap;">@reasonLabel</span>
+                            </td>
+                            <td style="font-size:12.5px;color:var(--text-muted);max-width:220px;">
+                                @l.Note
+                                @if (l.OrderId != null)
+                                {
+                                    <a href="/Admin/OrderDetail/@l.OrderId" style="display:block;color:var(--accent)">Đơn #@l.OrderId</a>
+                                }
+                            </td>
+                            <td style="font-size:12.5px;">@(l.CreatedByUser?.FullName ?? "Hệ thống")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (totalPages > 1)
+        {
+            <div style="display:flex;gap:6px;justify-content:center;padding:16px;flex-wrap:wrap;">
+                @for (int i = 1; i <= totalPages; i++)
+                {
+                    <a href="/Admin/InventoryLogs?page=@i&productId=@Context.Request.Query["productId"]&reason=@reason"
+                       class="btn-action @(i == page ? "btn-edit" : "btn-view")" style="min-width:34px;text-align:center;">@i</a>
+                }
+            </div>
+        }
+    </div>
+</div>

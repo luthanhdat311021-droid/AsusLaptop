@@ -1,0 +1,192 @@
+@model AsusLaptop.Models.Order
+@{
+    ViewData["Title"] = "Theo dõi đơn hàng #" + Model.Id;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <style>
+        .ot-wrap { max-width: 1100px; margin: 0 auto; padding: 24px 20px 60px; }
+        .ot-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:18px; }
+        .ot-title { font-size: 22px; font-weight: 800; }
+        .ot-title span { color: var(--accent); }
+        .ot-status-pill {
+            display:inline-flex; align-items:center; gap:6px;
+            padding: 6px 14px; border-radius: 999px; font-size: 12.5px; font-weight:700;
+            background: rgba(0,180,255,.12); color: var(--accent); border:1px solid rgba(0,180,255,.3);
+        }
+        .ot-grid { display:grid; grid-template-columns: 1fr 300px; gap:18px; }
+        @@media (max-width: 860px) { .ot-grid { grid-template-columns: 1fr; } }
+        #ot-map { width:100%; height: 480px; border-radius: var(--radius, 10px); border:1px solid var(--border); background:#e5e5e5; }
+        .ot-panel { background: var(--bg-card2); border:1px solid var(--border); border-radius: var(--radius,10px); padding:16px; }
+        .ot-panel + .ot-panel { margin-top:14px; }
+        .ot-panel h4 { font-size:12px; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:10px; }
+        .ot-shipper-row { display:flex; align-items:center; gap:10px; }
+        .ot-shipper-avatar {
+            width:42px; height:42px; border-radius:50%;
+            background: var(--accent); color:#fff; display:flex; align-items:center; justify-content:center;
+            font-size:18px; flex-shrink:0;
+        }
+        .ot-shipper-name { font-weight:700; font-size:14px; }
+        .ot-shipper-phone { font-size:12.5px; color:var(--text-muted); }
+        .ot-updated { font-size:11.5px; color:var(--text-muted); margin-top:10px; }
+        .ot-timeline { list-style:none; padding:0; margin:0; }
+        .ot-timeline li { display:flex; gap:10px; font-size:12.5px; padding:6px 0; color:var(--text-muted); }
+        .ot-timeline li.done { color: var(--text-primary); font-weight:600; }
+        .ot-timeline li .dot { width:9px; height:9px; border-radius:50%; background:var(--border); margin-top:3px; flex-shrink:0; }
+        .ot-timeline li.done .dot { background: var(--success, #00d4aa); }
+        .ot-empty-note { font-size:12.5px; color:var(--text-muted); text-align:center; padding:14px 0; }
+        .leaflet-div-icon { background:transparent; border:none; }
+    </style>
+}
+
+<div class="ot-wrap">
+    <div class="ot-header">
+        <div class="ot-title">Theo dõi đơn hàng <span>#@Model.Id</span></div>
+        <span class="ot-status-pill" id="ot-status-pill">
+            @(Model.Status switch {
+                "Pending" => "⏳ Chờ xử lý",
+                "Processing" => "⚙️ Đang chuẩn bị hàng",
+                "Shipped" => "🚚 Đang giao hàng",
+                "Completed" => "✅ Hoàn thành",
+                "Cancelled" => "❌ Đã hủy",
+                "Refunded" => "💸 Đã hoàn tiền",
+                _ => Model.Status
+            })
+        </span>
+    </div>
+
+    <div class="ot-grid">
+        <div>
+            <div id="ot-map"></div>
+        </div>
+
+        <div>
+            <div class="ot-panel">
+                <h4><i class="fa fa-motorcycle"></i> Shipper phụ trách</h4>
+                <div id="ot-shipper-info">
+                    @if (!string.IsNullOrWhiteSpace(Model.ShipperName))
+                    {
+                        <div class="ot-shipper-row">
+                            <div class="ot-shipper-avatar"><i class="fa fa-user"></i></div>
+                            <div>
+                                <div class="ot-shipper-name" id="ot-shipper-name">@Model.ShipperName</div>
+                                <div class="ot-shipper-phone" id="ot-shipper-phone">@Model.ShipperPhone</div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="ot-empty-note" id="ot-shipper-empty">Đơn hàng chưa được gán shipper.</div>
+                    }
+                </div>
+                <div class="ot-updated" id="ot-updated">
+                    @(Model.LastLocationUpdate != null
+                        ? "Cập nhật lúc: " + Model.LastLocationUpdate.Value.ToString("HH:mm:ss dd/MM")
+                        : "Chưa có dữ liệu vị trí")
+                </div>
+            </div>
+
+            <div class="ot-panel">
+                <h4><i class="fa fa-route"></i> Hành trình</h4>
+                <ul class="ot-timeline">
+                    <li class="@(Model.Status != "Cancelled" ? "done" : "")"><span class="dot"></span> Đơn hàng đã đặt</li>
+                    <li class="@(Model.Status is "Processing" or "Shipped" or "Completed" ? "done" : "")"><span class="dot"></span> Đang chuẩn bị hàng</li>
+                    <li class="@(Model.Status is "Shipped" or "Completed" ? "done" : "")"><span class="dot"></span> Shipper đang giao hàng</li>
+                    <li class="@(Model.Status == "Completed" ? "done" : "")"><span class="dot"></span> Giao hàng thành công</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <script>
+        (function () {
+            var orderId = @Model.Id;
+            var shopLat = @(((double)ViewBag.ShopLat).ToString(System.Globalization.CultureInfo.InvariantCulture)), shopLng = @(((double)ViewBag.ShopLng).ToString(System.Globalization.CultureInfo.InvariantCulture));
+            var destLat = @(Model.DestinationLat?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "null");
+            var destLng = @(Model.DestinationLng?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "null");
+            var shipLat = @(Model.ShipperLat?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "null");
+            var shipLng = @(Model.ShipperLng?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "null");
+
+            var map = L.map('ot-map').setView([shopLat, shopLng], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(map);
+
+            function icon(bg, iconClass) {
+                return L.divIcon({
+                    html: '<div style="width:34px;height:34px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:' + bg + ';display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.35)"><i class="fa ' + iconClass + '" style="transform:rotate(45deg);color:#fff;font-size:15px"></i></div>',
+                    iconSize: [34, 34],
+                    iconAnchor: [17, 34],
+                    className: 'leaflet-div-icon'
+                });
+            }
+
+            var shopMarker = L.marker([shopLat, shopLng], { icon: icon('#00b4ff', 'fa-store') }).addTo(map).bindPopup('Cửa hàng ASUS Laptop Store');
+            var destMarker = null, shipperMarker = null;
+            var bounds = [[shopLat, shopLng]];
+
+            if (destLat !== null && destLng !== null) {
+                destMarker = L.marker([destLat, destLng], { icon: icon('#ff4444', 'fa-flag-checkered') }).addTo(map).bindPopup('Địa chỉ giao hàng');
+                bounds.push([destLat, destLng]);
+            }
+            if (shipLat !== null && shipLng !== null) {
+                shipperMarker = L.marker([shipLat, shipLng], { icon: icon('#00d4aa', 'fa-motorcycle') }).addTo(map).bindPopup('Shipper');
+                bounds.push([shipLat, shipLng]);
+            }
+            if (bounds.length > 1) map.fitBounds(bounds, { padding: [40, 40] });
+
+            function moveShipper(lat, lng) {
+                if (!shipperMarker) {
+                    shipperMarker = L.marker([lat, lng], { icon: icon('#00d4aa', 'fa-motorcycle') }).addTo(map).bindPopup('Shipper');
+                } else {
+                    shipperMarker.setLatLng([lat, lng]);
+                }
+            }
+
+            // ── SignalR: nhận vị trí realtime ─────────────────────
+            var connection = new signalR.HubConnectionBuilder()
+                .withUrl('/hubs/order-tracking')
+                .withAutomaticReconnect()
+                .build();
+
+            connection.on('ReceiveLocation', function (data) {
+                moveShipper(data.lat, data.lng);
+                var el = document.getElementById('ot-updated');
+                if (el) el.textContent = 'Cập nhật lúc: ' + new Date(data.updatedAt).toLocaleTimeString('vi-VN');
+            });
+
+            connection.on('ReceiveShipperInfo', function (data) {
+                var infoEl = document.getElementById('ot-shipper-info');
+                infoEl.innerHTML =
+                    '<div class="ot-shipper-row">' +
+                    '<div class="ot-shipper-avatar"><i class="fa fa-user"></i></div>' +
+                    '<div><div class="ot-shipper-name">' + data.shipperName + '</div>' +
+                    '<div class="ot-shipper-phone">' + (data.shipperPhone || '') + '</div></div></div>';
+                if (data.lat && data.lng) moveShipper(data.lat, data.lng);
+            });
+
+            connection.on('ReceiveDestination', function (data) {
+                if (!destMarker) {
+                    destMarker = L.marker([data.lat, data.lng], { icon: icon('#ff4444', 'fa-flag-checkered') }).addTo(map).bindPopup('Địa chỉ giao hàng');
+                } else {
+                    destMarker.setLatLng([data.lat, data.lng]);
+                }
+            });
+
+            connection.on('ArrivedAtDestination', function () {
+                var pill = document.getElementById('ot-status-pill');
+                if (pill) pill.textContent = '📍 Shipper đã đến nơi giao hàng';
+            });
+
+            connection.start()
+                .then(function () { connection.invoke('JoinOrderRoom', orderId); })
+                .catch(function (err) { console.error('SignalR connect error:', err); });
+        })();
+    </script>
+}

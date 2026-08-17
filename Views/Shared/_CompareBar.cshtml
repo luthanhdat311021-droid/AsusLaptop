@@ -1,0 +1,55 @@
+<!-- ===== FLOATING COMPARE BAR ===== -->
+<div id="compareBar" class="compare-bar">
+    <div class="compare-bar-inner">
+        <div class="compare-bar-label">
+            <i class="fa fa-balance-scale"></i> So sánh sản phẩm
+        </div>
+        <div id="compareBarItems" class="compare-bar-items"></div>
+        <a id="compareGoBtn" href="/Compare/Index" class="compare-bar-go">So sánh ngay</a>
+    </div>
+</div>
+
+<style>
+    .compare-bar {
+        position: fixed; left: 50%; bottom: -120px; transform: translateX(-50%);
+        width: min(92vw, 760px); background: var(--bg-card); border: 1px solid var(--border);
+        border-radius: var(--radius-lg); box-shadow: var(--shadow); z-index: 1000;
+        transition: bottom .3s ease; padding: 12px 16px;
+    }
+    .compare-bar.show { bottom: 18px; }
+    .compare-bar-inner { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+    .compare-bar-label {
+        color: var(--text-primary); font-weight:600; font-size: 13.5px; white-space:nowrap;
+        display:flex; align-items:center; gap:6px;
+    }
+    .compare-bar-items { display:flex; align-items:center; gap:8px; flex: 1; overflow-x:auto; }
+    .compare-bar-item {
+        position: relative; display:flex; align-items:center; gap:6px; background: var(--bg-card2);
+        border: 1px solid var(--border); border-radius: 20px; padding: 4px 10px 4px 4px; flex-shrink:0;
+    }
+    .compare-bar-thumb {
+        width:26px; height:26px; border-radius:50%; background:#fff; display:flex; align-items:center;
+        justify-content:center; overflow:hidden; flex-shrink:0;
+    }
+    .compare-bar-thumb img { max-width:100%; max-height:100%; object-fit:contain; }
+    .compare-bar-thumb i { font-size: 12px; color:#ccc; }
+    .compare-bar-name {
+        color: var(--text-secondary); font-size: 11.5px; max-width: 90px; overflow:hidden;
+        text-overflow: ellipsis; white-space: nowrap;
+    }
+    .compare-bar-remove {
+        position:absolute; top:-6px; right:-6px; width:16px; height:16px; border-radius:50%;
+        background: var(--error); color:#fff; border:none; font-size: 8px; cursor:pointer;
+        display:flex; align-items:center; justify-content:center;
+    }
+    .compare-bar-go {
+        background: var(--accent); color:#fff; padding: 8px 16px; border-radius: var(--radius);
+        font-weight:600; font-size: 13px; text-decoration:none; white-space:nowrap;
+    }
+    .compare-bar-go:hover { opacity:.9; }
+
+    @@media (max-width: 600px) {
+        .compare-bar-label { display:none; }
+        .compare-bar-name { max-width: 60px; }
+    }
+</style>

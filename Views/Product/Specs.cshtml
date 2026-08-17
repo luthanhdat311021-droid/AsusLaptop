@@ -1,0 +1,112 @@
+@model AsusLaptop.Models.Product
+@{
+    Layout = null; // Trang độc lập, tối ưu khi mở từ camera quét QR (không cần header/footer)
+    ViewData["Title"] = Model.Name + " - Thông số kỹ thuật";
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"]</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            background: #f2f2f2;
+            color: #111111;
+            padding: 20px;
+        }
+        .card {
+            max-width: 480px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0,0,0,.08);
+        }
+        .card img {
+            width: 100%;
+            max-height: 240px;
+            object-fit: contain;
+            background: #f6f6f6;
+            padding: 16px;
+        }
+        .card-body { padding: 22px 24px 28px; }
+        .brand { color: #9a9a9a; font-weight: 800; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; }
+        h1 { font-size: 21px; margin: 8px 0 14px; line-height: 1.3; font-weight: 800; letter-spacing: -.01em; }
+        .price-row { display:flex; align-items:baseline; gap:10px; margin-bottom: 18px; }
+        .price { font-size: 24px; font-weight: 800; color: #ff4d00; font-family: 'Barlow Condensed', 'Inter', sans-serif; }
+        .original { font-size: 14px; color: #b5b5b5; text-decoration: line-through; }
+        .specs { width: 100%; border-collapse: collapse; font-size: 14px; }
+        .specs tr { border-bottom: 1px solid #f0f0f0; }
+        .specs tr:last-child { border-bottom: none; }
+        .specs td { padding: 10px 4px; vertical-align: top; }
+        .specs td:first-child { color: #9a9a9a; width: 42%; font-size: 12.5px; text-transform: uppercase; letter-spacing: .04em; font-weight: 700; }
+        .specs td:last-child { font-weight: 600; color: #111111; }
+        .stock { display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; margin-bottom:16px; padding:5px 12px; border-radius:20px; text-transform: uppercase; letter-spacing: .04em; }
+        .stock.in { background: rgba(10,125,60,.08); color: #0a7d3c; border: 1px solid rgba(10,125,60,.25); }
+        .stock.out { background: rgba(198,40,40,.08); color: #c62828; border: 1px solid rgba(198,40,40,.25); }
+        .btn-link {
+            display:block; text-align:center; margin-top:22px;
+            background:#111111; color:#fff; text-decoration:none;
+            padding:14px; border-radius:999px; font-weight:700; font-size:14px;
+            text-transform: uppercase; letter-spacing: .04em;
+            transition: background .2s ease;
+        }
+        .btn-link:hover { background: #ff4d00; }
+        .scan-tag { text-align:center; font-size:11.5px; color:#9a9a9a; margin-top:16px; letter-spacing: .02em; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+        {
+            <img src="@Model.ImageUrl" alt="@Model.Name" onerror="this.style.display='none'" />
+        }
+        <div class="card-body">
+            <div class="brand">@Model.Brand — @Model.Series</div>
+            <h1>@Model.Name</h1>
+
+            <div class="price-row">
+                <span class="price">@Model.Price.ToString("N0")₫</span>
+                @if (Model.OriginalPrice > Model.Price)
+                {
+                    <span class="original">@Model.OriginalPrice.ToString("N0")₫</span>
+                }
+            </div>
+
+            <span class="stock @(Model.Quantity > 0 ? "in" : "out")">
+                @(Model.Quantity > 0 ? $"Còn hàng ({Model.Quantity} sản phẩm)" : "Hết hàng")
+            </span>
+
+            <table class="specs">
+                @if (!string.IsNullOrEmpty(Model.CPU))
+                { <tr><td>Bộ xử lý (CPU)</td><td>@Model.CPU</td></tr> }
+                @if (!string.IsNullOrEmpty(Model.RAM))
+                { <tr><td>RAM</td><td>@Model.RAM</td></tr> }
+                @if (!string.IsNullOrEmpty(Model.Storage))
+                { <tr><td>Ổ cứng</td><td>@Model.Storage</td></tr> }
+                @if (!string.IsNullOrEmpty(Model.GPU))
+                { <tr><td>Card đồ họa (GPU)</td><td>@Model.GPU</td></tr> }
+                @if (!string.IsNullOrEmpty(Model.ScreenSize))
+                { <tr><td>Màn hình</td><td>@Model.ScreenSize @(!string.IsNullOrEmpty(Model.ScreenResolution) ? "— " + Model.ScreenResolution : "")</td></tr> }
+                @if (!string.IsNullOrEmpty(Model.Battery))
+                { <tr><td>Pin</td><td>@Model.Battery</td></tr> }
+                @if (!string.IsNullOrEmpty(Model.Weight))
+                { <tr><td>Trọng lượng</td><td>@Model.Weight</td></tr> }
+                @if (!string.IsNullOrEmpty(Model.OS))
+                { <tr><td>Hệ điều hành</td><td>@Model.OS</td></tr> }
+            </table>
+
+            <a class="btn-link" href="@Url.Action("Details", "Product", new { id = Model.Id })">
+                Xem chi tiết &amp; mua hàng
+            </a>
+            <div class="scan-tag">Quét bởi mã QR sản phẩm — ASUS Laptop Store</div>
+        </div>
+    </div>
+</body>
+</html>

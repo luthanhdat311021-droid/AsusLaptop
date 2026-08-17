@@ -1,0 +1,3299 @@
+@model List<AsusLaptop.Models.Product>
+@{
+    ViewData["Title"] = "Laptop ASUS Chính Hãng — ROG, ZenBook, TUF, VivoBook";
+    var activeSeries = ViewData["ActiveSeries"]?.ToString() ?? "Tất cả";
+    var searchQuery = ViewData["SearchQuery"]?.ToString();
+    var activeSort = ViewData["ActiveSort"]?.ToString() ?? "hot";
+
+    var currentPage = (int)(ViewData["CurrentPage"] ?? 1);
+    var totalPages = (int)(ViewData["TotalPages"] ?? 1);
+    var totalItems = (int)(ViewData["TotalItems"] ?? Model.Count);
+
+    // High quality official ASUS laptop image map
+    var fallbackImages = new Dictionary<string, string>
+    {
+        { "ROG Strix", "https://cdnv2.tgdd.vn/mwg-static/tgdd/Products/Images/44/333095/asus-rog-strix-g16-g614jv-i7-n3515w-1-638700327785084721-750x500.jpg" },
+        { "ROG Zephyrus", "https://m.media-amazon.com/images/I/61SEuRLdrYL._AC_UF894,1000_QL80_.jpg" },
+        { "ROG Flow", "https://i.rtings.com/assets/products/XiiQ8wbP/asus-rog-flow-x13-2023/design-medium.jpg?format=auto" },
+        { "TUF Gaming", "https://vn.store.asus.com/media/catalog/product/cache/2a6b0744b87cbe1990f7a65c1fd3659e/a/s/asus_tuf_gaming_f15_2023__fx507vv-lp304w_1_.jpg" },
+        { "ZenBook", "https://cdn.ankhang.vn/media/product/24308_thumb_laptop_asus_zenbook_14_oled_ux3405ma_pp151w.jpg" },
+        { "VivoBook", "https://vn.store.asus.com/media/catalog/product/cache/2a6b0744b87cbe1990f7a65c1fd3659e/a/1/a1505va-l1688w.jpg" },
+        { "ProArt", "https://vn.store.asus.com/media/catalog/product/cache/6517c62f5899ad6aa0ba23ceb3eeff97/v/i/viber_image_2023-12-15_16-01-02-964.jpg" }
+    };
+    var defaultImg = "https://cdnv2.tgdd.vn/mwg-static/tgdd/Products/Images/44/333095/asus-rog-strix-g16-g614jv-i7-n3515w-1-638700327785084721-750x500.jpg";
+
+    // Ảnh nền banner — 100% chuẩn sản phẩm ASUS
+    const string imgRog     = "/image/rog_bg.png";
+    const string imgZen     = "/image/zenbook_bg.png";
+    const string imgTuf     = "/image/rog_bg.png";
+    const string imgProart  = "/image/rog_bg.png";
+    const string imgVivo    = "/image/zenbook_bg.png";
+
+    // Video Laptop thực tế 100% — lưu trực tiếp trong wwwroot/video/ (Không bị chặn CORS / Adblock)
+    const string vid1 = "/video/rog_strix.mp4";
+    const string vid2 = "/video/zenbook.mp4";
+    const string vid3 = "/video/tuf_gaming.mp4";
+    const string vid4 = "/video/rog_ecosystem.mp4";
+    const string vid5 = "/video/combo_sinhvien.mp4";
+}
+
+@section Styles {
+    <style>
+        /* ═══════════════════════════════════════════
+           NIKE-STYLE FULL-BLEED VIDEO HERO CAROUSEL
+        ═══════════════════════════════════════════ */
+
+        /* Marquee ticker (giống Nike announcement bar) */
+        .nk-marquee-wrap {
+            background: #111;
+            color: #fff;
+            overflow: hidden;
+            border-bottom: 1px solid #222;
+        }
+        .nk-marquee-track {
+            display: flex;
+            width: max-content;
+            animation: nkMarquee 28s linear infinite;
+        }
+        .nk-marquee-track:hover { animation-play-state: paused; }
+        .nk-marquee-item {
+            flex-shrink: 0;
+            padding: 10px 48px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: .04em;
+            white-space: nowrap;
+        }
+        .nk-marquee-item a {
+            color: #fff;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+        .nk-marquee-item a:hover { opacity: .75; }
+        @@keyframes nkMarquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Full-bleed hero carousel (BANNER CHÍNH SIÊU LỚN) */
+        .nk-hero-carousel {
+            position: relative;
+            width: 100%;
+            height: clamp(680px, 92vh, 960px);
+            background: #111;
+            overflow: hidden;
+        }
+
+        .hero-slider-track {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .hero-slide {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity .85s ease, visibility .85s ease;
+            z-index: 1;
+        }
+        .hero-slide.active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 2;
+        }
+
+        .hero-slide-bg {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+            background-color: #1a1a1a;
+        }
+
+        /* Lớp ảnh nền luôn hiển thị — video chỉ là lớp phủ tùy chọn */
+        .banner-bg-img,
+        .hero-fallback-img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            z-index: 0;
+        }
+
+        .hero-banner-video,
+        .sub-banner-video,
+        .mid-banner-video,
+        .nk-full-banner-video,
+        .visible-video-card video {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            z-index: 1;
+            opacity: 1 !important;
+            display: block !important;
+            visibility: visible !important;
+            transition: transform 8s ease, opacity .5s ease;
+        }
+
+        .hero-slide.active .hero-banner-video.banner-video-ready {
+            transform: scale(1);
+        }
+
+        .hero-banner-video.banner-video-ready {
+            transform: scale(1.04);
+            transition: transform 8s ease, opacity .5s ease;
+        }
+        .hero-slide-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            background: linear-gradient(
+                to top,
+                rgba(0,0,0,0.72) 0%,
+                rgba(0,0,0,0.35) 35%,
+                rgba(0,0,0,0.08) 70%,
+                rgba(0,0,0,0) 100%
+            );
+        }
+
+        .hero-slide-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 3;
+            padding: 0 clamp(24px, 5vw, 64px) clamp(72px, 8vw, 96px);
+            color: #fff;
+            max-width: 680px;
+        }
+
+        .hero-badge-tag {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: .02em;
+            margin-bottom: 8px;
+            display: block;
+            opacity: .9;
+        }
+
+        .hero-slide-title {
+            font-family: 'Barlow Condensed', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: clamp(2.4rem, 5.5vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            letter-spacing: -.02em;
+        }
+
+        .hero-slide-sub { display: none; }
+
+        .hero-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* Nút CTA kiểu Nike: tròn, tối giản */
+        .btn-hero-primary,
+        .btn-hero-glass {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 110px;
+            padding: 12px 24px;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 14px;
+            text-decoration: none;
+            transition: background .2s ease, color .2s ease, border-color .2s ease;
+        }
+        .btn-hero-primary,
+        .btn-rog, .btn-zen, .btn-tuf, .btn-proart {
+            background: #fff;
+            color: #111;
+            border: 1.5px solid #fff;
+        }
+        .btn-hero-primary:hover,
+        .btn-rog:hover, .btn-zen:hover, .btn-tuf:hover, .btn-proart:hover {
+            background: rgba(255,255,255,.85);
+        }
+        .btn-hero-glass {
+            background: transparent;
+            color: #fff;
+            border: 1.5px solid rgba(255,255,255,.8);
+        }
+        .btn-hero-glass:hover {
+            background: rgba(255,255,255,.12);
+            border-color: #fff;
+        }
+
+        /* Mũi tên điều hướng */
+        .slider-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.15);
+            border: none;
+            color: #fff;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            backdrop-filter: blur(6px);
+            transition: background .2s ease;
+            opacity: 0;
+        }
+        .nk-hero-carousel:hover .slider-arrow { opacity: 1; }
+        .slider-arrow:hover { background: rgba(255,255,255,.35); }
+        .slider-prev { left: clamp(12px, 2vw, 28px); }
+        .slider-next { right: clamp(12px, 2vw, 28px); }
+
+        /* Thanh progress kiểu Nike */
+        .slider-dots {
+            position: absolute;
+            bottom: clamp(20px, 3vw, 36px);
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            width: min(320px, 70vw);
+        }
+        .slider-dot {
+            flex: 1;
+            height: 3px;
+            border-radius: 2px;
+            background: rgba(255,255,255,.35);
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            overflow: hidden;
+            position: relative;
+        }
+        .slider-dot::after {
+            content: '';
+            position: absolute;
+            left: 0; top: 0;
+            height: 100%;
+            width: 0%;
+            background: #fff;
+            border-radius: 2px;
+        }
+        .slider-dot.active::after {
+            animation: nkProgress var(--slide-duration, 6s) linear forwards;
+        }
+        .slider-dot.done::after { width: 100%; animation: none; }
+        @@keyframes nkProgress {
+            from { width: 0%; }
+            to { width: 100%; }
+        }
+
+        /* Dual promo banners (2 cột — giống Nike split hero) */
+        .nk-dual-promo {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+        }
+        @@media (max-width: 768px) {
+            .nk-dual-promo { grid-template-columns: 1fr; }
+        }
+
+        .sub-banner-card {
+            position: relative;
+            min-height: clamp(380px, 50vw, 560px);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            color: #fff;
+            text-decoration: none;
+            background-color: #1a1a1a;
+            background-size: cover;
+            background-position: center;
+        }
+        .sub-banner-card:hover .sub-banner-video:not(.banner-video-hidden) { transform: scale(1.03); }
+
+        .sub-banner-video {
+            transition: transform .6s ease;
+        }
+        .sub-banner-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            background: linear-gradient(to top, rgba(0,0,0,.75) 0%, rgba(0,0,0,.2) 50%, transparent 100%);
+        }
+
+        .sub-banner-content {
+            position: relative;
+            z-index: 3;
+            padding: clamp(24px, 4vw, 48px);
+        }
+        .sub-banner-badge { display: none; }
+
+        .sub-banner-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: clamp(1.6rem, 3vw, 2.4rem);
+            font-weight: 800;
+            text-transform: uppercase;
+            line-height: 1.05;
+            margin-bottom: 16px;
+        }
+
+        .sub-banner-desc { display: none; }
+
+        .sub-banner-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 11px 22px;
+            border-radius: 999px;
+            background: #fff;
+            color: #111;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background .2s ease;
+        }
+        .sub-banner-card:hover .sub-banner-link { background: rgba(255,255,255,.85); }
+
+        /* Full-width editorial banner (Nike style) */
+        .nk-full-banner {
+            position: relative;
+            min-height: clamp(400px, 55vw, 620px);
+            overflow: hidden;
+            display: flex;
+            align-items: flex-end;
+            background-color: #1a1a1a;
+            background-size: cover;
+            background-position: center;
+            text-decoration: none;
+            color: #fff;
+        }
+        .nk-full-banner:hover .nk-full-banner-video:not(.banner-video-hidden) { transform: scale(1.02); }
+        .nk-full-banner-video {
+            transition: transform .6s ease;
+        }
+        .nk-full-banner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            background: linear-gradient(to top, rgba(0,0,0,.8) 0%, rgba(0,0,0,.25) 50%, transparent 100%);
+        }
+        .nk-full-banner-content {
+            position: relative;
+            z-index: 3;
+            padding: clamp(32px, 5vw, 64px);
+            max-width: 560px;
+        }
+        .nk-full-banner-eyebrow {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: .04em;
+            margin-bottom: 8px;
+            opacity: .9;
+        }
+        .nk-full-banner-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: clamp(2rem, 4.5vw, 3.5rem);
+            font-weight: 800;
+            text-transform: uppercase;
+            line-height: 1;
+            margin-bottom: 20px;
+        }
+        .nk-full-banner-btn {
+            display: inline-flex;
+            padding: 12px 24px;
+            border-radius: 999px;
+            background: #fff;
+            color: #111;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .nk-full-banner:hover .nk-full-banner-btn { background: rgba(255,255,255,.85); }
+
+        /* Copilot / service CTA strip */
+        .nk-copilot-banner {
+            background: #111;
+            color: #fff;
+            padding: clamp(48px, 6vw, 72px) clamp(24px, 5vw, 64px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .nk-copilot-banner h3 {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: clamp(1.6rem, 3vw, 2.4rem);
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .nk-copilot-banner p {
+            font-size: 14px;
+            color: rgba(255,255,255,.75);
+            max-width: 520px;
+        }
+        .nk-copilot-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            border-radius: 999px;
+            background: #fff;
+            color: #111;
+            font-weight: 600;
+            font-size: 14px;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: background .2s ease;
+        }
+        .nk-copilot-btn:hover { background: rgba(255,255,255,.85); }
+
+        /* Flash sale section container */
+        .nk-flash-section {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px 2rem 0;
+        }
+
+        /* 2. FLASH SALE TICKER BANNER */
+        .flash-sale-banner {
+            max-width: 1400px;
+            margin: 48px auto 0;
+            padding: 0 2rem;
+        }
+
+        .flash-sale-inner {
+            background: #111;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 20px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.25);
+            flex-wrap: wrap;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .flash-sale-inner::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+            animation: flashShimmer 3.5s infinite;
+        }
+
+        @@keyframes flashShimmer {
+            100% { left: 100%; }
+        }
+
+        .flash-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .flash-icon-box {
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #ff4d00, #ff0055);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 4px 18px rgba(255,77,0,0.55);
+            animation: pulseGlow 1.8s infinite alternate;
+        }
+
+        @@keyframes pulseGlow {
+            0% { transform: scale(1); box-shadow: 0 4px 18px rgba(255,77,0,0.55); }
+            100% { transform: scale(1.08); box-shadow: 0 8px 28px rgba(255,77,0,0.85); }
+        }
+
+        .flash-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: .02em;
+            margin: 0;
+        }
+
+        .flash-sub {
+            font-size: 12.5px;
+            color: rgba(255,255,255,0.78);
+        }
+
+        /* FLASH SALE SECTION STYLES */
+        .flash-sale-wrapper {
+            background: linear-gradient(135deg, #11131a 0%, #1a0b16 100%);
+            border: 1px solid rgba(255, 77, 0, 0.4);
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 16px 40px rgba(255, 77, 0, 0.15);
+            color: #ffffff;
+        }
+        .flash-sale-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 16px;
+        }
+        .flash-title-wrap { display: flex; align-items: center; gap: 12px; }
+        .flash-fire-icon { font-size: 32px; animation: pulseFire 1.2s infinite alternate; }
+        @@keyframes pulseFire { 0% { transform: scale(1); } 100% { transform: scale(1.15); } }
+        .flash-main-title { font-family: 'Barlow Condensed', sans-serif; font-size: 28px; font-weight: 800; margin: 0; color: #ffffff; letter-spacing: 0.5px; }
+        .flash-sub-badge { font-size: 11px; font-weight: 800; color: #ff4d00; background: rgba(255, 77, 0, 0.15); padding: 3px 10px; border-radius: 999px; letter-spacing: 0.5px; }
+        .flash-timer-container { display: flex; align-items: center; gap: 12px; }
+        .flash-timer-label { font-size: 11px; font-weight: 800; color: rgba(255, 255, 255, 0.7); letter-spacing: 0.5px; }
+        .flash-timer-box { display: flex; align-items: center; gap: 8px; }
+        .timer-unit { background: #0a0b10; border: 1px solid rgba(255,77,0,0.55); border-radius: 10px; padding: 6px 12px; min-width: 46px; text-align: center; }
+        .timer-num { font-family: 'Barlow Condensed', sans-serif; font-size: 1.45rem; font-weight: 800; color: #ff4d00; line-height: 1; }
+        .timer-lbl { font-size: 9.5px; color: #999; text-transform: uppercase; font-weight: 700; }
+        .timer-colon { font-weight: 800; color: #ff4d00; font-size: 1.3rem; }
+
+        .flash-products-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+        @@media (max-width: 1024px) { .flash-products-grid { grid-template-columns: repeat(2, 1fr); } }
+        @@media (max-width: 580px) { .flash-products-grid { grid-template-columns: 1fr; } }
+        .flash-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 16px;
+            position: relative;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .flash-card:hover { transform: translateY(-6px); border-color: #ff4d00; box-shadow: 0 12px 30px rgba(255, 77, 0, 0.25); background: rgba(255, 255, 255, 0.07); }
+        .flash-card-badge { position: absolute; top: 12px; left: 12px; z-index: 5; background: linear-gradient(135deg, #e00034, #ff4d00); color: #fff; font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 8px; box-shadow: 0 4px 12px rgba(224, 0, 52, 0.4); }
+        .flash-card-img-wrap { display: block; height: 150px; text-align: center; margin-bottom: 12px; background: #fff; border-radius: 12px; padding: 8px; }
+        .flash-card-img { width: 100%; height: 100%; object-fit: contain; }
+        .flash-series-tag { font-size: 10px; font-weight: 800; color: #ff4d00; text-transform: uppercase; letter-spacing: 0.5px; }
+        .flash-prod-title { font-size: 14px; font-weight: 700; margin: 4px 0 10px; line-height: 1.3; height: 36px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+        .flash-prod-title a { color: #ffffff; text-decoration: none; }
+        .flash-prod-title a:hover { color: #ff4d00; }
+        .flash-price-wrap { display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px; }
+        .flash-price { font-size: 16px; font-weight: 800; color: #ff4d00; }
+        .flash-orig-price { font-size: 12px; color: rgba(255, 255, 255, 0.5); text-decoration: line-through; }
+        .flash-progress-bar { position: relative; height: 18px; background: rgba(255, 255, 255, 0.1); border-radius: 999px; overflow: hidden; margin-bottom: 12px; }
+        .flash-progress-fill { position: absolute; top: 0; left: 0; bottom: 0; background: linear-gradient(90deg, #ff4d00, #ff8800); border-radius: 999px; }
+        .flash-progress-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.8); z-index: 2; }
+        .flash-buy-btn { width: 100%; padding: 10px; border-radius: 10px; background: linear-gradient(135deg, #ff4d00, #e00034); color: #fff; font-size: 13px; font-weight: 800; border: none; cursor: pointer; transition: all 0.2s ease; }
+        .flash-buy-btn:hover { opacity: 0.9; transform: scale(1.02); }
+        .flash-buy-btn.disabled, .flash-buy-btn[disabled] { background: #2a2b32 !important; color: #888888 !important; cursor: not-allowed !important; opacity: 0.7; box-shadow: none !important; transform: none !important; }
+
+        /* 3. SHOP BY SERIES VISUAL BANNERS GRID WITH HIGH-RES IMAGES */
+        .series-banners-section {
+            max-width: 1400px;
+            margin: 48px auto 0;
+            padding: 0 2rem;
+        }
+
+        .section-header-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #111;
+            margin-bottom: 18px;
+            letter-spacing: -.01em;
+        }
+
+        .series-banner-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+        }
+
+        @@media (max-width: 1100px) {
+            .series-banner-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        @@media (max-width: 640px) {
+            .series-banner-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .series-banner-card {
+            position: relative;
+            border-radius: 0;
+            overflow: hidden;
+            height: 200px;
+            padding: 1.3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            text-decoration: none;
+            color: #fff;
+            transition: opacity .2s ease;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .series-banner-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,.75) 0%, rgba(0,0,0,.15) 100%);
+            z-index: 1;
+        }
+
+        .series-banner-card > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        .series-banner-card:hover { opacity: .88; }
+
+        .sb-rog { background-image: url('https://images.unsplash.com/photo-1603302576837-37561b2e2302?auto=format&fit=crop&w=600&q=80'); }
+        .sb-tuf { background-image: url('https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?auto=format&fit=crop&w=600&q=80'); }
+        .sb-zen { background-image: url('https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=600&q=80'); }
+        .sb-vivo { background-image: url('https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=600&q=80'); }
+        .sb-proart { background-image: url('https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=600&q=80'); }
+
+        .series-card-name {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            line-height: 1;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+        }
+
+        .series-card-tag {
+            font-size: 11.5px;
+            opacity: 0.9;
+            margin-top: 4px;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+        }
+
+        .series-card-icon { display: none; }
+
+        /* 4. MID-PAGE FEATURE BANNERS — Nike split grid */
+        .mid-banners-section {
+            margin: 0;
+            padding: 0;
+        }
+
+        .mid-banners-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
+        }
+
+        @@media (max-width: 900px) {
+            .mid-banners-grid { grid-template-columns: 1fr; }
+        }
+
+        .mid-banner-card {
+            position: relative;
+            overflow: hidden;
+            min-height: clamp(320px, 40vw, 480px);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            color: #fff;
+            text-decoration: none;
+            background-color: #1a1a1a;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .mid-banner-card:hover .mid-banner-video:not(.banner-video-hidden) { transform: scale(1.03); }
+
+        .mid-banner-video {
+            transition: transform .6s ease;
+        }
+
+        .mid-banner-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            background: linear-gradient(to top, rgba(0,0,0,.78) 0%, rgba(0,0,0,.2) 55%, transparent 100%);
+        }
+
+        .mid-banner-content {
+            position: relative;
+            z-index: 3;
+            padding: clamp(24px, 4vw, 40px);
+        }
+        .mb-desc { display: none; }
+
+        .mb-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: clamp(1.4rem, 2.5vw, 2rem);
+            font-weight: 800;
+            text-transform: uppercase;
+            line-height: 1.05;
+            margin-bottom: 16px;
+        }
+
+        .mb-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 11px 22px;
+            border-radius: 999px;
+            background: #fff;
+            color: #111;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background .2s ease;
+        }
+        .mid-banner-card:hover .mb-btn { background: rgba(255,255,255,.85); }
+
+        /* 5. BRAND TRUST BAR */
+        .trust-bar-section {
+            max-width: 1400px;
+            margin: 40px auto 0;
+            padding: 0 2rem;
+        }
+
+        .trust-bar-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            background: #ffffff;
+            border: 1px solid #e8e8e8;
+            border-radius: 20px;
+            padding: 22px 26px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+        }
+
+        @@media (max-width: 900px) {
+            .trust-bar-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @@media (max-width: 500px) {
+            .trust-bar-grid { grid-template-columns: 1fr; }
+        }
+
+        .trust-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .trust-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: #f5f5f7;
+            color: #111111;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+            transition: all .25s ease;
+        }
+
+        .trust-item:hover .trust-icon {
+            background: #ff4d00;
+            color: #ffffff;
+            transform: scale(1.08);
+        }
+
+        .trust-title {
+            font-size: 13.5px;
+            font-weight: 800;
+            color: #111111;
+            margin-bottom: 2px;
+        }
+
+        .trust-sub {
+            font-size: 12px;
+            color: #777777;
+        }
+
+        /* 6. VIP MEMBER CLUB BENTO GRID STYLES */
+        .vip-club-section {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 54px 2rem 72px;
+        }
+
+        .bento-header {
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        .bento-main-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 2.3rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 10px;
+            margin-bottom: 8px;
+            background: linear-gradient(90deg, #ffffff, #ffd700, #ff4d00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .bento-main-sub {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14.5px;
+            max-width: 620px;
+            margin: 0 auto;
+        }
+
+        .bento-grid-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .bento-tile {
+            background: rgba(18, 19, 27, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 26px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: all 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .bento-tile:hover {
+            transform: translateY(-6px);
+            border-color: rgba(255, 77, 0, 0.45);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(255, 77, 0, 0.15);
+        }
+
+        .bento-tile-hero {
+            grid-column: span 2;
+            grid-row: span 2;
+            background: linear-gradient(135deg, rgba(26, 27, 40, 0.95), rgba(15, 16, 26, 0.98));
+            border: 1px solid rgba(255, 77, 0, 0.35);
+            padding: 36px 32px;
+            justify-content: center;
+        }
+
+        .bento-glow-bg {
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 77, 0, 0.15), transparent 60%);
+            pointer-events: none;
+        }
+
+        .bento-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 999px;
+            background: rgba(255, 77, 0, 0.15);
+            color: #ff4d00;
+            border: 1px solid rgba(255, 77, 0, 0.3);
+            font-size: 11.5px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            width: fit-content;
+            margin-bottom: 14px;
+        }
+
+        .bento-badge.gold-badge {
+            background: rgba(255, 215, 0, 0.15);
+            color: #ffd700;
+            border-color: rgba(255, 215, 0, 0.3);
+        }
+
+        .bento-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 2rem;
+            font-weight: 900;
+            color: #ffffff;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            line-height: 1.15;
+        }
+
+        .bento-desc {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .vip-bento-form {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 14px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .bento-input-wrap {
+            position: relative;
+            flex: 1;
+        }
+
+        .bento-input-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+        }
+
+        .bento-input {
+            width: 100%;
+            padding: 13px 16px 13px 44px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(0, 0, 0, 0.4);
+            color: #ffffff;
+            font-size: 13.5px;
+            outline: none;
+            transition: all 0.2s;
+            box-sizing: border-box;
+        }
+
+        .bento-input:focus {
+            border-color: #ff4d00;
+            background: rgba(0, 0, 0, 0.6);
+            box-shadow: 0 0 15px rgba(255, 77, 0, 0.2);
+        }
+
+        .bento-submit-btn {
+            padding: 13px 24px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #ff4d00, #ff7a00);
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 13px;
+            border: none;
+            cursor: pointer;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 6px 20px rgba(255, 77, 0, 0.4);
+            transition: all 0.2s;
+        }
+
+        .bento-submit-btn:hover {
+            opacity: 0.95;
+            transform: translateY(-2px);
+        }
+
+        .bento-footer-note {
+            font-size: 11.5px;
+            color: rgba(255, 255, 255, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .bento-tile-voucher {
+            background: linear-gradient(145deg, rgba(255, 215, 0, 0.08), rgba(18, 19, 27, 0.95));
+            border-color: rgba(255, 215, 0, 0.3);
+            grid-column: span 2;
+        }
+
+        .bento-stat-val {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 2.6rem;
+            font-weight: 900;
+            color: #ffd700;
+            line-height: 1;
+            margin: 6px 0;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .bento-stat-label {
+            font-size: 12.5px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 12px;
+        }
+
+        .bento-code-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #000000;
+            padding: 6px 14px;
+            border-radius: 8px;
+            border: 1px dashed rgba(255, 215, 0, 0.4);
+            color: #ffffff;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            font-weight: 800;
+            width: fit-content;
+        }
+
+        .bento-icon-circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 14px;
+        }
+
+        .flash-glow {
+            background: rgba(255, 77, 0, 0.15);
+            color: #ff4d00;
+            border: 1px solid rgba(255, 77, 0, 0.3);
+        }
+
+        .concierge-glow {
+            background: rgba(0, 230, 118, 0.15);
+            color: #00e676;
+            border: 1px solid rgba(0, 230, 118, 0.3);
+        }
+
+        .onsite-glow {
+            background: rgba(112, 0, 255, 0.15);
+            color: #a855f7;
+            border: 1px solid rgba(112, 0, 255, 0.3);
+        }
+
+        .gift-glow {
+            background: rgba(255, 0, 128, 0.15);
+            color: #ff0080;
+            border: 1px solid rgba(255, 0, 128, 0.3);
+        }
+
+        .bento-tile-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 6px;
+        }
+
+        .bento-tile-desc {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.68);
+            line-height: 1.45;
+        }
+
+        /* RESPONSIVE MEDIA QUERIES FOR BENTO GRID */
+        @@media (max-width: 1024px) {
+            .bento-grid-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .bento-tile-hero {
+                grid-column: span 2;
+                grid-row: span 1;
+            }
+            .bento-tile-voucher {
+                grid-column: span 2;
+            }
+        }
+
+        @@media (max-width: 640px) {
+            .vip-club-section {
+                padding: 32px 1rem 48px;
+            }
+            .bento-main-title {
+                font-size: 1.7rem;
+            }
+            .bento-grid-container {
+                grid-template-columns: 1fr;
+                gap: 14px;
+            }
+            .bento-tile-hero, .bento-tile-voucher {
+                grid-column: span 1;
+            }
+            .bento-tile {
+                border-radius: 18px;
+                padding: 20px;
+            }
+            .vip-bento-form {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .bento-submit-btn {
+                width: 100%;
+                justify-content: center;
+                height: 44px;
+            }
+        }
+
+        /* ═══════════════════════════════════════════
+           PAGE / PRODUCTS SECTION STYLES & PAGINATION
+        ═══════════════════════════════════════════ */
+        .nk-page {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 3rem 2rem 4rem;
+        }
+
+        .nk-page-header {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        .nk-page-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 2.1rem;
+            font-weight: 800;
+            color: #111111;
+            text-transform: uppercase;
+            letter-spacing: -.01em;
+        }
+
+        .nk-page-count {
+            color: #757575;
+            font-size: 13.5px;
+            font-weight: 600;
+        }
+
+        .nk-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding-bottom: 1.25rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #ececec;
+        }
+
+        .nk-toolbar-filters {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .nk-filter-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #111111;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-right: 4px;
+        }
+
+        .nk-chip {
+            padding: 7px 16px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #5a5a5a;
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            text-decoration: none;
+            transition: all .18s ease;
+        }
+
+        .nk-chip:hover,
+        .nk-chip.active {
+            background: #111111;
+            border-color: #111111;
+            color: #ffffff;
+        }
+
+        .nk-sort-select {
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 999px;
+            color: #111111;
+            font-weight: 700;
+            font-size: 13px;
+            padding: 8px 16px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .home-layout {
+            display: flex;
+            align-items: flex-start;
+            gap: 32px;
+        }
+
+        .home-main { flex: 1; min-width: 0; }
+
+        .personalized-ai {
+            margin: 0 0 20px;
+            padding: 18px;
+            border: 1px solid rgba(255, 77, 0, .22);
+            border-radius: 16px;
+            background: linear-gradient(135deg, #fff8f4 0%, #ffffff 70%);
+            box-shadow: 0 8px 22px rgba(255, 77, 0, .06);
+        }
+        .personalized-ai-head { display:flex; gap:16px; justify-content:space-between; align-items:flex-start; margin-bottom:14px; }
+        .personalized-ai-label { display:inline-block; color:#e64500; font-size:11px; font-weight:800; letter-spacing:.7px; }
+        .personalized-ai h2 { margin:4px 0; font-size:20px; color:#161616; }
+        .personalized-ai p { margin:0; color:#666; font-size:12px; }
+        .personalized-ai-head > a { white-space:nowrap; color:#e64500; font-size:13px; font-weight:700; text-decoration:none; padding-top:7px; }
+        .personalized-ai-list { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:10px; }
+        .personalized-ai-item { display:flex; min-width:0; gap:9px; align-items:center; padding:9px; border-radius:11px; background:#fff; border:1px solid #f0e6e1; text-decoration:none; color:inherit; transition:transform .2s, box-shadow .2s; }
+        .personalized-ai-item:hover { transform:translateY(-2px); box-shadow:0 5px 14px rgba(0,0,0,.08); }
+        .personalized-ai-item img { width:52px; height:52px; object-fit:cover; border-radius:8px; background:#f4f4f4; }
+        .personalized-ai-info { min-width:0; flex:1; display:flex; flex-direction:column; gap:3px; }
+        .personalized-ai-info strong { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px; color:#222; }
+        .personalized-ai-info small { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#777; font-size:10px; }
+        .personalized-ai-info b { color:#e64500; font-size:12px; }
+        .personalized-ai-match { color:#e64500; font-weight:800; font-size:13px; text-align:right; }
+        .personalized-ai-match small { display:block; color:#888; font-size:9px; font-weight:500; }
+
+        @@media (max-width: 760px) {
+            .personalized-ai-list { grid-template-columns:1fr; }
+            .personalized-ai-head > a { display:none; }
+        }
+
+        .home-sidebar {
+            width: 300px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 88px;
+        }
+
+        @@media (max-width: 1024px) {
+            .home-sidebar { display: none; }
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 2rem 1.5rem;
+        }
+
+        .product-card {
+            position: relative;
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: visible;
+            cursor: pointer;
+            border: 1px solid #f0f0f0;
+            transition: transform .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+            border-color: #e5e5e5;
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            z-index: 10;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .04em;
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        .badge-sale { background: #e0393e; color: #fff; }
+        .badge-hot { background: #ff4d00; color: #fff; box-shadow: 0 2px 8px rgba(255,77,0,0.4); }
+        .badge-new { background: #111111; color: #fff; }
+
+        .product-wish {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.9);
+            border: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #111111;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform .15s ease;
+        }
+
+        .product-wish:hover { transform: scale(1.1); color: #e0393e; }
+
+        .product-edit-btn {
+            position: absolute;
+            top: 10px;
+            right: 50px;
+            z-index: 10;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: rgba(255,140,0,0.95);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 13px;
+            cursor: pointer;
+            transition: transform .15s ease;
+            text-decoration: none;
+        }
+
+        .product-edit-btn:hover { transform: scale(1.1); background: rgba(230,120,0,1); }
+
+        .product-img {
+            display: block;
+            height: 230px;
+            overflow: hidden;
+            background: #f8f8f9;
+            position: relative;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .product-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 20px;
+            transition: transform .45s ease;
+        }
+
+        .product-card:hover .product-img img { transform: scale(1.08); }
+
+        .product-quickview {
+            position: absolute;
+            left: 0; right: 0; bottom: 0;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            background: linear-gradient(to top, rgba(0,0,0,0.55), transparent);
+            opacity: 0;
+            transform: translateY(6px);
+            transition: opacity .25s ease, transform .25s ease;
+            pointer-events: none;
+        }
+
+        .product-card:hover .product-quickview {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .product-quickview span {
+            background: #fff;
+            color: #111111;
+            font-size: 11.5px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            padding: 7px 16px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .product-body { padding: 16px; }
+
+        .product-series {
+            font-size: 12px;
+            font-weight: 700;
+            color: #ff4d00;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: .03em;
+        }
+
+        .product-name {
+            display: block;
+            font-size: 15px;
+            font-weight: 700;
+            color: #111111;
+            text-decoration: none;
+            margin-bottom: 8px;
+            line-height: 1.35;
+            height: 40px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            transition: color .18s ease;
+        }
+
+        .product-card:hover .product-name { color: #ff4d00; }
+
+        .product-specs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+
+        .spec-tag {
+            font-size: 11px;
+            color: #666;
+            background: #f4f4f5;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .spec-tag i { color: #999; margin-right: 3px; }
+
+        .product-footer {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-top: 10px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .product-price-row {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .product-price {
+            font-size: 17px;
+            font-weight: 800;
+            color: #111111;
+        }
+
+        .product-original {
+            font-size: 13px;
+            color: #9a9a9a;
+            text-decoration: line-through;
+        }
+
+        .product-discount {
+            font-size: 12px;
+            font-weight: 800;
+            color: #e0393e;
+        }
+
+        .product-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-add-cart {
+            flex: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: #111111;
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 12.5px;
+            padding: 11px 14px;
+            border-radius: 999px;
+            border: none;
+            cursor: pointer;
+            transition: background .18s ease, transform .18s ease;
+        }
+
+        .btn-add-cart:hover {
+            background: #ff4d00;
+            transform: translateY(-1px);
+        }
+
+        .btn-detail {
+            width: 38px;
+            height: 38px;
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+            color: #111111;
+            border: 1px solid #e0e0e0;
+            border-radius: 999px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all .18s ease;
+        }
+
+        .btn-detail:hover {
+            border-color: #111111;
+            background: #f5f5f5;
+        }
+
+        /* PAGINATION UI STYLES */
+        .nk-pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 2.8rem;
+            padding-top: 1.8rem;
+            border-top: 1px solid #ececec;
+            flex-wrap: wrap;
+        }
+
+        .page-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 800;
+            color: #111111;
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            text-decoration: none;
+            transition: all .2s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        }
+
+        .page-btn:hover:not(.disabled) {
+            background: #111111;
+            border-color: #111111;
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .page-btn.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .page-numbers {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .page-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 14px;
+            font-weight: 800;
+            color: #111111;
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            text-decoration: none;
+            transition: all .2s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        }
+
+        .page-num:hover {
+            border-color: #ff4d00;
+            color: #ff4d00;
+            transform: translateY(-2px);
+        }
+
+        .page-num.active {
+            background: #ff4d00;
+            border-color: #ff4d00;
+            color: #ffffff;
+            box-shadow: 0 6px 20px rgba(255,77,0,0.45);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 5rem 1rem;
+            color: #757575;
+        }
+
+        .empty-state i { font-size: 2.5rem; margin-bottom: 1rem; color: #d0d0d0; }
+        .empty-state h3 { color: #111111; margin-bottom: .5rem; }
+        .empty-state .cta-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #111111;
+            color: #fff;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 12px 26px;
+            border-radius: 999px;
+            text-decoration: none;
+            margin-top: 1rem;
+        }
+
+        .reveal { opacity: 0; transform: translateY(20px); transition: opacity .5s ease, transform .5s ease; }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        /* ═══════════════════════════════════════════
+           HERO FLAGSHIP SPLIT CONTAINER & MARQUEE SPECS PANEL
+        ═══════════════════════════════════════════ */
+        .hero-flagship-container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 20px;
+            align-items: stretch;
+        }
+        @@media (max-width: 1024px) {
+            .hero-flagship-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        .hero-integrated-banners {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            height: 100%;
+        }
+        .integrated-video-card {
+            position: relative;
+            flex: 1;
+            min-height: 230px;
+            border-radius: 20px;
+            overflow: hidden;
+            background: #090a0f;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+            text-decoration: none;
+            display: block;
+        }
+        .integrated-video-card video {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.85;
+            z-index: 1;
+            transition: transform 0.5s ease;
+        }
+        .integrated-video-card:hover video {
+            transform: scale(1.06);
+        }
+        .integrated-video-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(0deg, rgba(8, 9, 13, 0.92) 0%, rgba(8, 9, 13, 0.25) 60%, transparent 100%);
+            z-index: 2;
+            pointer-events: none;
+        }
+        .integrated-video-copy {
+            position: absolute;
+            z-index: 3;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            color: #ffffff;
+        }
+        .integrated-video-copy span {
+            display: inline-block;
+            background: linear-gradient(135deg, #ff4d00, #d4af37);
+            color: #ffffff;
+            border-radius: 999px;
+            padding: 4px 12px;
+            font-weight: 800;
+            font-size: 10px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            box-shadow: 0 4px 12px rgba(255, 77, 0, 0.4);
+        }
+        .integrated-video-copy h3 {
+            margin: 2px 0 4px;
+            font-size: 18px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #ffffff;
+            line-height: 1.2;
+        }
+        .integrated-video-copy p {
+            margin: 0;
+            font-size: 12px;
+            color: #cbd5e1;
+        }
+
+        /* MARQUEE INTERACTIVE CONTAINER FIX */
+        .marquee-interactive-container {
+            display: flex !important;
+            flex-direction: row !important;
+            gap: 24px !important;
+            align-items: flex-start !important;
+            width: 100% !important;
+        }
+        @@media (max-width: 1024px) {
+            .marquee-interactive-container {
+                flex-direction: column !important;
+            }
+        }
+        .marquee-track-wrapper {
+            flex: 1 1 0% !important;
+            min-width: 0 !important;
+            overflow: hidden !important;
+            background: #111420 !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border-radius: 20px !important;
+            padding: 20px !important;
+        }
+    </style>
+}
+
+@if (string.IsNullOrEmpty(searchQuery) && activeSeries == "Tất cả")
+{
+    <!-- Marquee ticker -->
+    <div class="nk-marquee-wrap">
+        <div class="nk-marquee-track">
+            <span class="nk-marquee-item">Miễn phí vận chuyển đơn từ 500K &nbsp;·&nbsp; <a href="/?series=ROG+Strix">ROG Strix mới — Giảm đến 30%</a></span>
+            <span class="nk-marquee-item">Trả góp 0% lãi suất 12 tháng &nbsp;·&nbsp; <a href="/?series=ZenBook">ZenBook OLED — Siêu mỏng 1kg</a></span>
+            <span class="nk-marquee-item">Bảo hành chính hãng 2 năm toàn quốc &nbsp;·&nbsp; <a href="/?series=TUF+Gaming">TUF Gaming — Chuẩn quân đội</a></span>
+        </div>
+    </div>
+
+    <!-- ═════════════════════════════════════════════════════════════════════
+         1. HERO SECTION: ULTRA-MINIMALIST 3D FLAGSHIP SHOWCASE
+    ═════════════════════════════════════════════════════════════════════ -->
+    <section class="hero-3d-section" id="hero-3d">
+        <!-- Official ASUS ROG/ZenBook Media Background -->
+        <div class="hero-bg-media">
+            <img src="/image/rog_bg.png" id="heroBgImg" class="hero-bg-img" alt="ASUS ROG Official Background" />
+            <video id="heroBgVideo" class="hero-bg-video" autoplay loop muted playsinline poster="/image/rog_bg.png">
+                <source src="/video/rog_strix.mp4" type="video/mp4" />
+            </video>
+            <div class="hero-bg-overlay"></div>
+        </div>
+
+        <!-- Interactive 3D WebGL Laptop Canvas -->
+        <div id="hero-3d-container" style="width: 100%; height: 100%; position: absolute; inset: 0; z-index: 2;"></div>
+
+        <!-- HUD Text & Controls Overlay -->
+        <div class="hero-hud-overlay">
+            <div class="hero-top-badge">
+                <i class="fa-solid fa-microchip"></i> REPUBLIC OF GAMERS // IN SEARCH OF INCREDIBLE
+            </div>
+
+            <div class="hero-title-group">
+                <h1 class="hero-main-title" id="heroTitle">
+                    ROG STRIX SCAR 18
+                    <span class="hero-title-highlight" id="heroTitleHighlight">BEYOND LIMITS 3D</span>
+                </h1>
+                <p class="hero-sub-text" id="heroSubText">
+                    Intel® Core™ i9-14900HX • NVIDIA® GeForce RTX™ 4090 175W TGP • 240Hz 0.2ms ROG Nebula HDR OLED • Tri-Fan Liquid Metal Cooling.
+                </p>
+                <div class="hero-cta-group">
+                    <a href="#bento-showcase" class="btn-cyber-primary">
+                        EXPLORE MODELS <i class="fa-solid fa-chevron-right"></i>
+                    </a>
+                    <a href="/Product/Details/1" class="btn-cyber-glass">
+                        XEM CHI TIẾT
+                    </a>
+                </div>
+            </div>
+
+            <!-- Sleek Series Control Deck at the Bottom -->
+            <div class="hero-series-bar">
+                <span class="series-bar-label"><i class="fa-solid fa-sliders"></i> CHỌN DÒNG ASUS:</span>
+                <div class="hero-series-selector">
+                    <button type="button" class="hero-series-pill active" onclick="switchHeroBg('/video/rog_strix.mp4', '/image/rog_bg.png', 'ROG STRIX SCAR 18', 'BEYOND LIMITS 3D', 'Intel® Core™ i9-14900HX • NVIDIA® GeForce RTX™ 4090 175W TGP • 240Hz 0.2ms ROG Nebula HDR OLED • Tri-Fan Liquid Metal Cooling.', this)">
+                        <i class="fa-solid fa-gamepad"></i> ROG STRIX
+                    </button>
+                    <button type="button" class="hero-series-pill" onclick="switchHeroBg('/video/zenbook.mp4', '/image/zenbook_bg.png', 'ZENBOOK DUO OLED', 'PREMIUM DUAL SCREEN', 'Intel® Core™ Ultra 9 • Dual 14&quot; 3K 120Hz OLED • ScreenPad Plus • Lightweight Magnesium-Aluminum Body.', this)">
+                        <i class="fa-solid fa-laptop"></i> ZENBOOK
+                    </button>
+                    <button type="button" class="hero-series-pill" onclick="switchHeroBg('/video/tuf_gaming.mp4', '/image/rog_bg.png', 'TUF GAMING A15', 'MILITARY TOUGHNESS', 'AMD Ryzen™ 9 8945HS • NVIDIA® GeForce RTX™ 4070 • MIL-STD-810H Military Standard • 90Wh Battery.', this)">
+                        <i class="fa-solid fa-shield-halved"></i> TUF GAMING
+                    </button>
+                    <button type="button" class="hero-series-pill" onclick="switchHeroBg('/video/rog_ecosystem.mp4', '/image/rog_bg.png', 'ROG ECOSYSTEM', 'UNLEASH THE BEST', 'G-SYNC Dual Mode • Tri-Fan Cooling System • Liquid Metal Thermal Compound • ROG Armoury Crate.', this)">
+                        <i class="fa-solid fa-bolt"></i> ROG ECOSYSTEM
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═════════════════════════════════════════════════════════════════════
+         2. PRODUCT SHOWCASE GRID: BENTO-BOX CARDS WITH 3D TILT
+    ═════════════════════════════════════════════════════════════════════ -->
+    <section class="section-cyber-wrap" id="bento-showcase">
+        <div class="section-header-cyber">
+            <div>
+                <span class="sec-tag">FLAGSHIP SHOWCASE</span>
+                <h2 class="sec-title">ASUS BENTO PRODUCT GRID</h2>
+            </div>
+        </div>
+
+        <div class="bento-grid-container">
+            <!-- Card 1: ROG Strix SCAR 18 (Span 8) -->
+            <div class="bento-card col-8">
+                <span class="bento-badge badge-rtx">HERO FLAGSHIP // RTX 4090 175W</span>
+                <h3 class="bento-title">ROG STRIX SCAR 18 (2026)</h3>
+                <p class="bento-desc">Trải nghiệm đỉnh cao sức mạnh chơi game cùng hệ thống tản nhiệt 3 quạt Tri-Fan và màn hình 240Hz Nebula OLED.</p>
+                <div class="bento-img-wrap">
+                    <img src="https://cdnv2.tgdd.vn/mwg-static/tgdd/Products/Images/44/333095/asus-rog-strix-g16-g614jv-i7-n3515w-1-638700327785084721-750x500.jpg" class="bento-img" alt="ROG Strix SCAR 18" />
+                </div>
+                <div class="bento-footer">
+                    <div class="bento-price">89.990.000₫ <del>95.990.000₫</del></div>
+                    <a href="/Product/Details/1" class="btn-cyber-primary">MUA NGAY</a>
+                </div>
+            </div>
+
+            <!-- Card 2: ZenBook Duo Dual Screen (Span 4) -->
+            <div class="bento-card col-4">
+                <span class="bento-badge badge-oled">DUAL 120Hz OLED</span>
+                <h3 class="bento-title">ZENBOOK DUO 2026</h3>
+                <p class="bento-desc">Hai màn hình cảm ứng 3K OLED 14" tuyệt mỹ cùng bàn phím ErgoSense rời tiện lợi.</p>
+                <div class="bento-img-wrap">
+                    <img src="https://cdn.ankhang.vn/media/product/24308_thumb_laptop_asus_zenbook_14_oled_ux3405ma_pp151w.jpg" class="bento-img" alt="ZenBook Duo" />
+                </div>
+                <div class="bento-footer">
+                    <div class="bento-price">49.990.000₫</div>
+                    <a href="/Product/Details/2" class="btn-cyber-glass">XEM NGAY</a>
+                </div>
+            </div>
+
+            <!-- Card 3: ROG Strix RTX 4090 GPU (Span 4) -->
+            <div class="bento-card col-4">
+                <span class="bento-badge badge-rtx">GPU POWERHOUSE</span>
+                <h3 class="bento-title">ROG STRIX RTX 4090</h3>
+                <p class="bento-desc">Buồng hơi Vapor Chamber tản nhiệt siêu việt cùng thiết kế góc cạnh gaming đẳng cấp.</p>
+                <div class="bento-img-wrap">
+                    <img src="https://m.media-amazon.com/images/I/61SEuRLdrYL._AC_UF894,1000_QL80_.jpg" class="bento-img" alt="ROG Strix GPU" />
+                </div>
+                <div class="bento-footer">
+                    <div class="bento-price">52.990.000₫</div>
+                    <a href="/Product/Details/3" class="btn-cyber-glass">XEM NGAY</a>
+                </div>
+            </div>
+
+            <!-- Card 4: ROG Flow Z13 Gaming Tablet (Span 4) -->
+            <div class="bento-card col-4">
+                <span class="bento-badge badge-rtx">CONVERTIBLE TABLET</span>
+                <h3 class="bento-title">ROG FLOW Z13</h3>
+                <p class="bento-desc">Máy tính bảng chơi game mạnh nhất thế giới hỗ trợ card đồ họa rời eGPU XG Mobile.</p>
+                <div class="bento-img-wrap">
+                    <img src="https://i.rtings.com/assets/products/XiiQ8wbP/asus-rog-flow-x13-2023/design-medium.jpg?format=auto" class="bento-img" alt="ROG Flow Z13" />
+                </div>
+                <div class="bento-footer">
+                    <div class="bento-price">41.990.000₫</div>
+                    <a href="/Product/Details/4" class="btn-cyber-glass">XEM NGAY</a>
+                </div>
+            </div>
+
+            <!-- Card 5: ProArt Studiobook 16 (Span 4) -->
+            <div class="bento-card col-4">
+                <span class="bento-badge badge-oled">CREATOR HAPTIC DIAL</span>
+                <h3 class="bento-title">PROART STUDIOBOOK 16</h3>
+                <p class="bento-desc">Màn hình OLED 3.2K màu chuẩn điện ảnh cùng núm xoay vật lý Asus Dial chuyên dụng sáng tạo.</p>
+                <div class="bento-img-wrap">
+                    <img src="https://vn.store.asus.com/media/catalog/product/cache/6517c62f5899ad6aa0ba23ceb3eeff97/v/i/viber_image_2023-12-15_16-01-02-964.jpg" class="bento-img" alt="ProArt Studiobook" />
+                </div>
+                <div class="bento-footer">
+                    <div class="bento-price">64.990.000₫</div>
+                    <a href="/Product/Details/5" class="btn-cyber-glass">XEM NGAY</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 1. LANDING PAGE USP HIGHLIGHTS SECTION -->
+    <section class="landing-usp-wrapper" id="usp">
+        <div class="usp-grid reveal-grid">
+            <div class="usp-card reveal">
+                <div class="usp-icon-box"><i class="fa fa-shield-halved"></i></div>
+                <h4 class="usp-card-title">100% Chính Hãng</h4>
+                <p class="usp-card-desc">Ủy quyền ASUS Việt Nam, nguyên seal 100%</p>
+            </div>
+            <div class="usp-card reveal">
+                <div class="usp-icon-box"><i class="fa fa-screwdriver-wrench"></i></div>
+                <h4 class="usp-card-title">Bảo Hành 24T Tận Nhà</h4>
+                <p class="usp-card-desc">Bảo hành VIP chính hãng tận nhà trên toàn quốc</p>
+            </div>
+            <div class="usp-card reveal">
+                <div class="usp-icon-box"><i class="fa fa-credit-card"></i></div>
+                <h4 class="usp-card-title">Trả Góp 0% Lãi Suất</h4>
+                <p class="usp-card-desc">Duyệt nhanh 5 phút qua thẻ hoặc căn cước</p>
+            </div>
+            <div class="usp-card reveal">
+                <div class="usp-icon-box"><i class="fa fa-bolt"></i></div>
+                <h4 class="usp-card-title">Giao Tốc Hành 2H</h4>
+                <p class="usp-card-desc">Miễn phí giao hàng cho đơn hàng từ 500K</p>
+            </div>
+            <div class="usp-card reveal">
+                <div class="usp-icon-box"><i class="fa fa-rotate-left"></i></div>
+                <h4 class="usp-card-title">30 Ngày Đổi Mới</h4>
+                <p class="usp-card-desc">Lỗi 1 đổi 1 trong 30 ngày nếu có lỗi sản xuất</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. FLASH SALE TICKER BANNER -->
+    <section class="flash-sale-banner" id="flash-sale">
+        <div class="flash-sale-inner reveal">
+            <div class="flash-left">
+                <div class="flash-icon-box"><i class="fa fa-bolt"></i></div>
+                <div>
+                    <h3 class="flash-title">FLASH SALE GIỜ VÀNG — GIẢM ĐẾN 30%</h3>
+                    <div class="flash-sub">Nhập mã <strong style="color:#ff4d00;letter-spacing:1px">ASUSFLASH30</strong> khi thanh toán để nhận chiết khấu trực tiếp</div>
+                </div>
+            </div>
+
+            <div class="flash-timer-box" id="flashTickerBox" data-endtime="@(ViewBag.FlashSale != null ? ((AsusLaptop.Models.FlashSaleSectionViewModel)ViewBag.FlashSale).EndTimeIso : "")">
+                <div class="timer-unit">
+                    <div class="timer-num flash-h" id="flashHoursTicker">00</div>
+                    <div class="timer-lbl">Giờ</div>
+                </div>
+                <span class="timer-colon">:</span>
+                <div class="timer-unit">
+                    <div class="timer-num flash-m" id="flashMinutesTicker">00</div>
+                    <div class="timer-lbl">Phút</div>
+                </div>
+                <span class="timer-colon">:</span>
+                <div class="timer-unit">
+                    <div class="timer-num flash-s" id="flashSecondsTicker">00</div>
+                    <div class="timer-lbl">Giây</div>
+                </div>
+            </div>
+
+            <a href="#flashSaleSection" class="flash-btn-claim"><i class="fa fa-fire"></i> SĂN DEAL NGAY</a>
+        </div>
+    </section>
+
+    <!-- FLASH SALE — sản phẩm giờ vàng -->
+    @if (ViewBag.FlashSale != null)
+    {
+        var flashSale = (AsusLaptop.Models.FlashSaleSectionViewModel)ViewBag.FlashSale;
+        if (flashSale.Items != null && flashSale.Items.Count > 0)
+        {
+            <section class="nk-flash-section" id="flashSaleSection">
+                <div class="flash-sale-wrapper reveal">
+                    <div class="flash-sale-header">
+                        <div class="flash-title-wrap">
+                            <span class="flash-fire-icon">🔥⚡</span>
+                            <div>
+                                <h3 class="flash-main-title">FLASH SALE GIỜ VÀNG</h3>
+                                <span class="flash-sub-badge">KHUNG GIỜ @flashSale.SlotName @(flashSale.IsActiveNow ? "• ĐANG DIỄN RA" : "• SẮP DIỄN RA")</span>
+                            </div>
+                        </div>
+                        <div class="flash-timer-container">
+                            <span class="flash-timer-label">@(flashSale.IsActiveNow ? "KẾT THÚC SAU:" : "BẮT ĐẦU SAU:")</span>
+                            <div class="flash-timer-box" id="flashTimerBox" data-endtime="@flashSale.EndTimeIso">
+                                <div class="timer-unit"><div class="timer-num" id="flashHours">00</div><div class="timer-lbl">Giờ</div></div>
+                                <span class="timer-colon">:</span>
+                                <div class="timer-unit"><div class="timer-num" id="flashMins">00</div><div class="timer-lbl">Phút</div></div>
+                                <span class="timer-colon">:</span>
+                                <div class="timer-unit"><div class="timer-num" id="flashSecs">00</div><div class="timer-lbl">Giây</div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flash-products-grid reveal-grid">
+                        @foreach (var item in flashSale.Items)
+                        {
+                            <div class="flash-card reveal">
+                                <div class="flash-card-badge">-@item.DiscountPercent% OFF</div>
+                                <a href="/Product/Details/@item.Product.Id" class="flash-card-img-wrap">
+                                    <img src="@(string.IsNullOrEmpty(item.Product.ImageUrl) ? "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=600&q=80" : item.Product.ImageUrl)" alt="@item.Product.Name" class="flash-card-img" />
+                                </a>
+                                <div class="flash-card-body">
+                                    <span class="flash-series-tag">@item.Product.Series</span>
+                                    <h4 class="flash-prod-title">
+                                        <a href="/Product/Details/@item.Product.Id">@item.Product.Name</a>
+                                    </h4>
+                                    <div class="flash-price-wrap">
+                                        <span class="flash-price">@item.FlashPrice.ToString("N0")₫</span>
+                                        <span class="flash-orig-price">@item.OriginalPrice.ToString("N0")₫</span>
+                                    </div>
+                                    <div class="flash-progress-bar">
+                                        <div class="flash-progress-fill" style="width: @item.SoldPercent%"></div>
+                                        <span class="flash-progress-text">🔥 Đã bán @item.SoldPercent%</span>
+                                    </div>
+                                    @if (flashSale.IsActiveNow)
+                                    {
+                                        <button type="button" class="flash-buy-btn" onclick="addToCartAjax(@item.Product.Id, this)">
+                                            <i class="fa fa-bolt"></i> Mua Ngay Flash Sale
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="flash-buy-btn disabled" disabled title="Chưa đến khung giờ Flash Sale">
+                                            <i class="fa fa-clock"></i> Sắp Đến Giờ Sale
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </section>
+        }
+    }
+    <!-- 3. SHOP BY SERIES SHOWCASE SECTION (LANDING PAGE) -->
+    <section class="series-banners-section" id="series">
+        <div class="landing-section-header reveal" style="margin-bottom: 24px; text-align: left;">
+            <span class="landing-section-tag">Bộ Sưu Tập</span>
+            <h2 class="landing-section-title" style="margin-bottom:0">Khám Phá Dòng Máy Phù Hợp</h2>
+        </div>
+
+        <div class="series-banner-grid reveal-grid">
+            <a href="/?series=ROG+Strix" class="series-banner-card sb-rog reveal">
+                <div class="series-card-name">ROG Strix</div>
+                <div class="series-card-tag">Ultimate Gaming</div>
+            </a>
+            <a href="/?series=ROG+Zephyrus" class="series-banner-card sb-rog reveal" style="background-image:url('https://m.media-amazon.com/images/I/61SEuRLdrYL._AC_UF894,1000_QL80_.jpg')">
+                <div class="series-card-name">Zephyrus</div>
+                <div class="series-card-tag">Thin & Powerful</div>
+            </a>
+            <a href="/?series=TUF+Gaming" class="series-banner-card sb-tuf">
+                <div class="series-card-name">TUF Gaming</div>
+                <div class="series-card-tag">Military Tough</div>
+            </a>
+            <a href="/?series=ZenBook" class="series-banner-card sb-zen">
+                <div class="series-card-name">ZenBook</div>
+                <div class="series-card-tag">Premium Ultrabook</div>
+            </a>
+            <a href="/?series=ProArt" class="series-banner-card sb-proart">
+                <div class="series-card-name">ProArt</div>
+                <div class="series-card-tag">Content Creator</div>
+            </a>
+        </div>
+    </section>
+
+    <!-- 4. TECH SPOTLIGHT SHOWCASE SECTION (LANDING PAGE) -->
+    <section class="landing-tech-wrapper" id="tech-features">
+        <div class="landing-section-header reveal">
+            <span class="landing-section-tag">Đột Phá Công Nghệ</span>
+            <h2 class="landing-section-title">Tiêu Chuẩn Đột Phá Từ ASUS</h2>
+            <p class="landing-section-sub">Khám phá công nghệ độc quyền giúp ASUS thống lĩnh thị trường Laptop Gaming và Ultrabook cao cấp.</p>
+        </div>
+
+        <div class="tech-spotlight-grid reveal-grid">
+            <div class="tech-card reveal">
+                <div>
+                    <div class="tech-badge-icon"><i class="fa fa-tv"></i></div>
+                    <div class="tech-stat-num">OLED</div>
+                    <h4 class="tech-card-title">ASUS Lumina OLED</h4>
+                </div>
+                <p class="tech-card-desc">Độ phân giải 3.2K, 120Hz, 100% DCI-P3 chuẩn màu đồ họa cinema, thời gian phản hồi 0.2ms cực đỉnh.</p>
+            </div>
+
+            <div class="tech-card reveal">
+                <div>
+                    <div class="tech-badge-icon"><i class="fa fa-fan"></i></div>
+                    <div class="tech-stat-num">3-FAN</div>
+                    <h4 class="tech-card-title">ROG Intelligent Cooling</h4>
+                </div>
+                <p class="tech-card-desc">Keo tản nhiệt kim loại lỏng Conductonaut Extreme giảm tới 15°C, hệ thống 3 quạt Arc Flow silent 0dB.</p>
+            </div>
+
+            <div class="tech-card reveal">
+                <div>
+                    <div class="tech-badge-icon"><i class="fa fa-wand-magic-sparkles"></i></div>
+                    <div class="tech-stat-num">AI Copilot</div>
+                    <h4 class="tech-card-title">Copilot+ PC Key</h4>
+                </div>
+                <p class="tech-card-desc">Phím AI chuyên biệt giúp kích hoạt ngay trợ lý trí tuệ nhân tạo, tối ưu hiệu suất làm việc & sáng tạo.</p>
+            </div>
+
+            <div class="tech-card reveal">
+                <div>
+                    <div class="tech-badge-icon"><i class="fa fa-compress-arrows-alt"></i></div>
+                    <div class="tech-stat-num">90%</div>
+                    <h4 class="tech-card-title">NanoEdge Display</h4>
+                </div>
+                <p class="tech-card-desc">Viền màn hình siêu mỏng chỉ 2.8mm, tỷ lệ hiển thị chiếm tới 90% thân máy cho góc nhìn không giới hạn.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4.5. AI DEAL RADAR SHOWCASE SECTION -->
+    <section class="landing-tech-wrapper reveal" id="deal-radar" style="background:#121319; border-top:1px solid rgba(255,77,0,0.2); border-bottom:1px solid rgba(255,77,0,0.2); margin-top:0;">
+        <div class="landing-section-header reveal">
+            <span class="landing-section-tag" style="background:rgba(0,230,118,0.15); color:#00e676; border-color:rgba(0,230,118,0.3);"><i class="fa fa-radar"></i> Thuật Toán AI Phân Tích</span>
+            <h2 class="landing-section-title">🎯 AI Deal Radar — Top Laptop Đạt Giá Đáy</h2>
+            <p class="landing-section-sub">Radar quét liên tục 24/7 phát hiện các mẫu Laptop ASUS đang chạm điểm mua hời nhất lịch sử.</p>
+        </div>
+
+        <div id="dealRadarGrid" class="tech-spotlight-grid reveal-grid">
+            <div style="grid-column:1/-1; text-align:center; padding:30px; color:rgba(255,255,255,0.6);">
+                <i class="fa fa-spinner fa-spin" style="font-size:24px; color:#ff4d00; margin-bottom:10px;"></i>
+                <p>AI đang phân tích dữ liệu biến động giá...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. BRAND TRUST BAR -->
+    <section class="trust-bar-section">
+        <div class="trust-bar-grid reveal">
+            <div class="trust-item">
+                <div class="trust-icon"><i class="fa fa-shield-check"></i></div>
+                <div>
+                    <div class="trust-title">100% CHÍNH HÃNG ASUS</div>
+                    <div class="trust-sub">Nhập khẩu chính ngạch, VAT đầy đủ</div>
+                </div>
+            </div>
+            <div class="trust-item">
+                <div class="trust-icon"><i class="fa fa-tools"></i></div>
+                <div>
+                    <div class="trust-title">BẢO HÀNH 24T TẬN NƠI</div>
+                    <div class="trust-sub">Hỗ trợ kỹ thuật 24/7 toàn quốc</div>
+                </div>
+            </div>
+            <div class="trust-item">
+                <div class="trust-icon"><i class="fa fa-credit-card"></i></div>
+                <div>
+                    <div class="trust-title">TRẢ GÓP 0% LÃI SUẤT</div>
+                    <div class="trust-sub">Thủ tục đơn giản, duyệt 5 phút</div>
+                </div>
+            </div>
+            <div class="trust-item">
+                <div class="trust-icon"><i class="fa fa-truck-fast"></i></div>
+                <div>
+                    <div class="trust-title">GIAO TỐC HÀNH 2 GIỜ</div>
+                    <div class="trust-sub">Miễn phí giao hàng đơn > 500K</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Copilot AI CTA banner -->
+    <section class="nk-copilot-banner reveal">
+        <div>
+            <h3>Laptop Copilot AI</h3>
+            <p>Trợ lý thông minh giúp bạn chọn đúng laptop ASUS — chỉ trong 30 giây, không cần biết cấu hình.</p>
+        </div>
+        <a href="/Copilot" class="nk-copilot-btn"><i class="fa fa-wand-magic-sparkles"></i> Dùng Copilot Ngay</a>
+    </section>
+
+    <!-- 6. VIP MEMBER CLUB BENTO GRID SECTION -->
+    <section class="vip-club-section reveal">
+        <div class="bento-header">
+            <span class="landing-section-tag" style="background:rgba(255,77,0,0.15); color:#ff4d00; border-color:rgba(255,77,0,0.3);">
+                <i class="fa-solid fa-crown"></i> ĐẶC QUYỀN HỘI VIÊN
+            </span>
+            <h2 class="bento-main-title">ASUS VIP CLUB BENTO EXPERIENCES</h2>
+            <p class="bento-main-sub">Gia nhập hệ sinh thái đặc quyền cao cấp nhất dành riêng cho khách hàng sở hữu ASUS Laptop Flagship.</p>
+        </div>
+
+        <div class="bento-grid-container">
+            <!-- TILE 1: HERO SUBSCRIPTION TILE (2 Cols, 2 Rows) -->
+            <div class="bento-tile bento-tile-hero">
+                <div class="bento-glow-bg"></div>
+                <div class="bento-badge"><i class="fa-solid fa-gift"></i> TẶNG VOUCHER ĐẶC QUYỀN</div>
+                <h3 class="bento-title">ĐĂNG KÝ HỘI VIÊN VIP CLUB</h3>
+                <p class="bento-desc">Đăng ký nhận thông tin khuyến mãi độc quyền và nhận ngay Voucher <strong>1.000.000₫</strong> áp dụng trực tiếp cho đơn hàng đầu tiên.</p>
+                
+                <form class="vip-bento-form" onsubmit="handleVipSubscribe(event, this);">
+                    <div class="bento-input-wrap">
+                        <i class="fa-regular fa-envelope bento-input-icon"></i>
+                        <input type="email" class="bento-input" name="email" placeholder="Nhập địa chỉ email của bạn..." required />
+                    </div>
+                    <button type="submit" class="bento-submit-btn">
+                        <span>ĐĂNG KÝ NGAY</span> <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </form>
+                <div class="bento-footer-note"><i class="fa-solid fa-shield-halved"></i> Cam kết bảo mật 100% — Hủy đăng ký bất kỳ lúc nào</div>
+            </div>
+
+            <!-- TILE 2: VOUCHER VALUE (2 Cols, 1 Row) -->
+            <div class="bento-tile bento-tile-voucher">
+                <div class="bento-badge gold-badge"><i class="fa-solid fa-ticket-simple"></i> MÃ GIẢM GIÁ TỰ ĐỘNG</div>
+                <div class="bento-stat-val">1.000.000₫</div>
+                <div class="bento-stat-label">Áp dụng trực tiếp cho đơn hàng ASUS từ 5.000.000₫</div>
+                <div class="bento-code-pill">
+                    <span>MÃ: ASUSVIP1M</span>
+                    <i class="fa-regular fa-copy" style="cursor:pointer" onclick="navigator.clipboard.writeText('ASUSVIP1M'); alert('Đã sao chép mã ASUSVIP1M');"></i>
+                </div>
+            </div>
+
+            <!-- TILE 3: FLASH SALE ACCESS -->
+            <div class="bento-tile">
+                <div class="bento-icon-circle flash-glow">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+                <div>
+                    <h4 class="bento-tile-title">Flash Sale VIP Access</h4>
+                    <p class="bento-tile-desc">Đặc quyền đặt hàng sớm trước 60 phút ở các đợt mở bán ROG & ZenBook hot nhất.</p>
+                </div>
+            </div>
+
+            <!-- TILE 4: CONCIERGE 24/7 -->
+            <div class="bento-tile">
+                <div class="bento-icon-circle concierge-glow">
+                    <i class="fa-solid fa-headset"></i>
+                </div>
+                <div>
+                    <h4 class="bento-tile-title">VIP Concierge 24/7</h4>
+                    <p class="bento-tile-desc">Kênh hỗ trợ kỹ thuật và tối ưu phần mềm 1-on-1 ưu tiên không phải chờ đợi.</p>
+                </div>
+            </div>
+
+            <!-- TILE 5: ONSITE WARRANTY -->
+            <div class="bento-tile">
+                <div class="bento-icon-circle onsite-glow">
+                    <i class="fa-solid fa-house-laptop"></i>
+                </div>
+                <div>
+                    <h4 class="bento-tile-title">Bảo Hành Tận Nơi 2 Năm</h4>
+                    <p class="bento-tile-desc">Kỹ thuật viên ASUS đến tận nơi hỗ trợ kiểm tra và xử lý sự cố hoàn toàn miễn phí.</p>
+                </div>
+            </div>
+
+            <!-- TILE 6: BIRTHDAY GIFT PERKS -->
+            <div class="bento-tile">
+                <div class="bento-icon-circle gift-glow">
+                    <i class="fa-solid fa-cake-candles"></i>
+                </div>
+                <div>
+                    <h4 class="bento-tile-title">Quà Tặng Tháng Sinh Nhật</h4>
+                    <p class="bento-tile-desc">Nhận phần quà bí mật và Voucher giảm thêm 5% vào tháng sinh nhật của bạn.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+else
+{
+
+
+    <!-- Banner tổng quan dòng sản phẩm -->
+    <section class="nk-copilot-banner reveal" style="margin-top:0">
+        <div>
+            <h3>@(string.IsNullOrEmpty(searchQuery) ? "Dòng Sản Phẩm " + activeSeries : "Kết quả tìm kiếm: " + searchQuery)</h3>
+            <p>Khám phá các mẫu laptop ASUS chính hãng hàng đầu thuộc danh mục này.</p>
+        </div>
+        <a href="/" class="nk-copilot-btn"><i class="fa fa-home"></i> Xem Trang Chủ</a>
+    </section>
+
+    @if (ViewBag.FlashSale != null)
+    {
+        var flashSaleFiltered = (AsusLaptop.Models.FlashSaleSectionViewModel)ViewBag.FlashSale;
+        if (flashSaleFiltered.Items != null && flashSaleFiltered.Items.Count > 0)
+        {
+            <section class="nk-flash-section" id="flashSaleSection">
+                <div class="flash-sale-wrapper reveal">
+                    <div class="flash-sale-header">
+                        <div class="flash-title-wrap">
+                            <span class="flash-fire-icon">🔥⚡</span>
+                            <div>
+                                <h3 class="flash-main-title">FLASH SALE GIỜ VÀNG</h3>
+                                <span class="flash-sub-badge">KHUNG GIỜ @flashSaleFiltered.SlotName @(flashSaleFiltered.IsActiveNow ? "• ĐANG DIỄN RA" : "• SẮP DIỄN RA")</span>
+                            </div>
+                        </div>
+                        <div class="flash-timer-container">
+                            <span class="flash-timer-label">@(flashSaleFiltered.IsActiveNow ? "KẾT THÚC SAU:" : "BẮT ĐẦU SAU:")</span>
+                            <div class="flash-timer-box" id="flashTimerBox" data-endtime="@flashSaleFiltered.EndTimeIso">
+                                <div class="timer-unit"><div class="timer-num" id="flashHours">00</div><div class="timer-lbl">Giờ</div></div>
+                                <span class="timer-colon">:</span>
+                                <div class="timer-unit"><div class="timer-num" id="flashMins">00</div><div class="timer-lbl">Phút</div></div>
+                                <span class="timer-colon">:</span>
+                                <div class="timer-unit"><div class="timer-num" id="flashSecs">00</div><div class="timer-lbl">Giây</div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flash-products-grid reveal-grid">
+                        @foreach (var item in flashSaleFiltered.Items)
+                        {
+                            <div class="flash-card reveal">
+                                <div class="flash-card-badge">-@item.DiscountPercent% OFF</div>
+                                <a href="/Product/Details/@item.Product.Id" class="flash-card-img-wrap">
+                                    <img src="@(string.IsNullOrEmpty(item.Product.ImageUrl) ? "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=600&q=80" : item.Product.ImageUrl)" alt="@item.Product.Name" class="flash-card-img" />
+                                </a>
+                                <div class="flash-card-body">
+                                    <span class="flash-series-tag">@item.Product.Series</span>
+                                    <h4 class="flash-prod-title">
+                                        <a href="/Product/Details/@item.Product.Id">@item.Product.Name</a>
+                                    </h4>
+                                    <div class="flash-price-wrap">
+                                        <span class="flash-price">@item.FlashPrice.ToString("N0")₫</span>
+                                        <span class="flash-orig-price">@item.OriginalPrice.ToString("N0")₫</span>
+                                    </div>
+                                    <div class="flash-progress-bar">
+                                        <div class="flash-progress-fill" style="width: @item.SoldPercent%"></div>
+                                        <span class="flash-progress-text">🔥 Đã bán @item.SoldPercent%</span>
+                                    </div>
+                                    @if (flashSaleFiltered.IsActiveNow)
+                                    {
+                                        <button type="button" class="flash-buy-btn" onclick="addToCartAjax(@item.Product.Id, this)">
+                                            <i class="fa fa-bolt"></i> Mua Ngay Flash Sale
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="flash-buy-btn disabled" disabled>
+                                            <i class="fa fa-clock"></i> Sắp Đến Giờ Sale
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </section>
+        }
+    }
+}
+
+<!-- ═══════════════════════════════════════════
+   BĂNG RÔN SẢN PHẨM MARQUEE + KHUNG THÔNG SỐ BÊN PHẢI
+═══════════════════════════════════════════ -->
+<section class="marquee-showcase-section" id="marqueeShowcase" style="max-width:1400px; margin:36px auto 0; padding:0 2rem;">
+    <div class="landing-section-header reveal" style="text-align:left; margin-bottom:20px;">
+        <span class="landing-section-tag"><i class="fa-solid fa-layer-group"></i> Băng Rôn Sản Phẩm Flagship</span>
+        <h2 class="landing-section-title" style="margin-bottom:4px;">🔥 Chạm Để Xem Chi Tiết Thông Số Kỹ Thuật</h2>
+        <p class="landing-section-sub">Bấm vào bất kỳ mẫu laptop trên băng rôn để xem ngay cấu hình chi tiết ở khung bên phải.</p>
+    </div>
+
+    <div class="marquee-interactive-container reveal">
+        <!-- LEFT: BĂNG RÔN SẢN PHẨM MARQUEE SLIDER -->
+        <div class="marquee-track-wrapper">
+            <div class="marquee-controls-row">
+                <button type="button" class="marquee-nav-btn" onclick="scrollMarquee(-1)"><i class="fa fa-chevron-left"></i></button>
+                <span class="marquee-hint"><i class="fa-solid fa-hand-pointer"></i> Bấm chọn laptop bên dưới để xem cấu hình</span>
+                <button type="button" class="marquee-nav-btn" onclick="scrollMarquee(1)"><i class="fa fa-chevron-right"></i></button>
+            </div>
+
+            <div class="marquee-cards-track" id="marqueeTrack">
+                @if (Model != null && Model.Count > 0)
+                {
+                    @* TẬP SẢN PHẨM GỐC *@
+                    foreach (var p in Model)
+                    {
+                        var imgUrl = string.IsNullOrEmpty(p.ImageUrl) ? fallbackImages.GetValueOrDefault(p.Series, defaultImg) : p.ImageUrl;
+                        <div class="marquee-card-item" 
+                             onmouseenter="window.selectMarqueeProduct(this)"
+                             onclick="window.selectMarqueeProduct(this)"
+                             data-id="@p.Id"
+                             data-name="@p.Name"
+                             data-series="@p.Series"
+                             data-price="@p.Price.ToString("N0")₫"
+                             data-origprice="@(p.OriginalPrice > p.Price ? p.OriginalPrice.ToString("N0") + "₫" : "")"
+                             data-img="@imgUrl"
+                             data-cpu="@p.CPU"
+                             data-ram="@p.RAM"
+                             data-storage="@p.Storage"
+                             data-gpu="@p.GPU"
+                             data-screen="@p.ScreenSize"
+                             data-weight="@p.Weight"
+                             data-desc="@p.Description">
+                            <div class="marquee-img-wrap">
+                                <img src="@imgUrl" alt="@p.Name" loading="lazy" />
+                            </div>
+                            <div class="marquee-item-info">
+                                <span class="marquee-series-badge">@p.Series</span>
+                                <h4 class="marquee-item-title">@p.Name</h4>
+                                <div class="marquee-item-price">@p.Price.ToString("N0")₫</div>
+                            </div>
+                        </div>
+                    }
+
+                    @* TẬP SẢN PHẨM NHÂN ĐÔI ĐỂ TẠO VÒNG LẶP VÔ TẬN SEAMLESS ĐỊNH DẠNG KHÔNG KHỰNG NHỊP *@
+                    foreach (var p in Model)
+                    {
+                        var imgUrl = string.IsNullOrEmpty(p.ImageUrl) ? fallbackImages.GetValueOrDefault(p.Series, defaultImg) : p.ImageUrl;
+                        <div class="marquee-card-item marquee-card-clone" 
+                             onmouseenter="window.selectMarqueeProduct(this)"
+                             onclick="window.selectMarqueeProduct(this)"
+                             data-id="@p.Id"
+                             data-name="@p.Name"
+                             data-series="@p.Series"
+                             data-price="@p.Price.ToString("N0")₫"
+                             data-origprice="@(p.OriginalPrice > p.Price ? p.OriginalPrice.ToString("N0") + "₫" : "")"
+                             data-img="@imgUrl"
+                             data-cpu="@p.CPU"
+                             data-ram="@p.RAM"
+                             data-storage="@p.Storage"
+                             data-gpu="@p.GPU"
+                             data-screen="@p.ScreenSize"
+                             data-weight="@p.Weight"
+                             data-desc="@p.Description">
+                            <div class="marquee-img-wrap">
+                                <img src="@imgUrl" alt="@p.Name" loading="lazy" />
+                            </div>
+                            <div class="marquee-item-info">
+                                <span class="marquee-series-badge">@p.Series</span>
+                                <h4 class="marquee-item-title">@p.Name</h4>
+                                <div class="marquee-item-price">@p.Price.ToString("N0")₫</div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <!-- RIGHT: KHUNG HIỂN THỊ THÔNG SỐ KỸ THUẬT BÊN PHẢI -->
+        <div class="specs-side-panel" id="specsSidePanel">
+            <div class="specs-panel-header">
+                <span class="specs-badge"><i class="fa-solid fa-microchip"></i> THÔNG SỐ KỸ THUẬT</span>
+                <h3 class="specs-title" id="specTitle">Chọn một sản phẩm</h3>
+            </div>
+            <div class="specs-panel-body">
+                <div class="specs-img-box">
+                    <img id="specImg" src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=600&q=80" alt="" />
+                </div>
+
+                <div class="specs-price-box">
+                    <span class="spec-price" id="specPrice">0₫</span>
+                    <span class="spec-orig-price" id="specOrigPrice"></span>
+                </div>
+
+                <div class="specs-detail-grid">
+                    <div class="spec-detail-item">
+                        <i class="fa-solid fa-microchip"></i>
+                        <div>
+                            <small>Vi Xử Lý (CPU)</small>
+                            <strong id="specCpu">Core i7 / i9 High Performance</strong>
+                        </div>
+                    </div>
+                    <div class="spec-detail-item">
+                        <i class="fa-solid fa-memory"></i>
+                        <div>
+                            <small>Bộ Nhớ (RAM)</small>
+                            <strong id="specRam">16GB / 32GB DDR5</strong>
+                        </div>
+                    </div>
+                    <div class="spec-detail-item">
+                        <i class="fa-solid fa-hard-drive"></i>
+                        <div>
+                            <small>Ổ Cứng (SSD)</small>
+                            <strong id="specStorage">512GB / 1TB PCIe 4.0</strong>
+                        </div>
+                    </div>
+                    <div class="spec-detail-item">
+                        <i class="fa-solid fa-display"></i>
+                        <div>
+                            <small>Màn Hình</small>
+                            <strong id="specScreen">2.5K 165Hz / OLED 3.2K</strong>
+                        </div>
+                    </div>
+                    <div class="spec-detail-item">
+                        <i class="fa-solid fa-gamepad"></i>
+                        <div>
+                            <small>Card Đồ Họa (GPU)</small>
+                            <strong id="specGpu">NVIDIA GeForce RTX Series</strong>
+                        </div>
+                    </div>
+                    <div class="spec-detail-item">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <div>
+                            <small>Bảo Hành</small>
+                            <strong>24 Tháng Chính Hãng ASUS</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="specs-actions">
+                    <button type="button" class="btn-submit btn-spec-buy" id="specBuyBtn">
+                        <i class="fa fa-cart-plus"></i> Thêm Vào Giỏ Hàng
+                    </button>
+                    <a href="#" class="btn-hero-glass btn-spec-detail" id="specDetailBtn">
+                        Chi Tiết Mẫu Máy <i class="fa fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+   DANH SÁCH SẢN PHẨM & PHÂN TRANG (PRODUCTS GRID)
+═══════════════════════════════════════════ -->
+<section class="nk-page" id="productsSection">
+    <div class="nk-page-header reveal">
+        <h2 class="nk-page-title">
+            @(activeSeries != "Tất cả" ? $"Dòng Sản Phẩm {activeSeries}" : (!string.IsNullOrEmpty(searchQuery) ? $"Kết quả tìm kiếm: \"{searchQuery}\"" : "Tất Cả Sản Phẩm Laptop"))
+        </h2>
+        <span class="nk-page-count">Hiển thị @Model.Count / @totalItems sản phẩm</span>
+    </div>
+
+    <!-- FILTER & SORT TOOLBAR -->
+    <div class="nk-toolbar reveal">
+        <div class="nk-toolbar-filters">
+            <span class="nk-filter-label"><i class="fa fa-filter"></i> Dòng sản phẩm:</span>
+            <a href="/?series=Tất cả" class="nk-chip @(activeSeries == "Tất cả" ? "active" : "")">Tất cả</a>
+            @if (ViewBag.SeriesList != null)
+            {
+                foreach (string s in (List<string>)ViewBag.SeriesList)
+                {
+                    if (!string.IsNullOrEmpty(s))
+                    {
+                        <a href="/?series=@Uri.EscapeDataString(s)&sort=@activeSort" class="nk-chip @(activeSeries == s ? "active" : "")">@s</a>
+                    }
+                }
+            }
+        </div>
+
+        <div style="display:flex; align-items:center; gap:10px;">
+            <label for="sortSelect" class="nk-filter-label" style="margin:0;"><i class="fa fa-sort"></i> Sắp xếp:</label>
+            <select id="sortSelect" class="nk-sort-select" onchange="location = this.value;">
+                <option value="/?series=@Uri.EscapeDataString(activeSeries)&search=@Uri.EscapeDataString(searchQuery ?? "")&sort=hot" selected="@(activeSort == "hot")">Nổi bật / Hot nhất</option>
+                <option value="/?series=@Uri.EscapeDataString(activeSeries)&search=@Uri.EscapeDataString(searchQuery ?? "")&sort=newest" selected="@(activeSort == "newest")">Mới nhất</option>
+                <option value="/?series=@Uri.EscapeDataString(activeSeries)&search=@Uri.EscapeDataString(searchQuery ?? "")&sort=price_asc" selected="@(activeSort == "price_asc")">Giá tăng dần</option>
+                <option value="/?series=@Uri.EscapeDataString(activeSeries)&search=@Uri.EscapeDataString(searchQuery ?? "")&sort=price_desc" selected="@(activeSort == "price_desc")">Giá giảm dần</option>
+                <option value="/?series=@Uri.EscapeDataString(activeSeries)&search=@Uri.EscapeDataString(searchQuery ?? "")&sort=name" selected="@(activeSort == "name")">Tên A-Z</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- AI RECOMMENDATIONS (Khi đăng nhập & có dữ liệu) -->
+    @if (ViewBag.PersonalizedRecommendations != null)
+    {
+        var recs = ViewBag.PersonalizedRecommendations as List<AsusLaptop.Models.Product>;
+        if (recs != null && recs.Count > 0)
+        {
+            <div class="personalized-ai reveal">
+                <div class="personalized-ai-head">
+                    <div>
+                        <span class="personalized-ai-label">🤖 AI GỢI Ý DÀNH RIÊNG CHO BẠN</span>
+                        <h2>Sản phẩm phù hợp nhất</h2>
+                    </div>
+                </div>
+                <div class="personalized-ai-list">
+                    @foreach (var rec in recs.Take(3))
+                    {
+                        <a href="/Product/Details/@rec.Id" class="personalized-ai-item">
+                            <img src="@(string.IsNullOrEmpty(rec.ImageUrl) ? fallbackImages.GetValueOrDefault(rec.Series, defaultImg) : rec.ImageUrl)" alt="@rec.Name" />
+                            <div class="personalized-ai-info">
+                                <strong>@rec.Name</strong>
+                                <small>@rec.Series | @rec.CPU</small>
+                                <b>@rec.Price.ToString("N0")₫</b>
+                            </div>
+                        </a>
+                    }
+                </div>
+            </div>
+        }
+    }
+
+    <!-- PRODUCT GRID -->
+    @if (Model != null && Model.Count > 0)
+    {
+        <div class="products-grid reveal-grid">
+            @foreach (var p in Model)
+            {
+                var imgUrl = string.IsNullOrEmpty(p.ImageUrl) ? fallbackImages.GetValueOrDefault(p.Series, defaultImg) : p.ImageUrl;
+                bool isSale = p.OriginalPrice > p.Price;
+                int discPercent = isSale ? (int)Math.Round((p.OriginalPrice - p.Price) / p.OriginalPrice * 100) : 0;
+
+                <div class="product-card reveal" onclick="window.location.href='/Product/Details/@p.Id'">
+                    @if (isSale)
+                    {
+                        <span class="product-badge badge-sale">-@discPercent%</span>
+                    }
+                    else if (p.ViewCount > 50)
+                    {
+                        <span class="product-badge badge-hot">HOT</span>
+                    }
+
+                    <button type="button" class="product-wish" title="Yêu thích" onclick="event.stopPropagation(); addToWishlistAjax(@p.Id, this)">
+                        <i class="fa-regular fa-heart"></i>
+                    </button>
+
+                    @if (User.IsInRole("Admin") || User.IsInRole("SubAdmin"))
+                    {
+                        <a href="/Admin/Product/Edit/@p.Id" class="product-edit-btn" title="Sửa sản phẩm" onclick="event.stopPropagation();">
+                            <i class="fa fa-pen"></i>
+                        </a>
+                    }
+
+                    <div class="product-img">
+                        <img src="@imgUrl" alt="@p.Name" loading="lazy" />
+                        <div class="product-quickview">
+                            <span><i class="fa fa-eye"></i> Xem chi tiết</span>
+                        </div>
+                    </div>
+
+                    <div class="product-body">
+                        <div class="product-series">@p.Series</div>
+                        <a href="/Product/Details/@p.Id" class="product-name" title="@p.Name" onclick="event.stopPropagation();">@p.Name</a>
+
+                        <div class="product-specs">
+                            @if (!string.IsNullOrEmpty(p.CPU)) { <span class="spec-tag"><i class="fa fa-microchip"></i> @p.CPU</span> }
+                            @if (!string.IsNullOrEmpty(p.RAM)) { <span class="spec-tag"><i class="fa fa-memory"></i> @p.RAM</span> }
+                            @if (!string.IsNullOrEmpty(p.Storage)) { <span class="spec-tag"><i class="fa fa-hard-drive"></i> @p.Storage</span> }
+                        </div>
+
+                        <div class="product-footer">
+                            <div class="product-price-row">
+                                <span class="product-price">@p.Price.ToString("N0")₫</span>
+                                @if (isSale)
+                                {
+                                    <span class="product-original">@p.OriginalPrice.ToString("N0")₫</span>
+                                }
+                            </div>
+                            <div class="product-actions">
+                                <button type="button" class="btn-add-cart" onclick="event.stopPropagation(); addToCartAjax(@p.Id, this)">
+                                    <i class="fa fa-cart-plus"></i> Thêm giỏ hàng
+                                </button>
+                                <a href="/Product/Details/@p.Id" class="btn-detail" title="Xem chi tiết" onclick="event.stopPropagation();">
+                                    <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- PAGINATION -->
+        @if (totalPages > 1)
+        {
+            <div class="nk-pagination reveal">
+                <a href="/?series=@Uri.EscapeDataString(activeSeries)&search=@Uri.EscapeDataString(searchQuery ?? "")&sort=@activeSort&page=@(currentPage - 1)"
+                   class="page-btn @(currentPage <= 1 ? "disabled" : "")">
+                    <i class="fa fa-chevron-left"></i> Trang trước
+                </a>
+
+                <div class="page-numbers">
+                    @for (int i = 1; i <= totalPages; i++)
+                    {
+                        <a href="/?series=@Uri.EscapeDataString(activeSeries)&search=@Uri.EscapeDataString(searchQuery ?? "")&sort=@activeSort&page=@i"
+                           class="page-num @(i == currentPage ? "active" : "")">@i</a>
+                    }
+                </div>
+
+                <a href="/?series=@Uri.EscapeDataString(activeSeries)&search=@Uri.EscapeDataString(searchQuery ?? "")&sort=@activeSort&page=@(currentPage + 1)"
+                   class="page-btn @(currentPage >= totalPages ? "disabled" : "")">
+                    Trang sau <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="empty-state reveal">
+            <i class="fa fa-laptop"></i>
+            <h3>Không tìm thấy sản phẩm nào</h3>
+            <p>Rất tiếc, hiện tại không có sản phẩm nào thuộc bộ lọc này.</p>
+            <a href="/" class="cta-primary"><i class="fa fa-refresh"></i> Xem tất cả sản phẩm</a>
+        </div>
+    }
+</section>
+
+<!-- 6. CUSTOMER SOCIAL PROOF & STATS COUNTER SECTION -->
+<section class="landing-reviews-wrapper" id="reviews">
+    <div class="landing-section-header reveal">
+        <span class="landing-section-tag">Uy Tín & Đáng Tin Cậy</span>
+        <h2 class="landing-section-title">Khách Hàng Nói Gì Về ASUS Store?</h2>
+        <p class="landing-section-sub">Hơn 50.000 khách hàng trên toàn quốc đã tin tưởng và sử dụng sản phẩm laptop ASUS từ hệ thống của chúng tôi.</p>
+    </div>
+
+    <!-- Stats counter -->
+    <div class="stats-counter-grid reveal">
+        <div>
+            <div class="stat-item-num">50.000+</div>
+            <div class="stat-item-label">Khách Hàng Hài Lòng</div>
+        </div>
+        <div>
+            <div class="stat-item-num">50+</div>
+            <div class="stat-item-label">Showroom Toàn Quốc</div>
+        </div>
+        <div>
+            <div class="stat-item-num">99.8%</div>
+            <div class="stat-item-label">Đánh Giá 5 Sao</div>
+        </div>
+        <div>
+            <div class="stat-item-num">24/7</div>
+            <div class="stat-item-label">Hỗ Trợ Kỹ Thuật VIP</div>
+        </div>
+    </div>
+
+    <!-- Reviews Grid -->
+    <div class="reviews-grid reveal-grid">
+        <div class="review-card reveal">
+            <div class="review-stars">
+                <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>
+            </div>
+            <p class="review-quote">"Mình mua chiếc ROG Strix SCAR 18 ở đây, máy giao cực nhanh trong 2h, đóng gói siêu cẩn thận. Nhân viên hỗ trợ cài sẵn Win & phần mềm theo yêu cầu rất nhiệt tình!"</p>
+            <div class="review-user">
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" alt="Nguyễn Minh Anh" class="review-avatar" />
+                <div class="review-user-info">
+                    <h5>Nguyễn Minh Anh</h5>
+                    <span>Streamer / Gamer chuyên nghiệp</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="review-card reveal">
+            <div class="review-stars">
+                <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>
+            </div>
+            <p class="review-quote">"Màn hình OLED của chiếc ZenBook S13 thực sự xuất sắc. Màu sắc chính xác 100% DCI-P3 giúp công việc thiết kế đồ họa của mình trở nên chuẩn xác hơn bao giờ hết."</p>
+            <div class="review-user">
+                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80" alt="Trần Hoàng Nam" class="review-avatar" />
+                <div class="review-user-info">
+                    <h5>Trần Hoàng Nam</h5>
+                    <span>Senior UI/UX Designer</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="review-card reveal">
+            <div class="review-stars">
+                <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>
+            </div>
+            <p class="review-quote">"Chương trình trả góp 0% duyệt quá nhanh, mình làm thủ tục online chưa đầy 5 phút là xong. Máy TUF Gaming A15 tản nhiệt mát lạnh, cân tốt mọi tựa game AAA."</p>
+            <div class="review-user">
+                <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80" alt="Phạm Quốc Bảo" class="review-avatar" />
+                <div class="review-user-info">
+                    <h5>Phạm Quốc Bảo</h5>
+                    <span>Lập trình viên Software Engineer</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 7. LANDING PAGE FAQ SECTION -->
+<section class="landing-faq-wrapper" id="faq">
+    <div class="landing-section-header reveal">
+        <span class="landing-section-tag">Giải Đáp Thắc Mắc</span>
+        <h2 class="landing-section-title">Câu Hỏi Thường Gặp (FAQ)</h2>
+        <p class="landing-section-sub">Những thắc mắc phổ biến của khách hàng khi mua sắm Laptop ASUS chính hãng.</p>
+    </div>
+
+    <div class="faq-accordion-box reveal-grid">
+        <div class="landing-faq-card reveal open">
+            <button type="button" class="landing-faq-btn">
+                <span>1. Sản phẩm laptop bán ra có đảm bảo chính hãng ASUS 100% không?</span>
+                <i class="fa fa-chevron-down"></i>
+            </button>
+            <div class="landing-faq-content">
+                Tất cả sản phẩm tại ASUS Laptop Store đều là hàng chính hãng 100%, nhập khẩu chính ngạch từ ASUS Việt Nam, đầy đủ tem niêm phong, hóa đơn VAT và bảo hành chính hãng toàn quốc 24 tháng.
+            </div>
+        </div>
+
+        <div class="landing-faq-card reveal">
+            <button type="button" class="landing-faq-btn">
+                <span>2. Chính sách bảo hành tận nhà (VIP Onsite Service) hoạt động như thế nào?</span>
+                <i class="fa fa-chevron-down"></i>
+            </button>
+            <div class="landing-faq-content">
+                Khi máy gặp bất kỳ sự cố kỹ thuật nào, bạn chỉ cần gọi Tổng đài miễn phí 1800 1234. Kỹ thuật viên ủy quyền của ASUS sẽ đến tận nhà kiểm tra và sửa chữa trong vòng 24 - 48 giờ làm việc.
+            </div>
+        </div>
+
+        <div class="landing-faq-card reveal">
+            <button type="button" class="landing-faq-btn">
+                <span>3. Thủ tục mua laptop trả góp 0% lãi suất gồm những gì?</span>
+                <i class="fa fa-chevron-down"></i>
+            </button>
+            <div class="landing-faq-content">
+                Bạn có thể trả góp 0% qua thẻ tín dụng (Visa/Mastercard) của hơn 25 ngân hàng hoặc trả góp qua công ty tài chính chỉ cần CCCD gắn chip. Thời gian xét duyệt online chỉ từ 5 - 10 phút.
+            </div>
+        </div>
+
+        <div class="landing-faq-card reveal">
+            <button type="button" class="landing-faq-btn">
+                <span>4. Tính năng Laptop AI Copilot giúp ích gì cho tôi khi chọn mua máy?</span>
+                <i class="fa fa-chevron-down"></i>
+            </button>
+            <div class="landing-faq-content">
+                Copilot AI là trợ lý trí tuệ nhân tạo được tích hợp sẵn trên hệ thống. Bạn chỉ cần chọn nhu cầu (Gaming, Văn phòng, Đồ họa) và ngân sách, Copilot AI sẽ phân tích cấu hình và đề xuất chính xác mẫu máy tối ưu nhất cho bạn.
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 8. BOTTOM LANDING CTA BANNER -->
+<section class="landing-cta-banner" id="cta">
+    <div class="landing-cta-inner reveal-zoom">
+        <h2 class="landing-cta-title">SẴN SÀNG SỞ HỮU LAPTOP ASUS MƠ ƯỚC?</h2>
+        <p class="landing-cta-sub">Nhận ngay ưu đãi giảm tới 30% cùng combo quà tặng trị giá 2.500.000₫ khi mua sắm ngay hôm nay.</p>
+        <div class="landing-cta-btn-group">
+            <a href="#productsSection" class="btn-hero-primary" style="padding: 14px 32px; font-weight:800; font-size:15px">Sắm Laptop Ngay</a>
+            <a href="/Copilot" class="btn-hero-glass" style="padding: 14px 32px; font-weight:800; font-size:15px"><i class="fa fa-wand-magic-sparkles"></i> Tư Vấn AI Copilot</a>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/site.js"></script>
+    <script src="~/js/site-automation.js"></script>
+    <script>
+        // Landing Page FAQ Accordion Toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.landing-faq-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var card = this.closest('.landing-faq-card');
+                    card.classList.toggle('open');
+                });
+            });
+        });
+    </script>
+    <script>
+        (function () {
+            'use strict';
+
+            // Scroll reveal animation
+            const revealObs = new IntersectionObserver((entries) => {
+                let delay = 0;
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        setTimeout(() => entry.target.classList.add('visible'), delay);
+                        delay += 60;
+                        revealObs.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
+
+            document.querySelectorAll('.reveal:not(.visible)').forEach(el => revealObs.observe(el));
+
+            // Wishlist AJAX handler
+            if (typeof window.addToWishlistAjax !== 'function') {
+                window.addToWishlistAjax = function (id, btn) {
+                    fetch('/Wishlist/Toggle?productId=' + id, { method: 'POST' })
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.requireLogin) {
+                                window.location.href = '/Account/Login';
+                                return;
+                            }
+                            if (data.success) {
+                                btn.style.color = data.added ? '#e0393e' : '#111111';
+                            }
+                        })
+                        .catch(() => {});
+                };
+            }
+        })();
+
+        // ───── BANNER VIDEO: tự động phát video MP4 liên tục ─────
+        (function () {
+            function forcePlayVideos() {
+                document.querySelectorAll('video').forEach(function (v) {
+                    v.muted = true;
+                    v.defaultMuted = true;
+                    v.playsInline = true;
+                    v.setAttribute('muted', '');
+                    v.setAttribute('playsinline', '');
+                    v.setAttribute('autoplay', '');
+                    
+                    var p = v.play();
+                    if (p !== undefined) {
+                        p.catch(function () {});
+                    }
+                });
+            }
+
+            forcePlayVideos();
+            if (document.readyState === 'complete') {
+                forcePlayVideos();
+            } else {
+                window.addEventListener('load', forcePlayVideos);
+            }
+
+            var events = ['click', 'touchstart', 'scroll', 'mousemove'];
+            function onUserInteraction() {
+                forcePlayVideos();
+                events.forEach(function (e) {
+                    document.removeEventListener(e, onUserInteraction);
+                });
+            }
+            events.forEach(function (e) {
+                document.addEventListener(e, onUserInteraction, { passive: true, once: true });
+            });
+        })();
+
+        // ───── NIKE-STYLE HERO CAROUSEL (fade + progress bar) ─────
+        (function () {
+            var slider = document.getElementById('hero') || document.getElementById('mainHeroSlider') || document.querySelector('.nk-hero-carousel');
+            if (!slider) return;
+
+            var track = document.getElementById('heroTrack') || slider.querySelector('.hero-slider-track');
+            if (!track) return;
+            var slides = track.querySelectorAll('.hero-slide');
+            var dotsBox = document.getElementById('heroDots');
+            var prevBtn = document.getElementById('heroPrev');
+            var nextBtn = document.getElementById('heroNext');
+            var count = slides.length;
+            var current = 0;
+            var timer = null;
+            var AUTO_MS = 6000;
+
+            dotsBox.style.setProperty('--slide-duration', (AUTO_MS / 1000) + 's');
+
+            for (var i = 0; i < count; i++) {
+                var dot = document.createElement('button');
+                dot.className = 'slider-dot' + (i === 0 ? ' active' : '');
+                dot.type = 'button';
+                dot.setAttribute('aria-label', 'Slide ' + (i + 1));
+                dot.addEventListener('click', (function (idx) {
+                    return function () { goTo(idx); restart(); };
+                })(i));
+                dotsBox.appendChild(dot);
+            }
+            var dots = dotsBox.querySelectorAll('.slider-dot');
+
+            function updateProgressDots() {
+                dots.forEach(function (d, i) {
+                    d.classList.remove('active', 'done');
+                    if (i < current) d.classList.add('done');
+                    else if (i === current) {
+                        d.classList.add('active');
+                        void d.offsetWidth;
+                    }
+                });
+            }
+
+            function syncVideos() {
+                slides.forEach(function (slide, idx) {
+                    var vid = slide.querySelector('video');
+                    if (!vid) return;
+                    if (idx === current) {
+                        vid.currentTime = 0;
+                        var playPromise = vid.play();
+                        if (playPromise !== undefined) {
+                            playPromise.catch(function () {});
+                        }
+                    } else {
+                        vid.pause();
+                    }
+                });
+            }
+
+            function goTo(idx) {
+                current = (idx + count) % count;
+                slides.forEach(function (s, i) { s.classList.toggle('active', i === current); });
+                updateProgressDots();
+                syncVideos();
+            }
+
+            function next() { goTo(current + 1); }
+            function prev() { goTo(current - 1); }
+            function restart() {
+                clearInterval(timer);
+                timer = setInterval(next, AUTO_MS);
+            }
+
+            if (nextBtn) nextBtn.addEventListener('click', function () { next(); restart(); });
+            if (prevBtn) prevBtn.addEventListener('click', function () { prev(); restart(); });
+
+            slider.addEventListener('mouseenter', function () { clearInterval(timer); });
+            slider.addEventListener('mouseleave', restart);
+
+            var touchStartX = 0;
+            track.addEventListener('touchstart', function (e) { touchStartX = e.touches[0].clientX; }, { passive: true });
+            track.addEventListener('touchend', function (e) {
+                var dx = e.changedTouches[0].clientX - touchStartX;
+                if (Math.abs(dx) > 40) { dx < 0 ? next() : prev(); restart(); }
+            }, { passive: true });
+
+            syncVideos();
+            updateProgressDots();
+            restart();
+        })();
+
+        // ───── LIVE DYNAMIC FLASH SALE COUNTDOWN TIMER (CỐ ĐỊNH 20:00 HẰNG NGÀY & LUÔN CHẠY) ─────
+        (function () {
+            function getNextSlotEndTime() {
+                var now = new Date();
+                var today8PM = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 20, 0, 0).getTime();
+                var today11PM = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 0, 0).getTime();
+                var tom8PM = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 20, 0, 0).getTime();
+
+                if (now.getTime() < today8PM) {
+                    return today8PM; // Chưa tới 8h tối hôm nay -> Đếm ngược đến 20:00 hôm nay
+                } else if (now.getTime() < today11PM) {
+                    return today11PM; // Đang từ 8h - 11h tối -> Đếm ngược đến 23:00 kết thúc
+                } else {
+                    return tom8PM;   // Đã qua 11h tối -> Đếm ngược đến 20:00 ngày mai
+                }
+            }
+
+            function syncFlashSaleUiState() {
+                var now = new Date();
+                var today8PM = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 20, 0, 0).getTime();
+                var today11PM = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 0, 0).getTime();
+                var isActive = now.getTime() >= today8PM && now.getTime() < today11PM;
+
+                document.querySelectorAll('.flash-sub-badge').forEach(function (el) {
+                    el.textContent = 'KHUNG GIỜ 20:00 - 23:00 ' + (isActive ? '• ĐANG DIỄN RA' : '• SẮP DIỄN RA');
+                });
+                document.querySelectorAll('.flash-timer-label').forEach(function (el) {
+                    el.textContent = isActive ? 'KẾT THÚC SAU:' : 'BẮT ĐẦU SAU:';
+                });
+                document.querySelectorAll('.flash-card').forEach(function (card) {
+                    var btn = card.querySelector('.flash-buy-btn');
+                    if (!btn) return;
+                    if (isActive) {
+                        if (btn.classList.contains('disabled')) {
+                            btn.classList.remove('disabled');
+                            btn.removeAttribute('disabled');
+                            btn.removeAttribute('title');
+                            btn.innerHTML = '<i class="fa fa-bolt"></i> Mua Ngay Flash Sale';
+                            var cardLink = card.querySelector('a[href*="/Product/Details/"]');
+                            if (cardLink) {
+                                var pId = cardLink.getAttribute('href').split('/').pop();
+                                btn.setAttribute('onclick', 'addToCartAjax(' + pId + ', this)');
+                            }
+                        }
+                    } else {
+                        btn.classList.add('disabled');
+                        btn.setAttribute('disabled', 'disabled');
+                        btn.setAttribute('title', 'Chưa đến khung giờ Flash Sale');
+                        btn.innerHTML = '<i class="fa fa-clock"></i> Sắp Đến Giờ Sale';
+                        btn.removeAttribute('onclick');
+                    }
+                });
+            }
+
+            var timerBox = document.getElementById('flashTimerBox') || document.getElementById('flashTickerBox');
+            var endTimeStr = timerBox ? timerBox.getAttribute('data-endtime') : null;
+            var endTime = null;
+
+            if (endTimeStr) {
+                var parts = endTimeStr.split(/[-T:]/);
+                if (parts.length >= 6) {
+                    endTime = new Date(parts[0], parts[1] - 1, parts[2], parts[3], parts[4], parts[5]).getTime();
+                } else {
+                    endTime = new Date(endTimeStr).getTime();
+                }
+            }
+
+            var nowMs = new Date().getTime();
+            if (!endTime || isNaN(endTime) || endTime <= nowMs) {
+                endTime = getNextSlotEndTime();
+            }
+
+            localStorage.setItem('flashSaleTargetEndTime', endTime);
+
+            function updateTimer() {
+                var currentNow = new Date().getTime();
+                var diff = endTime - currentNow;
+
+                // Nếu đếm ngược hết giờ, tự động lấy mốc tiếp theo để LUÔN CHẠY liên tục
+                if (diff <= 0) {
+                    endTime = getNextSlotEndTime();
+                    localStorage.setItem('flashSaleTargetEndTime', endTime);
+                    diff = endTime - currentNow;
+                }
+
+                syncFlashSaleUiState();
+
+                var hours = Math.floor(diff / (1000 * 60 * 60));
+                var mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                var secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+                var hStr = hours < 10 ? '0' + hours : hours;
+                var mStr = mins < 10 ? '0' + mins : mins;
+                var sStr = secs < 10 ? '0' + secs : secs;
+
+                document.querySelectorAll('#flashHours, #flashHoursTicker, .flash-h').forEach(function(el){ el.textContent = hStr; });
+                document.querySelectorAll('#flashMins, #flashMinutes, #flashMinutesTicker, .flash-m').forEach(function(el){ el.textContent = mStr; });
+                document.querySelectorAll('#flashSecs, #flashSeconds, #flashSecondsTicker, .flash-s').forEach(function(el){ el.textContent = sStr; });
+            }
+
+            updateTimer();
+            setInterval(updateTimer, 1000);
+        })();
+
+        // ───── AI DEAL RADAR FETCH ─────
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/PriceTracker/DealRadar')
+                .then(function(r) { return r.json(); })
+                .then(function(res) {
+                    if (res.success && res.items && res.items.length > 0) {
+                        var grid = document.getElementById('dealRadarGrid');
+                        if (!grid) return;
+                        grid.innerHTML = res.items.map(function(item) {
+                            var discPercent = Math.round((1 - item.currentPrice / item.highestHistoricalPrice) * 100);
+                            return '<div class="tech-card visible" style="background:rgba(255,255,255,0.04); border-color:rgba(255,77,0,0.3); min-height: auto; opacity: 1 !important; visibility: visible !important; transform: none !important;">' +
+                                '<div>' +
+                                    '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">' +
+                                        '<span class="flash-sub-badge" style="background:rgba(0,230,118,0.15); color:#00e676;">SCORE: ' + item.buyScore + '/100</span>' +
+                                        '<span style="font-size:11px; color:rgba(255,255,255,0.5); font-weight:700;"><i class="fa fa-arrow-down" style="color:#00e676;"></i> -' + discPercent + '% GIẢM</span>' +
+                                    '</div>' +
+                                    '<h4 class="tech-card-title" style="font-size:1.05rem; line-height:1.3; height:42px; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; margin-bottom:10px;">' + item.productName + '</h4>' +
+                                '</div>' +
+                                '<div style="margin-top:10px;">' +
+                                    '<div style="font-size:10.5px; color:#ff4d00; font-weight:800; margin-bottom:8px;">' + item.recommendationBadge + '</div>' +
+                                    '<div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:14px;">' +
+                                        '<span style="font-size:17px; font-weight:800; color:#ffffff;">' + item.currentPrice.toLocaleString('vi-VN') + '₫</span>' +
+                                        '<span style="font-size:12px; color:rgba(255,255,255,0.4); text-decoration:line-through;">' + item.highestHistoricalPrice.toLocaleString('vi-VN') + '₫</span>' +
+                                    '</div>' +
+                                    '<a href="/Product/Details/' + item.productId + '" class="btn-hero-primary" style="width:100%; text-align:center; padding:9px; font-size:12px; font-weight:700; background:#ff4d00; color:#fff; border:none; display:block;">' +
+                                        '<i class="fa fa-chart-line"></i> Biểu Đồ AI & Mua' +
+                                    '</a>' +
+                                '</div>' +
+                            '</div>';
+                        }).join('');
+                    }
+                })
+                .catch(function(err) { console.error('Deal radar error:', err); });
+        });
+
+        // ───── MARQUEE PRODUCT SLIDER & SPECS PANEL SCRIPT ─────
+        window.selectMarqueeProduct = function(el) {
+            if (!el) return;
+            document.querySelectorAll('.marquee-card-item').forEach(function(c) { c.classList.remove('active'); });
+            el.classList.add('active');
+
+            var id = el.getAttribute('data-id');
+            var name = el.getAttribute('data-name');
+            var series = el.getAttribute('data-series');
+            var price = el.getAttribute('data-price');
+            var origPrice = el.getAttribute('data-origprice') || '';
+            var img = el.getAttribute('data-img');
+            var cpu = el.getAttribute('data-cpu') || 'Intel Core High Performance';
+            var ram = el.getAttribute('data-ram') || '16GB DDR5';
+            var storage = el.getAttribute('data-storage') || '512GB NVMe SSD';
+            var gpu = el.getAttribute('data-gpu') || 'NVIDIA GeForce RTX Graphics';
+            var screen = el.getAttribute('data-screen') || 'QHD+ 165Hz / Lumina OLED';
+
+            var tEl = document.getElementById('specTitle');
+            var iEl = document.getElementById('specImg');
+            var pEl = document.getElementById('specPrice');
+            var opEl = document.getElementById('specOrigPrice');
+            var cEl = document.getElementById('specCpu');
+            var rEl = document.getElementById('specRam');
+            var sEl = document.getElementById('specStorage');
+            var gEl = document.getElementById('specGpu');
+            var scEl = document.getElementById('specScreen');
+
+            if (tEl) tEl.textContent = name;
+            if (iEl && img) iEl.src = img;
+            if (pEl) pEl.textContent = price;
+            if (opEl) opEl.textContent = origPrice;
+            if (cEl) cEl.textContent = cpu;
+            if (rEl) rEl.textContent = ram;
+            if (sEl) sEl.textContent = storage;
+            if (gEl) gEl.textContent = gpu;
+            if (scEl) scEl.textContent = screen;
+
+            var buyBtn = document.getElementById('specBuyBtn');
+            if (buyBtn && id) buyBtn.setAttribute('onclick', 'addToCartAjax(' + id + ', this)');
+
+            var detailBtn = document.getElementById('specDetailBtn');
+            if (detailBtn && id) detailBtn.href = '/Product/Details/' + id;
+        };
+
+        window.scrollMarquee = function(dir) {
+            var track = document.getElementById('marqueeTrack');
+            if (track) track.scrollBy({ left: dir * 300, behavior: 'smooth' });
+        };
+
+        // Tự động chạy băng rôn sản phẩm liên tục không ngừng (Seamless Continuous Infinite Loop)
+        (function() {
+            var track = document.getElementById('marqueeTrack');
+            if (!track) return;
+
+            track.style.scrollBehavior = 'auto';
+
+            var stepSize = 1;
+
+            var autoTicker = setInterval(function() {
+                if (!track) return;
+
+                // Chiều rộng 1 nửa dải sản phẩm (do đã nhân đôi danh sách)
+                var halfWidth = track.scrollWidth / 2;
+                if (halfWidth > 0 && track.scrollLeft >= halfWidth) {
+                    track.scrollLeft -= halfWidth; // Reset giật lùi 1 nửa mượt mà không thể nhận biết bằng mắt
+                } else {
+                    track.scrollLeft += stepSize;
+                }
+            }, 22);
+
+            // Hỗ trợ kéo chuột trái mượt mà (Mouse Drag)
+            var isDown = false, startX, scrollLeftPos;
+            track.addEventListener('mousedown', function(e) {
+                isDown = true;
+                startX = e.pageX - track.offsetLeft;
+                scrollLeftPos = track.scrollLeft;
+            });
+            track.addEventListener('mouseleave', function() { isDown = false; });
+            track.addEventListener('mouseup', function() { isDown = false; });
+            track.addEventListener('mousemove', function(e) {
+                if (!isDown) return;
+                e.preventDefault();
+                var x = e.pageX - track.offsetLeft;
+                var walk = (x - startX) * 2;
+                track.scrollLeft = scrollLeftPos - walk;
+            });
+        })();
+
+        // Event delegation: Tự động cập nhật thông số khi rê chuột qua bất kỳ item nào
+        document.addEventListener('mouseover', function(e) {
+            var card = e.target.closest('.marquee-card-item');
+            if (card) {
+                window.selectMarqueeProduct(card);
+            }
+        });
+
+        // chuyển đổi video & ảnh nền Asus theo từng dòng sản phẩm
+        window.switchHeroBg = function(videoSrc, imgSrc, title, highlight, desc, btn) {
+            var video = document.getElementById('heroBgVideo');
+            var img = document.getElementById('heroBgImg');
+            var heroTitle = document.getElementById('heroTitle');
+            var heroHighlight = document.getElementById('heroTitleHighlight');
+            var heroSubText = document.getElementById('heroSubText');
+
+            document.querySelectorAll('.hero-series-pill').forEach(function(p) {
+                p.classList.remove('active');
+            });
+            if (btn) btn.classList.add('active');
+
+            if (img && imgSrc) img.src = imgSrc;
+            if (heroTitle && imgSrc) {
+                heroTitle.style.backgroundImage = "url('" + imgSrc + "')";
+            }
+            if (video && videoSrc) {
+                video.src = videoSrc;
+                var playPromise = video.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(function(e) {
+                        console.log('Video autoplay prevented:', e);
+                    });
+                }
+            }
+            if (heroTitle && heroHighlight && title && highlight) {
+                heroTitle.childNodes[0].nodeValue = title + ' ';
+                heroHighlight.innerText = highlight;
+            }
+            if (heroSubText && desc) {
+                heroSubText.innerText = desc;
+            }
+        };
+
+        // Tự động chọn item đầu tiên trên băng rôn khi load
+        document.addEventListener('DOMContentLoaded', function() {
+            var firstItem = document.querySelector('.marquee-card-item');
+            if (firstItem) {
+                window.selectMarqueeProduct(firstItem);
+            }
+        });
+    </script>
+}

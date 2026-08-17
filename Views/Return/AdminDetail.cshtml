@@ -1,0 +1,157 @@
+@model AsusLaptop.Models.ReturnRequest
+@{
+    ViewData["Title"] = "Xử lý yêu cầu #" + Model.Id;
+    string badgeColor = Model.Status switch {
+        "Pending" => "var(--tuf-yellow,#e6b800)",
+        "Approved" => "var(--accent)",
+        "Refunded" => "var(--success)",
+        "Rejected" => "var(--rog-red,#e0393e)",
+        "Cancelled" => "var(--text-muted)",
+        _ => "var(--text-muted)"
+    };
+}
+
+<div class="admin-wrap">
+    <div class="admin-header">
+        <h1 class="admin-title"><i class="fa fa-undo-alt"></i> YÊU CẦU <span>#@Model.Id</span></h1>
+        <a href="/Return/AdminIndex" class="btn-ghost"><i class="fa fa-arrow-left"></i> Danh sách</a>
+    </div>
+
+    <div class="admin-card" style="padding:20px;max-width:760px;margin:0 auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+            <div>
+                <div style="font-size:13.5px;">Đơn hàng <a href="/Admin/OrderDetail/@Model.OrderId" style="color:var(--accent)">#@Model.OrderId</a> · Khách hàng: <strong>@(Model.User?.FullName ?? "—")</strong></div>
+                <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Gửi lúc @Model.CreatedAt.ToString("HH:mm dd/MM/yyyy")</div>
+            </div>
+            <span id="statusBadge" style="background:@badgeColor;color:#fff;font-size:12px;font-weight:700;padding:5px 14px;border-radius:999px;">@Model.StatusVi</span>
+        </div>
+
+        <div style="background:var(--bg-card2);border:1px solid var(--border);border-radius:var(--radius,10px);padding:16px;margin-bottom:16px;">
+            <h4 style="font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:10px;">Sản phẩm yêu cầu (@Model.RequestTypeVi)</h4>
+            @foreach (var item in Model.Items)
+            {
+                <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;">
+                    <span>@item.OrderDetail?.Product?.Name @(item.OrderDetail?.Variant != null ? $"({item.OrderDetail.Variant.RAM} / {item.OrderDetail.Variant.Color})" : "")</span>
+                    <span style="color:var(--text-muted)">x@item.Quantity — @item.OrderDetail?.Price.ToString("N0")₫/sp</span>
+                </div>
+            }
+        </div>
+
+        <div style="background:var(--bg-card2);border:1px solid var(--border);border-radius:var(--radius,10px);padding:16px;margin-bottom:16px;">
+            <h4 style="font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:8px;">Lý do & mô tả từ khách</h4>
+            <p style="font-size:13.5px;font-weight:600;margin-bottom:6px;">@Model.Reason</p>
+            @if (!string.IsNullOrEmpty(Model.Description))
+            {
+                <p style="font-size:13px;color:var(--text-secondary);white-space:pre-wrap;">@Model.Description</p>
+            }
+            @if (!string.IsNullOrEmpty(Model.ImageUrls))
+            {
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
+                    @foreach (var url in Model.ImageUrls.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        <a href="@url.Trim()" target="_blank">
+                            <img src="@url.Trim()" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid var(--border)" onerror="this.style.display='none'" />
+                        </a>
+                    }
+                </div>
+            }
+        </div>
+
+        <div id="actionArea">
+            @if (Model.Status == "Pending")
+            {
+                <div style="background:var(--bg-card2);border:1px solid var(--border);border-radius:var(--radius,10px);padding:16px;margin-bottom:16px;">
+                    <h4 style="font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:12px;">Duyệt yêu cầu</h4>
+                    <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+                        <div class="form-group">
+                            <label class="form-label">Số tiền hoàn (₫)</label>
+                            <input type="number" id="refundAmount" class="form-control" value="@(Model.Items.Sum(i => (i.OrderDetail?.Price ?? 0) * i.Quantity))" />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Hình thức hoàn tiền</label>
+                            <select id="refundMethod" class="form-control">
+                                <option value="BankTransfer">Chuyển khoản</option>
+                                <option value="OriginalPayment">Hoàn về phương thức TT gốc</option>
+                                <option value="StoreCredit">Ví điểm cửa hàng</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom:12px;">
+                        <label class="form-label">Ghi chú cho khách (tuỳ chọn)</label>
+                        <textarea id="adminNote" class="form-control" rows="2" placeholder="VD: Vui lòng gửi sản phẩm về địa chỉ..."></textarea>
+                    </div>
+                    <div style="display:flex;gap:10px;">
+                        <button class="btn-primary" style="flex:1;" onclick="approveRequest()"><i class="fa fa-check"></i> Duyệt yêu cầu</button>
+                        <button class="btn-ghost" style="flex:1;color:var(--rog-red,#e0393e);" onclick="rejectRequest()"><i class="fa fa-times"></i> Từ chối</button>
+                    </div>
+                    <div id="actionMsg" style="font-size:12.5px;margin-top:8px;"></div>
+                </div>
+            }
+            else if (Model.Status == "Approved")
+            {
+                <div style="background:var(--bg-card2);border:1px solid var(--border);border-radius:var(--radius,10px);padding:16px;margin-bottom:16px;">
+                    <div style="font-size:13px;margin-bottom:10px;">
+                        Số tiền hoàn: <strong>@Model.RefundAmount?.ToString("N0")₫</strong> · Hình thức: <strong>@Model.RefundMethod</strong>
+                    </div>
+                    <p style="font-size:12.5px;color:var(--text-muted);margin-bottom:12px;">
+                        Sau khi đã nhận được hàng hoàn từ khách và thực hiện chuyển khoản hoàn tiền, bấm nút bên dưới để hoàn tất — hệ thống sẽ tự nhập lại kho.
+                    </p>
+                    <button class="btn-primary" style="width:100%;" onclick="markRefunded()"><i class="fa fa-check-double"></i> Xác nhận đã hoàn tất</button>
+                    <div id="actionMsg" style="font-size:12.5px;margin-top:8px;"></div>
+                </div>
+            }
+            else if (!string.IsNullOrEmpty(Model.AdminNote))
+            {
+                <div style="background:rgba(0,150,255,.06);border:1px solid var(--border);border-radius:var(--radius,10px);padding:16px;margin-bottom:16px;">
+                    <h4 style="font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:8px;">Ghi chú xử lý</h4>
+                    <p style="font-size:13px;">@Model.AdminNote</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    var requestId = @Model.Id;
+
+    function postForm(url, params) {
+        var tokenEl = document.querySelector('input[name="__RequestVerificationToken"]');
+        var body = new URLSearchParams(params);
+        return fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'RequestVerificationToken': tokenEl ? tokenEl.value : '' },
+            body: body
+        }).then(function (r) { return r.json(); });
+    }
+
+    function approveRequest() {
+        var amount = document.getElementById('refundAmount').value;
+        var method = document.getElementById('refundMethod').value;
+        var note = document.getElementById('adminNote').value;
+        postForm('/Return/Approve', { id: requestId, refundAmount: amount, refundMethod: method, adminNote: note })
+            .then(function (res) {
+                if (res.success) location.reload();
+                else document.getElementById('actionMsg').textContent = res.message;
+            });
+    }
+
+    function rejectRequest() {
+        var note = document.getElementById('adminNote').value;
+        if (!note) { alert('Vui lòng nhập lý do từ chối.'); return; }
+        postForm('/Return/Reject', { id: requestId, adminNote: note })
+            .then(function (res) {
+                if (res.success) location.reload();
+                else document.getElementById('actionMsg').textContent = res.message;
+            });
+    }
+
+    function markRefunded() {
+        postForm('/Return/MarkRefunded', { id: requestId })
+            .then(function (res) {
+                if (res.success) location.reload();
+                else document.getElementById('actionMsg').textContent = res.message;
+            });
+    }
+</script>
+
+@Html.AntiForgeryToken()

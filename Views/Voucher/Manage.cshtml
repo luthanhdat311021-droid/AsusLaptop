@@ -1,0 +1,124 @@
+@model List<AsusLaptop.Models.Voucher>
+@{
+    ViewData["Title"] = "Quản lý Voucher";
+    Layout = "_Layout";
+}
+
+<div class="admin-wrap" style="max-width:1100px">
+    <div class="admin-header">
+        <h1 class="admin-title"><i class="fa fa-ticket-alt"></i> <span>QUẢN LÝ</span> VOUCHER</h1>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success"><i class="fa fa-check-circle"></i> @TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger"><i class="fa fa-times-circle"></i> @TempData["ErrorMessage"]</div>
+    }
+
+    <!-- Form tạo mới -->
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3><i class="fa fa-plus-circle"></i> Tạo voucher mới</h3>
+        </div>
+        <div class="account-card-body">
+            <form method="post" asp-action="Create" asp-controller="Voucher"
+                  style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+                @Html.AntiForgeryToken()
+                <input type="text" name="Code" placeholder="Mã (ví dụ: SALE10)" required class="form-control" style="text-transform:uppercase;" />
+                <input type="text" name="Description" placeholder="Mô tả ngắn" class="form-control" />
+                <select name="DiscountType" class="form-control">
+                    <option value="Percent">Giảm theo % </option>
+                    <option value="Amount">Giảm số tiền cố định</option>
+                </select>
+                <input type="number" step="0.01" name="DiscountValue" placeholder="Giá trị giảm" required class="form-control" />
+                <input type="number" name="MaxDiscountAmount" placeholder="Giảm tối đa (₫, để trống = không giới hạn)" class="form-control" />
+                <input type="number" name="MinOrderAmount" placeholder="Đơn hàng tối thiểu (₫)" value="0" class="form-control" />
+                <input type="number" name="UsageLimit" placeholder="Số lượt dùng tối đa (để trống = không giới hạn)" class="form-control" />
+                <label style="font-size:12px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em;">Bắt đầu
+                    <input type="date" name="StartDate" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control" style="margin-top:6px;" />
+                </label>
+                <label style="font-size:12px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em;">Hết hạn
+                    <input type="date" name="ExpiryDate" required value="@DateTime.Now.AddMonths(1).ToString("yyyy-MM-dd")" class="form-control" style="margin-top:6px;" />
+                </label>
+                <button type="submit" class="btn-add" style="justify-content:center;grid-column: span 1;"><i class="fa fa-plus"></i> Tạo voucher</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Danh sách voucher -->
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3><i class="fa fa-list"></i> Danh sách voucher</h3>
+        </div>
+        <div style="overflow-x:auto">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Mã</th>
+                        <th>Mô tả</th>
+                        <th>Giảm</th>
+                        <th>Đơn tối thiểu</th>
+                        <th>Hiệu lực</th>
+                        <th>Đã dùng</th>
+                        <th>Trạng thái</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var v in Model)
+                    {
+                        bool expired = DateTime.Now > v.ExpiryDate;
+                        <tr>
+                            <td><strong style="color:var(--accent)">@v.Code</strong></td>
+                            <td>@v.Description</td>
+                            <td>
+                                @(v.DiscountType == "Percent" ? $"{v.DiscountValue}%" : $"{v.DiscountValue:N0}₫")
+                                @(v.MaxDiscountAmount.HasValue ? $" (tối đa {v.MaxDiscountAmount:N0}₫)" : "")
+                            </td>
+                            <td>@v.MinOrderAmount.ToString("N0")₫</td>
+                            <td>@v.StartDate.ToString("dd/MM/yyyy") → @v.ExpiryDate.ToString("dd/MM/yyyy")</td>
+                            <td>@v.UsedCount@(v.UsageLimit.HasValue ? $" / {v.UsageLimit}" : "")</td>
+                            <td>
+                                @if (expired)
+                                {
+                                    <span class="order-status" style="background:var(--bg-card2);color:var(--text-muted);border:1px solid var(--border)">Hết hạn</span>
+                                }
+                                else if (v.IsActive)
+                                {
+                                    <span class="order-status status-completed">Đang hoạt động</span>
+                                }
+                                else
+                                {
+                                    <span class="order-status status-cancelled">Đã khóa</span>
+                                }
+                            </td>
+                            <td style="white-space:nowrap;">
+                                <form method="post" asp-action="ToggleActive" asp-controller="Voucher" style="display:inline;">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@v.Id" />
+                                    <button type="submit" class="btn-action btn-edit" title="Bật/Khóa" style="border:none;">
+                                        <i class="fa fa-toggle-on"></i>
+                                    </button>
+                                </form>
+                                <form method="post" asp-action="Delete" asp-controller="Voucher" style="display:inline;" onsubmit="return confirm('Xóa voucher này?');">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@v.Id" />
+                                    <button type="submit" class="btn-action btn-delete" title="Xóa" style="border:none;">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="8" style="padding:24px;text-align:center;color:var(--text-muted);">Chưa có voucher nào.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

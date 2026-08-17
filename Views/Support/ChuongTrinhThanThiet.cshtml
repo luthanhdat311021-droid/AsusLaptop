@@ -1,0 +1,104 @@
+@{
+    ViewData["Title"] = "Chương trình khách hàng thân thiết";
+    var tiers = (List<(string Name, decimal Threshold, string Color, string Icon, string[] Benefits)>)ViewBag.Tiers;
+    var currentTier = ((string Name, decimal Threshold, string Color, string Icon, string[] Benefits))ViewBag.CurrentTier;
+    var nextTier = ViewBag.NextTier as (string Name, decimal Threshold, string Color, string Icon, string[] Benefits)?;
+    decimal totalSpent = ViewBag.TotalSpent;
+    int completedOrders = ViewBag.CompletedOrders;
+    bool isLoggedIn = ViewBag.IsLoggedIn;
+
+    double progressPercent = 0;
+    if (nextTier.HasValue && nextTier.Value.Threshold > currentTier.Threshold)
+    {
+        var range = nextTier.Value.Threshold - currentTier.Threshold;
+        progressPercent = range > 0 ? (double)((totalSpent - currentTier.Threshold) / range) * 100 : 100;
+        progressPercent = Math.Max(0, Math.Min(100, progressPercent));
+    }
+    else if (!nextTier.HasValue)
+    {
+        progressPercent = 100;
+    }
+}
+
+<div class="support-page">
+    <div class="support-hero">
+        <i class="fa fa-crown support-hero-icon" style="color:@currentTier.Color"></i>
+        <h1>Chương Trình Khách Hàng Thân Thiết</h1>
+        <p>Chi tiêu càng nhiều, ưu đãi càng lớn — hạng thành viên được tính tự động từ đơn hàng đã hoàn tất</p>
+    </div>
+
+    <div class="support-container">
+        @if (!isLoggedIn)
+        {
+            <div class="support-card" style="text-align:center">
+                <i class="fa fa-lock" style="font-size:32px;color:var(--text-secondary);margin-bottom:12px"></i>
+                <p style="color:var(--text-secondary)">Đăng nhập để xem hạng thành viên và ưu đãi của riêng bạn.</p>
+                <a href="/Account/Login" class="btn" style="background:var(--accent);color:#fff;padding:10px 24px;border-radius:8px;display:inline-block;margin-top:8px;text-decoration:none">Đăng nhập ngay</a>
+            </div>
+        }
+        else
+        {
+            <div class="support-card">
+                <h3><i class="fa @currentTier.Icon" style="color:@currentTier.Color"></i> Hạng hiện tại của bạn: <span style="color:@currentTier.Color">@currentTier.Name</span></h3>
+                <div class="policy-badge">
+                    <i class="fa fa-shopping-bag"></i> Tổng chi tiêu: <strong>@totalSpent.ToString("N0")₫</strong>
+                    &nbsp;·&nbsp; <i class="fa fa-box"></i> <strong>@completedOrders</strong> đơn hàng đã hoàn tất
+                </div>
+
+                @if (nextTier.HasValue)
+                {
+                    <p style="color:var(--text-secondary);margin:16px 0 8px">
+                        Chi thêm <strong>@((nextTier.Value.Threshold - totalSpent).ToString("N0"))₫</strong> nữa để lên hạng
+                        <strong style="color:@nextTier.Value.Color">@nextTier.Value.Name</strong>
+                    </p>
+                    <div style="background:rgba(255,255,255,0.08);border-radius:20px;height:14px;overflow:hidden;margin-bottom:8px">
+                        <div style="background:@currentTier.Color;height:100%;width:@progressPercent.ToString("0")%;border-radius:20px;transition:width .3s"></div>
+                    </div>
+                }
+                else
+                {
+                    <p style="color:var(--success);margin:16px 0 8px"><i class="fa fa-star"></i> Bạn đang ở hạng cao nhất!</p>
+                }
+
+                <p style="color:var(--text-secondary);margin:16px 0 8px">Quyền lợi hạng @currentTier.Name của bạn:</p>
+                <ul class="support-list">
+                    @foreach (var b in currentTier.Benefits)
+                    {
+                        <li><i class="fa fa-check" style="color:var(--success)"></i> @b</li>
+                    }
+                </ul>
+            </div>
+        }
+
+        <div class="support-card">
+            <h3><i class="fa fa-layer-group" style="color:var(--accent)"></i> Các hạng thành viên</h3>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:12px">
+                @foreach (var t in tiers)
+                {
+                    var isCurrent = t.Name == currentTier.Name;
+                    <div style="border:2px solid @(isCurrent ? t.Color : "rgba(255,255,255,0.1)");border-radius:12px;padding:16px;@(isCurrent ? "background:rgba(255,255,255,0.05)" : "")">
+                        <i class="fa @t.Icon" style="color:@t.Color;font-size:24px"></i>
+                        <h4 style="color:@t.Color;margin:8px 0 4px">@t.Name @(isCurrent ? "(Hạng của bạn)" : "")</h4>
+                        <p style="color:var(--text-secondary);font-size:13px;margin-bottom:8px">
+                            @(t.Threshold == 0 ? "Từ 0₫" : $"Từ {t.Threshold:N0}₫")
+                        </p>
+                        <ul style="list-style:none;padding:0;margin:0;font-size:13px;color:var(--text-secondary)">
+                            @foreach (var b in t.Benefits)
+                            {
+                                <li style="margin-bottom:4px"><i class="fa fa-check" style="color:var(--success);margin-right:6px"></i>@b</li>
+                            }
+                        </ul>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="support-card">
+            <h3><i class="fa fa-info-circle" style="color:var(--tuf-yellow)"></i> Cách tính hạng</h3>
+            <p style="color:var(--text-secondary)">
+                Hạng thành viên được tính dựa trên <strong>tổng giá trị các đơn hàng đã giao thành công</strong> (trạng thái "Hoàn tất").
+                Hạng được cập nhật tự động ngay khi đơn hàng của bạn hoàn tất — không cần đăng ký thủ công.
+            </p>
+        </div>
+    </div>
+</div>

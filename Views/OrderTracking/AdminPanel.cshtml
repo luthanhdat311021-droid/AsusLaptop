@@ -1,0 +1,170 @@
+@model AsusLaptop.Models.Order
+@{
+    ViewData["Title"] = "Quản lý vận chuyển #" + Model.Id;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <style>
+        .oa-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 20px 60px; }
+        .oa-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:18px; }
+        .oa-title { font-size: 22px; font-weight: 800; }
+        .oa-title span { color: var(--accent); }
+        .oa-grid { display:grid; grid-template-columns: 1fr 320px; gap:18px; }
+        @@media (max-width: 900px) { .oa-grid { grid-template-columns: 1fr; } }
+        #oa-map { width:100%; height: 520px; border-radius: var(--radius,10px); border:1px solid var(--border); background:#e5e5e5; }
+        .oa-panel { background: var(--bg-card2); border:1px solid var(--border); border-radius: var(--radius,10px); padding:16px; }
+        .oa-panel + .oa-panel { margin-top:14px; }
+        .oa-panel h4 { font-size:12px; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:10px; }
+        .oa-panel label { font-size:12px; color:var(--text-muted); display:block; margin-bottom:5px; }
+        .oa-panel input { width:100%; padding:9px 10px; border-radius:8px; border:1px solid var(--border); background:var(--bg-card,#fff); margin-bottom:10px; font-size:13px; }
+        .oa-btn { width:100%; padding:10px; border-radius:8px; border:none; cursor:pointer; font-weight:700; font-size:13px; }
+        .oa-btn-primary { background: var(--accent); color:#fff; }
+        .oa-btn-outline { background:transparent; border:1px solid var(--border); color:var(--text-primary); }
+        .oa-hint { font-size:11.5px; color:var(--text-muted); margin-top:8px; line-height:1.5; }
+        .oa-status-msg { font-size:12.5px; margin-top:8px; min-height:16px; }
+    </style>
+}
+
+<div class="oa-wrap">
+    <div class="oa-header">
+        <div class="oa-title">Quản lý vận chuyển <span>#@Model.Id</span></div>
+        <a href="/Admin/OrderDetail/@Model.Id" class="btn-ghost"><i class="fa fa-arrow-left"></i> Chi tiết đơn hàng</a>
+    </div>
+
+    <div class="oa-grid">
+        <div>
+            <div id="oa-map"></div>
+            <div class="oa-hint"><i class="fa fa-info-circle"></i> Bấm vào bản đồ để ghim điểm giao hàng của khách. Kéo thả marker shipper (màu xanh lá) để cập nhật vị trí thủ công.</div>
+        </div>
+
+        <div>
+            <div class="oa-panel">
+                <h4><i class="fa fa-user-tag"></i> Gán shipper</h4>
+                <label>Tên shipper</label>
+                <input type="text" id="oa-shipper-name" value="@Model.ShipperName" placeholder="VD: Nguyễn Văn A" />
+                <label>Số điện thoại</label>
+                <input type="text" id="oa-shipper-phone" value="@Model.ShipperPhone" placeholder="VD: 0901234567" />
+                <button class="oa-btn oa-btn-primary" onclick="OT.assignShipper()"><i class="fa fa-check"></i> Lưu shipper</button>
+                <div class="oa-status-msg" id="oa-assign-msg"></div>
+            </div>
+
+            <div class="oa-panel">
+                <h4><i class="fa fa-satellite-dish"></i> Mô phỏng di chuyển (demo)</h4>
+                <div class="oa-hint" style="margin-top:0;margin-bottom:10px">Dùng khi chưa có định vị GPS thật — hệ thống sẽ tự di chuyển marker shipper từ cửa hàng tới điểm giao hàng và đẩy realtime cho khách hàng xem.</div>
+                <button class="oa-btn oa-btn-outline" onclick="OT.simulate()"><i class="fa fa-play"></i> Bắt đầu mô phỏng</button>
+                <div class="oa-status-msg" id="oa-sim-msg"></div>
+            </div>
+
+            <div class="oa-panel">
+                <h4><i class="fa fa-eye"></i> Xem như khách hàng</h4>
+                <a href="/OrderTracking/Track/@Model.Id" target="_blank" class="oa-btn oa-btn-outline" style="display:block;text-align:center;text-decoration:none">
+                    <i class="fa fa-external-link-alt"></i> Mở trang theo dõi
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <script>
+        var OT = (function () {
+            var orderId = @Model.Id;
+            var shopLat = @(((double)ViewBag.ShopLat).ToString(System.Globalization.CultureInfo.InvariantCulture)), shopLng = @(((double)ViewBag.ShopLng).ToString(System.Globalization.CultureInfo.InvariantCulture));
+            var destLat = @(Model.DestinationLat?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "null");
+            var destLng = @(Model.DestinationLng?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "null");
+            var shipLat = @(Model.ShipperLat?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? ((double)ViewBag.ShopLat).ToString(System.Globalization.CultureInfo.InvariantCulture));
+            var shipLng = @(Model.ShipperLng?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? ((double)ViewBag.ShopLng).ToString(System.Globalization.CultureInfo.InvariantCulture));
+
+            var token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            var map = L.map('oa-map').setView([shopLat, shopLng], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19, attribution: '&copy; OpenStreetMap'
+            }).addTo(map);
+
+            function icon(bg, iconClass) {
+                return L.divIcon({
+                    html: '<div style="width:34px;height:34px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:' + bg + ';display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.35)"><i class="fa ' + iconClass + '" style="transform:rotate(45deg);color:#fff;font-size:15px"></i></div>',
+                    iconSize: [34, 34], iconAnchor: [17, 34], className: 'leaflet-div-icon'
+                });
+            }
+
+            L.marker([shopLat, shopLng], { icon: icon('#00b4ff', 'fa-store') }).addTo(map).bindPopup('Cửa hàng');
+
+            var destMarker = destLat !== null
+                ? L.marker([destLat, destLng], { icon: icon('#ff4444', 'fa-flag-checkered') }).addTo(map).bindPopup('Điểm giao hàng')
+                : null;
+
+            var shipperMarker = L.marker([shipLat, shipLng], {
+                icon: icon('#00d4aa', 'fa-motorcycle'),
+                draggable: true
+            }).addTo(map).bindPopup('Shipper (kéo để đổi vị trí)');
+
+            shipperMarker.on('dragend', function (e) {
+                var pos = e.target.getLatLng();
+                updateLocation(pos.lat, pos.lng);
+            });
+
+            map.on('click', function (e) {
+                if (!confirm('Ghim vị trí này làm điểm giao hàng của khách?')) return;
+                if (!destMarker) {
+                    destMarker = L.marker(e.latlng, { icon: icon('#ff4444', 'fa-flag-checkered') }).addTo(map).bindPopup('Điểm giao hàng');
+                } else {
+                    destMarker.setLatLng(e.latlng);
+                }
+                setDestination(e.latlng.lat, e.latlng.lng);
+            });
+
+            function postForm(url, params) {
+                var body = new URLSearchParams(params);
+                return fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'RequestVerificationToken': token },
+                    body: body
+                }).then(function (r) { return r.json(); });
+            }
+
+            function updateLocation(lat, lng) {
+                postForm('/OrderTracking/UpdateLocation', { orderId: orderId, lat: lat, lng: lng });
+            }
+
+            function setDestination(lat, lng) {
+                postForm('/OrderTracking/SetDestination', { orderId: orderId, lat: lat, lng: lng });
+            }
+
+            function assignShipper() {
+                var name = document.getElementById('oa-shipper-name').value.trim();
+                var phone = document.getElementById('oa-shipper-phone').value.trim();
+                var msg = document.getElementById('oa-assign-msg');
+                if (!name) { msg.textContent = 'Vui lòng nhập tên shipper.'; msg.style.color = '#ff4444'; return; }
+                postForm('/OrderTracking/AssignShipper', { orderId: orderId, shipperName: name, shipperPhone: phone })
+                    .then(function (res) {
+                        msg.textContent = res.success ? 'Đã lưu thông tin shipper!' : (res.message || 'Có lỗi xảy ra.');
+                        msg.style.color = res.success ? 'var(--success,#00d4aa)' : '#ff4444';
+                    });
+            }
+
+            function simulate() {
+                var msg = document.getElementById('oa-sim-msg');
+                if (!destMarker) { msg.textContent = 'Vui lòng ghim điểm giao hàng trước!'; msg.style.color = '#ff4444'; return; }
+                postForm('/OrderTracking/SimulateMovement', { orderId: orderId, steps: 30, intervalMs: 1500 })
+                    .then(function (res) {
+                        msg.textContent = res.success ? 'Đang mô phỏng di chuyển...' : (res.message || 'Có lỗi xảy ra.');
+                        msg.style.color = res.success ? 'var(--success,#00d4aa)' : '#ff4444';
+                    });
+            }
+
+            // Nghe realtime để marker admin cũng nhảy theo (đề phòng có tab khác đang cập nhật)
+            var connection = new signalR.HubConnectionBuilder().withUrl('/hubs/order-tracking').withAutomaticReconnect().build();
+            connection.on('ReceiveLocation', function (data) { shipperMarker.setLatLng([data.lat, data.lng]); });
+            connection.start().then(function () { connection.invoke('JoinOrderRoom', orderId); });
+
+            return { assignShipper: assignShipper, simulate: simulate };
+        })();
+    </script>
+}

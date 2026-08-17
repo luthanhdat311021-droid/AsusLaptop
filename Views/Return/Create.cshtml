@@ -1,0 +1,104 @@
+@model AsusLaptop.Models.Order
+@{
+    ViewData["Title"] = "Yêu cầu trả hàng / hoàn tiền";
+    int daysLeft = ViewBag.DaysLeft;
+}
+
+<div class="account-wrap">
+    <div style="max-width:760px;margin:0 auto;padding:24px 20px 60px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <h1 class="section-title" style="margin:0;"><i class="fa fa-undo-alt" style="color:var(--accent);margin-right:10px;"></i>Yêu cầu trả hàng / hoàn tiền</h1>
+        </div>
+        <p style="color:var(--text-muted);font-size:13px;margin-bottom:20px;">
+            Đơn hàng #@Model.Id · Còn <strong style="color:var(--accent)">@daysLeft ngày</strong> trong thời hạn đổi trả (30 ngày kể từ ngày mua)
+        </p>
+
+        <form method="post" asp-action="Create" id="returnForm">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="orderId" value="@Model.Id" />
+
+            <div style="background:var(--bg-card2);border:1px solid var(--border);border-radius:var(--radius,10px);padding:16px;margin-bottom:16px;">
+                <h4 style="font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:12px;">
+                    Chọn sản phẩm muốn trả *
+                </h4>
+                @foreach (var detail in Model.OrderDetails)
+                {
+                    <label style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;">
+                        <input type="checkbox" name="selectedDetailIds" value="@detail.Id" class="return-item-check" style="width:16px;height:16px;flex-shrink:0;" onchange="toggleQty(this)" />
+                        <div style="width:44px;height:44px;background:var(--bg-card);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            @if (!string.IsNullOrEmpty(detail.Product?.ImageUrl))
+                            {
+                                <img src="@detail.Product.ImageUrl" style="max-height:36px;object-fit:contain" onerror="this.style.display='none'" />
+                            }
+                            else
+                            {
+                                <i class="fa fa-laptop" style="color:var(--text-muted)"></i>
+                            }
+                        </div>
+                        <div style="flex:1;">
+                            <div style="font-size:13.5px;font-weight:600;">@detail.Product?.Name</div>
+                            <div style="font-size:12px;color:var(--text-muted);">Đã mua: @detail.Quantity · Đơn giá: @detail.Price.ToString("N0")₫</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <span style="font-size:11.5px;color:var(--text-muted);">SL trả:</span>
+                            <input type="number" name="quantities" value="1" min="1" max="@detail.Quantity"
+                                   class="form-control qty-input" style="width:60px;padding:6px;text-align:center;" disabled />
+                        </div>
+                    </label>
+                }
+            </div>
+
+            <div class="form-group" style="margin-bottom:14px;">
+                <label class="form-label">Loại yêu cầu *</label>
+                <select name="requestType" class="form-control" required>
+                    <option value="Refund">Hoàn tiền</option>
+                    <option value="Return">Trả hàng (đổi mới)</option>
+                    <option value="Exchange">Đổi sản phẩm khác</option>
+                </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom:14px;">
+                <label class="form-label">Lý do *</label>
+                <select name="reason" class="form-control" required>
+                    <option value="Lỗi phần cứng nhà sản xuất">Lỗi phần cứng nhà sản xuất</option>
+                    <option value="Sản phẩm không đúng mô tả">Sản phẩm không đúng mô tả</option>
+                    <option value="Hư hỏng trong vận chuyển">Hư hỏng trong vận chuyển</option>
+                    <option value="Giao sai sản phẩm">Giao sai sản phẩm</option>
+                    <option value="Đổi ý không muốn mua nữa">Đổi ý không muốn mua nữa</option>
+                    <option value="Khác">Khác</option>
+                </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom:14px;">
+                <label class="form-label">Mô tả chi tiết</label>
+                <textarea name="description" class="form-control" rows="4" placeholder="Mô tả cụ thể vấn đề bạn gặp phải..."></textarea>
+            </div>
+
+            <div class="form-group" style="margin-bottom:20px;">
+                <label class="form-label">Link ảnh minh chứng (tuỳ chọn, cách nhau bởi dấu phẩy)</label>
+                <input type="text" name="imageUrls" class="form-control" placeholder="https://... , https://..." />
+                <small style="color:var(--text-muted);font-size:11.5px;display:block;margin-top:4px;">
+                    Ảnh giúp chúng tôi xử lý yêu cầu nhanh hơn (ảnh lỗi sản phẩm, hộp, tem niêm phong...)
+                </small>
+            </div>
+
+            <button type="submit" class="btn-primary" style="width:100%;padding:12px;">
+                <i class="fa fa-paper-plane"></i> Gửi yêu cầu
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function toggleQty(checkbox) {
+        var qtyInput = checkbox.closest('label').querySelector('.qty-input');
+        qtyInput.disabled = !checkbox.checked;
+    }
+    document.getElementById('returnForm').addEventListener('submit', function (e) {
+        var anyChecked = document.querySelectorAll('.return-item-check:checked').length > 0;
+        if (!anyChecked) {
+            e.preventDefault();
+            alert('Vui lòng chọn ít nhất 1 sản phẩm muốn trả.');
+        }
+    });
+</script>

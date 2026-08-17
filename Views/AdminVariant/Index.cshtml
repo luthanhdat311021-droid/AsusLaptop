@@ -1,0 +1,121 @@
+@model IEnumerable<AsusLaptop.Models.ProductVariant>
+@{
+    var product = ViewBag.Product as AsusLaptop.Models.Product;
+    ViewData["Title"] = "Biến thể - " + product?.Name;
+    Layout = "_Layout";
+}
+
+<div class="admin-wrap">
+    <div class="admin-header">
+        <div style="display:flex;align-items:center;gap:12px">
+            <a href="/Admin/Products" style="color:var(--text-muted);font-size:18px"><i class="fa fa-arrow-left"></i></a>
+            <h1 class="admin-title"><i class="fa fa-layer-group"></i> Biến thể: <span>@product?.Name</span></h1>
+        </div>
+        <a asp-action="Create" asp-route-productId="@product?.Id" class="btn-add">
+            <i class="fa fa-plus"></i> Thêm biến thể
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mx-3 mt-3">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show mx-3 mt-3">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="admin-section" style="margin:24px">
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>RAM</th>
+                        <th>Màu sắc</th>
+                        <th>Chênh lệch giá</th>
+                        <th>Tồn kho</th>
+                        <th>Serial khả dụng</th>
+                        <th>Mặc định</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var v in Model)
+                    {
+                        <tr>
+                            <td><span class="badge" style="background:var(--accent);padding:4px 10px;border-radius:6px">@v.RAM</span></td>
+                            <td style="display:flex;align-items:center;gap:8px;padding-top:14px">
+                                <span style="display:inline-block;width:20px;height:20px;border-radius:50%;background:@v.ColorHex;border:2px solid rgba(255,255,255,0.2);flex-shrink:0"></span>
+                                @v.Color
+                            </td>
+                            <td>
+                                @if (v.PriceAdjust == 0)
+                                {
+                                    <span style="color:var(--text-muted)">Giá gốc</span>
+                                }
+                                else if (v.PriceAdjust > 0)
+                                {
+                                    <span style="color:#ff6b6b">+@v.PriceAdjust.ToString("N0")₫</span>
+                                }
+                                else
+                                {
+                                    <span style="color:#51cf66">@v.PriceAdjust.ToString("N0")₫</span>
+                                }
+                            </td>
+                            <td>
+                                <span style="color:@(v.Stock > 5 ? "#51cf66" : v.Stock > 0 ? "#fcc419" : "#ff6b6b");font-weight:700">
+                                    @v.Stock
+                                </span>
+                            </td>
+                            <td>
+                                <a asp-action="Serials" asp-route-variantId="@v.Id" style="color:var(--accent)">
+                                    @v.SerialNumbers.Count(s => s.Status == "Available") / @v.SerialNumbers.Count
+                                    <i class="fa fa-external-link-alt" style="font-size:10px;margin-left:4px"></i>
+                                </a>
+                            </td>
+                            <td>
+                                @if (v.IsDefault)
+                                {
+                                    <span style="background:rgba(0,180,216,0.15);color:var(--accent);border:1px solid rgba(0,180,216,0.3);padding:3px 10px;border-radius:99px;font-size:12px;font-weight:700">
+                                        <i class="fa fa-check-circle"></i> Mặc định
+                                    </span>
+                                }
+                            </td>
+                            <td>
+                                <div style="display:flex;gap:8px">
+                                    <a asp-action="Edit" asp-route-id="@v.Id" class="btn-action btn-edit" title="Sửa">
+                                        <i class="fa fa-edit"></i>
+                                    </a>
+                                    <form asp-action="Delete" asp-route-id="@v.Id" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button class="btn-action btn-delete" title="Xóa"
+                                                onclick="return confirm('Xóa biến thể @v.DisplayLabel?')">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div style="text-align:center;padding:60px 0;color:var(--text-muted)">
+                <i class="fa fa-inbox" style="font-size:48px;margin-bottom:16px;display:block"></i>
+                <p>Chưa có biến thể nào.</p>
+                <a asp-action="Create" asp-route-productId="@product?.Id" class="btn-add" style="display:inline-flex;margin-top:8px">
+                    <i class="fa fa-plus"></i> Thêm biến thể đầu tiên
+                </a>
+            </div>
+        }
+    </div>
+</div>

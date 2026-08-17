@@ -1,0 +1,86 @@
+@model AsusLaptop.Models.ProductVariant
+@{
+    var product = ViewBag.Product as AsusLaptop.Models.Product;
+    ViewData["Title"] = "Thêm biến thể";
+    Layout = "_Layout";
+    var ramOptions = new[] { "8 GB DDR4","16 GB DDR4","16 GB DDR5","16 GB LPDDR5","16 GB LPDDR5X","32 GB DDR4","32 GB DDR5","32 GB LPDDR5","32 GB LPDDR5X","64 GB DDR5","96 GB DDR5" };
+}
+
+<div class="admin-wrap">
+    <div class="admin-header">
+        <div style="display:flex;align-items:center;gap:12px">
+            <a asp-action="Index" asp-route-productId="@Model.ProductId" style="color:var(--text-muted);font-size:18px"><i class="fa fa-arrow-left"></i></a>
+            <h1 class="admin-title"><i class="fa fa-plus-circle"></i> Thêm biến thể — <span>@product?.Name</span></h1>
+        </div>
+    </div>
+
+    <div class="admin-section" style="margin:24px;max-width:600px">
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="ProductId" value="@Model.ProductId" />
+
+            <div style="margin-bottom:16px">
+                <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text-muted)">RAM *</label>
+                <select name="RAM" class="form-select" required style="background:var(--bg-card2);border:1px solid var(--border);color:var(--text-primary);border-radius:8px;padding:8px 12px;width:100%">
+                    <option value="">-- Chọn RAM --</option>
+                    @foreach (var r in ramOptions)
+                    {
+                        <option value="@r">@r</option>
+                    }
+                </select>
+            </div>
+
+            <div style="margin-bottom:16px">
+                <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text-muted)">Màu sắc *</label>
+                <input name="Color" class="form-control" required placeholder="VD: Eclipse Gray"
+                       style="background:var(--bg-card2);border:1px solid var(--border);color:var(--text-primary);border-radius:8px;padding:8px 12px;width:100%" />
+            </div>
+
+            <div style="margin-bottom:16px">
+                <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text-muted)">Mã màu HEX *</label>
+                <div style="display:flex;gap:8px;align-items:center">
+                    <input type="color" name="ColorHex" id="colorPicker" value="#333333"
+                           style="width:48px;height:40px;border:1px solid var(--border);border-radius:8px;padding:2px;background:var(--bg-card2);cursor:pointer" />
+                    <input type="text" id="hexText" value="#333333" placeholder="#333333"
+                           style="background:var(--bg-card2);border:1px solid var(--border);color:var(--text-primary);border-radius:8px;padding:8px 12px;flex:1" />
+                </div>
+            </div>
+
+            <div style="margin-bottom:16px">
+                <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text-muted)">Chênh lệch giá (₫)</label>
+                <input name="PriceAdjust" type="number" value="0"
+                       style="background:var(--bg-card2);border:1px solid var(--border);color:var(--text-primary);border-radius:8px;padding:8px 12px;width:100%" />
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">0 = giá gốc | số dương = tăng thêm | số âm = giảm giá</div>
+            </div>
+
+            <div style="margin-bottom:16px">
+                <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text-muted)">Số lượng nhập ban đầu (tự sinh serial)</label>
+                <input name="initialStock" type="number" value="5" min="1" max="200"
+                       style="background:var(--bg-card2);border:1px solid var(--border);color:var(--text-primary);border-radius:8px;padding:8px 12px;width:100%" />
+            </div>
+
+            <div style="margin-bottom:20px;display:flex;align-items:center;gap:8px">
+                <input type="checkbox" name="IsDefault" value="true" id="chkDefault"
+                       style="width:16px;height:16px;accent-color:var(--accent)" />
+                <label for="chkDefault" style="font-size:13px;cursor:pointer">Đặt làm biến thể mặc định</label>
+            </div>
+
+            <div style="display:flex;gap:12px">
+                <button type="submit" class="btn-add"><i class="fa fa-save"></i> Lưu biến thể</button>
+                <a asp-action="Index" asp-route-productId="@Model.ProductId"
+                   style="padding:8px 20px;border:1px solid var(--border);border-radius:8px;color:var(--text-muted);text-decoration:none">
+                    Hủy
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const colorPicker = document.getElementById('colorPicker');
+    const hexText     = document.getElementById('hexText');
+    colorPicker.addEventListener('input', function () { hexText.value = this.value; });
+    hexText.addEventListener('change', function () {
+        if (/^#[0-9A-Fa-f]{6}$/.test(this.value)) colorPicker.value = this.value;
+    });
+</script>

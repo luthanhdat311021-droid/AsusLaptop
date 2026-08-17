@@ -1,0 +1,2207 @@
+<!DOCTYPE html>
+<html lang="vi" class="notranslate" translate="no">
+<head>
+    <meta charset="utf-8" />
+    <meta name="google" content="notranslate" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@(ViewData["Title"] != null ? ViewData["Title"] + " — " : "")ASUS Laptop Store — Flagship Store</title>
+    <meta name="description" content="@(ViewData["MetaDescription"] as string ?? "Đại lý ủy quyền chính hãng ASUS tại Việt Nam. Laptop ROG, ZenBook, VivoBook, TUF Gaming... 100% chính hãng, bảo hành toàn quốc.")" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="@(ViewData["OgType"] as string ?? "website")" />
+    <meta property="og:site_name" content="ASUS Laptop Store Flagship" />
+    <meta property="og:title" content="@(ViewData["OgTitle"] as string ?? (ViewData["Title"] as string ?? "ASUS Laptop Store"))" />
+    <meta property="og:description" content="@(ViewData["OgDescription"] as string ?? ViewData["MetaDescription"] as string ?? "Đại lý ủy quyền chính hãng ASUS tại Việt Nam. 100% chính hãng, bảo hành toàn quốc.")" />
+    <meta property="og:image" content="@(ViewData["OgImage"] as string ?? $"{Context.Request.Scheme}://{Context.Request.Host}/image/product/tk.png")" />
+    <meta property="og:url" content="@($"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}{Context.Request.QueryString}")" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="@(ViewData["OgTitle"] as string ?? (ViewData["Title"] as string ?? "ASUS Laptop Store"))" />
+    <meta name="twitter:description" content="@(ViewData["OgDescription"] as string ?? ViewData["MetaDescription"] as string ?? "Đại lý ủy quyền chính hãng ASUS tại Việt Nam.")" />
+    <meta name="twitter:image" content="@(ViewData["OgImage"] as string ?? $"{Context.Request.Scheme}://{Context.Request.Host}/image/product/tk.png")" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Barlow:wght@300;400;500;600;700;800&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/css/asus-futuristic-3d.css" />
+    <!-- Three.js CDN & Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    @await RenderSectionAsync("Styles", required: false)
+    <!-- FORCE FLUSH TOP EDGE (HIDE SOMEE FREE HOSTING BANNER & GOOGLE TRANSLATE) -->
+    <style>
+        html, body {
+            top: 0 !important;
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+            position: static !important;
+        }
+
+        /* Ẩn banner quảng cáo Somee free hosting & Google Translate top bar */
+        body > center:first-child,
+        body > div[style*="somee.com"],
+        a[href*="somee.com"],
+        iframe[src*="somee"],
+        .goog-te-banner-frame,
+        .goog-te-balloon-frame,
+        #goog-gt-tt,
+        .goog-te-gadget,
+        body > .skiptranslate {
+            display: none !important;
+            visibility: hidden !important;
+            height: 0 !important;
+            width: 0 !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            position: absolute !important;
+            top: -9999px !important;
+            left: -9999px !important;
+        }
+
+        #google_translate_element {
+            display: none !important;
+        }
+    </style>
+    <style>
+        /* Global reveal animation */
+        .reveal { opacity: 0; transform: translateY(32px); transition: opacity .6s ease, transform .6s ease; }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+        .reveal:nth-child(2) { transition-delay: .08s; }
+        .reveal:nth-child(3) { transition-delay: .16s; }
+        .reveal:nth-child(4) { transition-delay: .24s; }
+        .reveal:nth-child(5) { transition-delay: .32s; }
+        .tilt-3d { will-change: transform; }
+        [data-parallax] { will-change: transform; }
+    </style>
+</head>
+<body>
+    <!-- CYBERSCAN BACKGROUND OVERLAYS -->
+    <div class="cyber-bg-overlay"></div>
+
+    <!-- TOP BAR LUXURY -->
+    <div class="topbar luxury-topbar">
+        <div class="topbar-inner">
+            <div class="topbar-item topbar-status">
+                <span class="live-pulse"></span>
+                <span class="topbar-text">ASUS GLOBAL FLAGSHIP STORE</span>
+            </div>
+            <div class="topbar-item topbar-ticker">
+                <i class="fa-solid fa-crown gold-icon"></i>
+                <span>Đặc quyền VIP Concierge — Hỗ trợ kỹ thuật 24/7 — Bảo hành chính hãng 2 năm tận nơi</span>
+            </div>
+            <div class="topbar-item topbar-info">
+                <span><i class="fa fa-phone"></i> Hotline VIP: 1800 1234</span>
+                <span class="dot-sep">•</span>
+                <span><i class="fa-solid fa-truck-fast"></i> Giao siêu tốc 2H VIP</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- NAVBAR LUXURY -->
+    <nav class="navbar luxury-navbar">
+        <div class="nav-inner" style="max-width: 1440px !important; margin: 0 auto !important; padding: 0 16px !important; height: 74px !important; display: flex !important; align-items: center !important; gap: 12px !important; flex-wrap: nowrap !important; overflow: visible !important;">
+            <!-- Logo -->
+            <a href="/" class="nav-logo luxury-logo" title="ASUS Laptop Store — Flagship" style="display: flex !important; flex-direction: row !important; align-items: center !important; gap: 10px !important; text-decoration: none !important; flex-shrink: 0 !important; height: auto !important;">
+                <div class="logo-badge" style="width: 38px !important; height: 38px !important; border-radius: 10px !important; background: linear-gradient(135deg, #ff4d00, #d4af37) !important; display: flex !important; align-items: center !important; justify-content: center !important; color: #ffffff !important; font-size: 16px !important; flex-shrink: 0 !important;"><i class="fa-solid fa-gem"></i></div>
+                <div class="logo-text-wrap" style="display: flex !important; flex-direction: column !important; justify-content: center !important; line-height: 1.15 !important; flex-shrink: 0 !important; overflow: visible !important;">
+                    <span class="logo-asus" style="font-family: 'Barlow Condensed', 'Outfit', sans-serif !important; font-size: 24px !important; font-weight: 900 !important; color: #ffffff !important; letter-spacing: 2px !important; line-height: 1 !important; margin: 0 !important; padding: 0 !important; -webkit-text-fill-color: initial !important; background: none !important;">ASUS</span>
+                    <span class="logo-sub" style="font-size: 9.5px !important; font-weight: 800 !important; letter-spacing: 2.5px !important; color: #ff4d00 !important; text-transform: uppercase !important; margin-top: 1px !important; padding: 0 !important; white-space: nowrap !important; display: block !important;">LAPTOP STORE</span>
+                </div>
+            </a>
+
+            <!-- Search -->
+            <form asp-controller="Home" asp-action="Index" method="get" class="nav-search luxury-search" id="navSearchForm" style="flex: 1 !important; max-width: 380px !important; min-width: 160px !important;">
+                <div class="search-box-inner" style="position: relative;">
+                    <i class="fa fa-search search-icon"></i>
+                    <input type="text" name="search" id="navSearchInput" placeholder="Tìm ROG Strix, ZenBook OLED, ProArt..." value="@ViewData["SearchQuery"]" autocomplete="off" />
+                    <span class="cmd-kbd-trigger" id="cmdKbdTrigger" title="Mở Smart Command Palette (Ctrl + K)">Ctrl K</span>
+                    <button type="button" class="voice-search-btn" id="voiceSearchBtn" title="Tìm bằng giọng nói / Voice Search">
+                        <i class="fa fa-microphone"></i>
+                    </button>
+                </div>
+                <button type="submit" class="search-submit-btn" title="Tìm kiếm"><i class="fa fa-arrow-right"></i></button>
+            </form>
+
+            <!-- Nav actions -->
+            <div class="nav-actions" style="display: flex !important; align-items: center !important; gap: 6px !important; flex-shrink: 0 !important; margin-left: auto !important;">
+                <a href="/Home/Story" class="nav-btn luxury-story-btn" title="Hành Trình Storytelling" style="background: linear-gradient(135deg, rgba(0, 243, 255, 0.2), rgba(157, 78, 221, 0.2)) !important; border: 1px solid #00f3ff !important; color: #00f3ff !important; font-weight: 800 !important; white-space: nowrap !important; flex-shrink: 0 !important;">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span class="btn-text">Story</span>
+                </a>
+                <a href="/Copilot" class="nav-btn luxury-copilot-btn" title="AI Copilot VIP Assistant" style="white-space: nowrap !important; flex-shrink: 0 !important;">
+                    <i class="fa-solid fa-robot"></i>
+                    <span class="btn-text">Copilot AI</span>
+                </a>
+
+                <a href="/Support/ChamsocBaoHanh" class="nav-btn luxury-story-btn" title="Trung Tâm Chăm Sóc Sau Mua & Bảo Hành" style="background: linear-gradient(135deg, rgba(255, 77, 0, 0.2), rgba(255, 0, 127, 0.2)) !important; border: 1px solid #ff4d00 !important; color: #ff7733 !important; font-weight: 800 !important; white-space: nowrap !important; flex-shrink: 0 !important;">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span class="btn-text">ASUS Care Hub</span>
+                </a>
+
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <div class="nav-user-dropdown" style="flex-shrink: 0 !important;">
+                        <button class="nav-btn user-btn luxury-user-btn" style="white-space: nowrap !important;">
+                            <div class="user-avatar-glow"><i class="fa fa-user-circle"></i></div>
+                            <span class="user-name">@User.FindFirst("FullName")?.Value?.Split(' ').LastOrDefault()</span>
+                            <i class="fa fa-chevron-down caret-icon"></i>
+                        </button>
+                        <div class="dropdown-menu user-dropdown luxury-dropdown">
+                            @if (User.IsInRole("Admin") || User.IsInRole("SubAdmin"))
+                            {
+                                <a href="/Admin/Dashboard"><i class="fa fa-tachometer-alt"></i> Dashboard Admin</a>
+                                <a href="/Admin/Automation"><i class="fa fa-robot"></i> Tự động hóa Website</a>
+                                <a href="/Voucher/Manage"><i class="fa fa-ticket-alt"></i> Quản lý Voucher</a>
+                            }
+                            <a href="/Account/Profile"><i class="fa fa-user"></i> Tài khoản VIP</a>
+                            <a href="/Support/ChamsocBaoHanh"><i class="fa-solid fa-shield-halved text-warning"></i> Chăm sóc sau mua & Bảo hành</a>
+                            <a href="/Account/MyOrders"><i class="fa fa-box"></i> Đơn hàng đã mua</a>
+                            <a href="/Wishlist/Index"><i class="fa fa-heart"></i> Sản phẩm yêu thích</a>
+                            <a href="/Account/ChangePassword"><i class="fa fa-lock"></i> Đổi mật khẩu</a>
+                            <div class="dropdown-divider"></div>
+                            <a href="/Account/Logout" class="logout-link"><i class="fa fa-sign-out-alt"></i> Đăng xuất</a>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <a href="/Account/Login" class="nav-btn luxury-login-btn" style="white-space: nowrap !important; flex-shrink: 0 !important;"><i class="fa fa-sign-in-alt"></i> Đăng nhập</a>
+                    <a href="/Account/Register" class="nav-btn nav-btn-outline luxury-reg-btn" style="white-space: nowrap !important; flex-shrink: 0 !important;">Đăng ký VIP</a>
+                }
+
+                <a asp-controller="ImageSearch" asp-action="Index" class="nav-btn icon-only" title="Tìm kiếm bằng ảnh" style="flex-shrink: 0 !important;">
+                    <i class="fa fa-camera"></i>
+                </a>
+                <a href="/Wishlist/Index" class="nav-btn icon-only" title="Sản phẩm yêu thích" style="flex-shrink: 0 !important;">
+                    <i class="fa fa-heart"></i>
+                </a>
+                <a href="/Compare/Index" class="nav-btn icon-only" title="So sánh cấu hình" style="flex-shrink: 0 !important;">
+                    <i class="fa fa-balance-scale"></i>
+                </a>
+
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <div class="nav-notif-dropdown" id="notifDropdown" style="flex-shrink: 0 !important;">
+                        <button class="nav-btn icon-only" id="notifBellBtn" title="Thông báo VIP">
+                            <i class="fa fa-bell"></i>
+                            <span class="cart-badge notif-badge" id="notifBadge" style="display:none;">0</span>
+                        </button>
+                        <div class="dropdown-menu notif-dropdown-menu luxury-dropdown" id="notifPanel">
+                            <div class="notif-panel-header">
+                                <span><i class="fa fa-bell gold-icon"></i> Thông báo hệ thống</span>
+                                <button type="button" id="notifMarkAllBtn">Đã đọc tất cả</button>
+                            </div>
+                            <div class="notif-panel-list" id="notifList">
+                                <div class="notif-empty">Đang tải...</div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <a href="/Cart" class="nav-cart-btn luxury-cart-btn" title="Giỏ hàng của bạn" style="flex-shrink: 0 !important;">
+                    <i class="fa fa-shopping-bag"></i>
+                    <span class="cart-badge" id="cartBadge">@(ViewBag.CartCount ?? 0)</span>
+                </a>
+
+                <!-- LANGUAGE TOGGLE -->
+                <div class="lang-toggle luxury-lang-btn" id="langToggle" title="Chuyển ngôn ngữ / Switch language" style="flex-shrink: 0 !important;">
+                    <span class="lang-flag" id="langFlag">🇻🇳</span>
+                    <span class="lang-label" id="langLabel">VI</span>
+                </div>
+            </div>
+
+            <button class="nav-toggle" id="navToggle"><i class="fa fa-bars"></i></button>
+        </div>
+
+        <!-- Series nav -->
+        <div class="series-nav" id="seriesNav">
+            <div class="series-nav-inner">
+                <a href="/Home/Story" class="series-link story-link"><i class="fa-solid fa-wand-magic-sparkles"></i> <span class="link-text">HÀNH TRÌNH STORY</span> <span style="background: #00f3ff; color: #050b14; font-size: 0.65rem; padding: 2px 6px; border-radius: 10px; font-weight: 900; margin-left: 4px;">NEON</span></a>
+                <a href="/?series=ROG+Strix" class="series-link rog"><i class="fa fa-gamepad"></i> <span class="link-text">ROG Strix</span></a>
+                <a href="/?series=ROG+Zephyrus" class="series-link rog"><i class="fa fa-bolt"></i> <span class="link-text">ROG Zephyrus</span></a>
+                <a href="/?series=ROG+Flow" class="series-link rog"><i class="fa fa-sync"></i> <span class="link-text">ROG Flow</span></a>
+                <a href="/?series=TUF+Gaming" class="series-link tuf"><i class="fa fa-shield-alt"></i> <span class="link-text">TUF Gaming</span></a>
+                <a href="/?series=ZenBook" class="series-link zen"><i class="fa fa-feather"></i> <span class="link-text">ZenBook</span></a>
+                <a href="/?series=VivoBook" class="series-link vivo"><i class="fa fa-laptop"></i> <span class="link-text">VivoBook</span></a>
+                <a href="/?series=ProArt" class="series-link proart"><i class="fa fa-palette"></i> <span class="link-text">ProArt Studio</span></a>
+                <a href="/?series=ExpertBook" class="series-link expert"><i class="fa fa-briefcase"></i> <span class="link-text">ExpertBook</span></a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- TOAST NOTIFICATION -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="toast toast-success" id="toastMsg">
+            <i class="fa fa-check-circle"></i> @TempData["SuccessMessage"]
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="toast toast-error" id="toastMsg">
+            <i class="fa fa-exclamation-circle"></i> @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <!-- MAIN CONTENT -->
+    <main class="luxury-main">
+        @RenderBody()
+    </main>
+
+    <!-- FOOTER LUXURY -->
+    <footer class="footer luxury-footer">
+        <!-- VIP Trust Bar -->
+        <div class="footer-trust-bar">
+            <div class="trust-bar-inner">
+                <div class="trust-item">
+                    <div class="trust-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                    <div class="trust-text">
+                        <strong>100% Chính Hãng ASUS</strong>
+                        <span>Ủy quyền chính thức tại Việt Nam</span>
+                    </div>
+                </div>
+                <div class="trust-item">
+                    <div class="trust-icon"><i class="fa-solid fa-award"></i></div>
+                    <div class="trust-text">
+                        <strong>Bảo Hành 2 Năm Tận Nơi</strong>
+                        <span>1 Đổi 1 trong 30 ngày đầu</span>
+                    </div>
+                </div>
+                <div class="trust-item">
+                    <div class="trust-icon"><i class="fa-solid fa-truck-fast"></i></div>
+                    <div class="trust-text">
+                        <strong>Giao Hàng VIP 2 Giờ</strong>
+                        <span>Miễn phí vận chuyển toàn quốc</span>
+                    </div>
+                </div>
+                <div class="trust-item">
+                    <div class="trust-icon"><i class="fa-solid fa-headset"></i></div>
+                    <div class="trust-text">
+                        <strong>VIP Concierge 24/7</strong>
+                        <span>Chăm sóc ưu tiên đặc quyền</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-inner">
+            <div class="footer-col brand-col">
+                <div class="footer-logo">
+                    <div class="logo-badge"><i class="fa-solid fa-gem"></i></div>
+                    <div class="logo-text-wrap">
+                        <span class="logo-asus">ASUS</span>
+                        <span class="logo-sub">LAPTOP STORE</span>
+                    </div>
+                </div>
+                <p class="brand-desc">Đại lý ủy quyền Flagship ASUS cao cấp hàng đầu Việt Nam. Nơi hội tụ các kiệt tác công nghệ ROG, ZenBook, ProArt độc bản.</p>
+                <div class="newsletter-card">
+                    <span><i class="fa-solid fa-envelope-open-text gold-icon"></i> Tham Gia VIP Club</span>
+                    <p>Nhận ngay Voucher 1.000.000đ & đặc quyền mua Flash Sale sớm nhất</p>
+                    <form onsubmit="handleVipSubscribe(event, this);" class="newsletter-form">
+                        <input type="email" name="email" placeholder="Nhập email của bạn..." required />
+                        <button type="submit">Đăng Ký</button>
+                    </form>
+                </div>
+                <div class="footer-social">
+                    <a href="https://www.facebook.com/lu.thanh.at.862163" title="Facebook" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" title="YouTube"><i class="fab fa-youtube"></i></a>
+                    <a href="#" title="TikTok"><i class="fab fa-tiktok"></i></a>
+                    <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-col">
+                <h4>Dòng Sản Phẩm High-End</h4>
+                <a href="/?series=ROG+Strix"><i class="fa fa-angle-right"></i> ROG Strix Gaming</a>
+                <a href="/?series=ROG+Zephyrus"><i class="fa fa-angle-right"></i> ROG Zephyrus Ultra Slim</a>
+                <a href="/?series=ROG+Flow"><i class="fa fa-angle-right"></i> ROG Flow Convertible</a>
+                <a href="/?series=TUF+Gaming"><i class="fa fa-angle-right"></i> TUF Gaming Durable</a>
+                <a href="/?series=ZenBook"><i class="fa fa-angle-right"></i> ZenBook Premium OLED</a>
+                <a href="/?series=VivoBook"><i class="fa fa-angle-right"></i> VivoBook Youth & Style</a>
+                <a href="/?series=ProArt"><i class="fa fa-angle-right"></i> ProArt Studiobook Creator</a>
+                <a href="/?series=ExpertBook"><i class="fa fa-angle-right"></i> ExpertBook Business</a>
+            </div>
+
+            <div class="footer-col">
+                <h4>Dịch Vụ & Hỗ Trợ VIP</h4>
+                <a href="/Support/TraCuuBaoHanh">Tra cứu bảo hành điện tử</a>
+                <a href="/Support/HuongDanMuaHang">Hướng dẫn mua hàng trả góp 0%</a>
+                <a href="/Support/ChinhSachDoiTra">Chính sách 1 đổi 1 30 ngày</a>
+                <a href="/Support/PhuongThucThanhToan">Phương thức thanh toán bảo mật</a>
+                <a href="/Support/CauHoiThuongGap">Câu hỏi thường gặp (FAQ)</a>
+                <a href="/Support/ChuongTrinhThanThiet">Hạng hội viên ASUS VIP Club</a>
+                <a href="/Support/HoTroKyThuatTrucTuyen">Tổng đài hỗ trợ kỹ thuật AI</a>
+            </div>
+
+            <div class="footer-col contact-col">
+                <h4>Trung Tâm Flagship</h4>
+                <div class="contact-item"><i class="fa fa-phone gold-icon"></i> <div><strong>Hotline VIP:</strong> <span>1800 1234 (Free)</span></div></div>
+                <div class="contact-item"><i class="fa fa-envelope gold-icon"></i> <div><strong>Email Concierge:</strong> <span>vip@@asuslaptop.vn</span></div></div>
+                <div class="contact-item"><i class="fa fa-map-marker-alt gold-icon"></i> <div><strong>Showroom Flagship:</strong> <span>123 Nguyễn Huệ, Q.1, TP.HCM</span></div></div>
+                <div class="contact-item"><i class="fa fa-clock gold-icon"></i> <div><strong>Giờ mở cửa:</strong> <span>8:00 - 21:30 (Cả CN & Lễ)</span></div></div>
+                
+                <div class="ssl-badge">
+                    <i class="fa-solid fa-lock"></i> 256-Bit SSL Encrypted & Secured
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="footer-bottom-inner">
+                <span>&copy; 2024 - 2026 ASUS Laptop Store Flagship. All rights reserved.</span>
+                <span class="dev-tag">Designed & Mastered by <strong>Lữ Thành Đạt</strong></span>
+            </div>
+        </div>
+    </footer>
+
+
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        @Html.AntiForgeryToken()
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    }
+
+    <script>
+        // Toast auto-hide
+        const toast = document.getElementById('toastMsg');
+        if (toast) {
+            setTimeout(() => toast.classList.add('toast-hide'), 3500);
+            setTimeout(() => toast.remove(), 4000);
+        }
+
+        // User dropdown
+        const userBtn = document.querySelector('.user-btn');
+        const userDropdown = document.querySelector('.user-dropdown');
+        if (userBtn) {
+            userBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userDropdown.classList.toggle('open');
+            });
+            document.addEventListener('click', () => userDropdown.classList.remove('open'));
+        }
+
+        // ===== Chuông thông báo realtime =====
+        (function () {
+            const bellBtn = document.getElementById('notifBellBtn');
+            const panel = document.getElementById('notifPanel');
+            const badge = document.getElementById('notifBadge');
+            const listEl = document.getElementById('notifList');
+            const markAllBtn = document.getElementById('notifMarkAllBtn');
+            if (!bellBtn) return;
+
+            function timeAgo(dateStr) {
+                const d = new Date(dateStr);
+                const diffMin = Math.floor((Date.now() - d.getTime()) / 60000);
+                if (diffMin < 1) return 'Vừa xong';
+                if (diffMin < 60) return diffMin + ' phút trước';
+                const diffH = Math.floor(diffMin / 60);
+                if (diffH < 24) return diffH + ' giờ trước';
+                return d.toLocaleDateString('vi-VN');
+            }
+
+            function iconFor(type) {
+                switch (type) {
+                    case 'Order': return 'fa-box';
+                    case 'Promotion': return 'fa-tag';
+                    case 'Review': return 'fa-star';
+                    case 'Stock': return 'fa-warehouse';
+                    default: return 'fa-bell';
+                }
+            }
+
+            function renderList(items) {
+                if (!items.length) {
+                    listEl.innerHTML = '<div class="notif-empty">Không có thông báo nào</div>';
+                    return;
+                }
+                listEl.innerHTML = items.map(function (n) {
+                    return '<div class="notif-item ' + (n.isRead ? '' : 'unread') + '" data-id="' + n.id + '" data-url="' + (n.actionUrl || '') + '">' +
+                        '<div class="notif-item-icon"><i class="fa ' + iconFor(n.type) + '"></i></div>' +
+                        '<div class="notif-item-body">' +
+                        '<div class="notif-item-title">' + n.title + '</div>' +
+                        '<div class="notif-item-msg">' + n.message + '</div>' +
+                        '<div class="notif-item-time">' + timeAgo(n.createdAt) + '</div>' +
+                        '</div></div>';
+                }).join('');
+
+                listEl.querySelectorAll('.notif-item').forEach(function (el) {
+                    el.addEventListener('click', function () {
+                        const id = this.dataset.id;
+                        const url = this.dataset.url;
+                        fetch('/Notification/MarkAsRead', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'RequestVerificationToken': antiForgeryToken() },
+                            body: 'id=' + id
+                        }).then(function () { if (url) window.location.href = url; else loadNotifications(); });
+                    });
+                });
+            }
+
+            function antiForgeryToken() {
+                const el = document.querySelector('input[name="__RequestVerificationToken"]');
+                return el ? el.value : '';
+            }
+
+            function updateBadge(count) {
+                if (count > 0) { badge.style.display = 'flex'; badge.textContent = count > 99 ? '99+' : count; }
+                else badge.style.display = 'none';
+            }
+
+            function loadNotifications() {
+                fetch('/Notification/List').then(function (r) { return r.json(); }).then(function (data) {
+                    renderList(data.items || []);
+                    updateBadge(data.unread || 0);
+                }).catch(function () {});
+            }
+
+            bellBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                panel.classList.toggle('open');
+                if (panel.classList.contains('open')) loadNotifications();
+            });
+            document.addEventListener('click', function () { panel.classList.remove('open'); });
+
+            if (markAllBtn) {
+                markAllBtn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    fetch('/Notification/MarkAllAsRead', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'RequestVerificationToken': antiForgeryToken() }
+                    }).then(loadNotifications);
+                });
+            }
+
+            loadNotifications();
+
+            // Kết nối SignalR để nhận thông báo tức thời không cần tải lại trang
+            if (window.signalR) {
+                const conn = new signalR.HubConnectionBuilder().withUrl('/hubs/notifications').withAutomaticReconnect().build();
+                conn.on('ReceiveNotification', function () { loadNotifications(); });
+                conn.start().catch(function (err) { console.error('Notification hub error:', err); });
+            }
+        })();
+
+        // Mobile nav toggle
+        document.getElementById('navToggle')?.addEventListener('click', () => {
+            document.getElementById('seriesNav')?.classList.toggle('mobile-open');
+        });
+
+        // ===== SERIES NAV: hiệu ứng xáo chữ (text scramble) khi hover =====
+        (function () {
+            const SCRAMBLE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+            function scramble(span) {
+                if (span._scrambling) return;
+                const finalText = span.textContent;
+                let frame = 0;
+                const totalFrames = 10; // ~ thời lượng hiệu ứng
+                span._scrambling = true;
+
+                clearInterval(span._scrambleTimer);
+                span._scrambleTimer = setInterval(() => {
+                    frame++;
+                    const revealCount = Math.floor((frame / totalFrames) * finalText.length);
+                    span.textContent = finalText
+                        .split('')
+                        .map((ch, i) => {
+                            if (ch === ' ') return ' ';
+                            if (i < revealCount) return finalText[i];
+                            return SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
+                        })
+                        .join('');
+
+                    if (frame >= totalFrames) {
+                        clearInterval(span._scrambleTimer);
+                        span.textContent = finalText;
+                        span._scrambling = false;
+                    }
+                }, 35);
+            }
+
+            document.querySelectorAll('.series-link').forEach(link => {
+                const span = link.querySelector('.link-text');
+                if (!span) return;
+                link.addEventListener('mouseenter', () => scramble(span));
+            });
+        })();
+
+        // ===== SCROLL-DRIVEN ANIMATIONS (Global) =====
+        (function () {
+            // Navbar shrink on scroll
+            const navbar = document.querySelector('.navbar');
+            function updateNavbar() {
+                if (window.scrollY > 60) navbar?.classList.add('scrolled');
+                else navbar?.classList.remove('scrolled');
+            }
+            window.addEventListener('scroll', updateNavbar, { passive: true });
+            updateNavbar();
+
+            // Parallax layers (elements with data-parallax="speed" attribute)
+            const parallaxEls = document.querySelectorAll('[data-parallax]');
+            function updateParallax() {
+                const sy = window.scrollY;
+                parallaxEls.forEach(el => {
+                    const speed = parseFloat(el.dataset.parallax) || 0.3;
+                    el.style.transform = `translateY(${sy * speed}px)`;
+                });
+            }
+            if (parallaxEls.length) {
+                window.addEventListener('scroll', updateParallax, { passive: true });
+            }
+
+            // Smooth scroll-reveal for elements with class .reveal, .reveal-left, .reveal-right, .reveal-zoom
+            const revealObserver = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        revealObserver.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+            document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-zoom, .usp-card, .tech-card, .review-card, .product-card').forEach(el => {
+                if (!el.classList.contains('visible')) {
+                    if (!el.classList.contains('reveal') && !el.classList.contains('reveal-left') && !el.classList.contains('reveal-right') && !el.classList.contains('reveal-zoom')) {
+                        el.classList.add('reveal');
+                    }
+                    revealObserver.observe(el);
+                }
+            });
+
+            // 3D tilt on any element with class .tilt-3d
+            document.querySelectorAll('.tilt-3d').forEach(el => {
+                el.addEventListener('mousemove', e => {
+                    const r = el.getBoundingClientRect();
+                    const x = (e.clientX - r.left) / r.width - 0.5;
+                    const y = (e.clientY - r.top) / r.height - 0.5;
+                    el.style.transform = `perspective(800px) rotateX(${y * -14}deg) rotateY(${x * 14}deg) translateZ(10px)`;
+                    el.style.transition = 'transform .05s ease';
+                });
+                el.addEventListener('mouseleave', () => {
+                    el.style.transform = 'perspective(800px) rotateX(0) rotateY(0) translateZ(0)';
+                    el.style.transition = 'transform .5s ease';
+                });
+            });
+        })();
+
+        // ===== CURSOR GLOW EFFECT (Antigravity-style) =====
+        (function () {
+            const glow = document.getElementById('cursorGlow');
+            const dot = document.getElementById('cursorDot');
+            if (!glow || !dot) return;
+            // Skip on touch devices
+            if (window.matchMedia('(hover: none)').matches) return;
+
+            let gx = window.innerWidth / 2, gy = window.innerHeight / 2;
+            let dx = gx, dy = gy;
+            let tx = gx, ty = gy;
+
+            document.addEventListener('mousemove', (e) => {
+                tx = e.clientX; ty = e.clientY;
+                glow.classList.add('active');
+                dot.classList.add('active');
+            });
+            document.addEventListener('mouseleave', () => {
+                glow.classList.remove('active');
+                dot.classList.remove('active');
+            });
+            document.addEventListener('mousedown', () => dot.classList.add('dot-grow'));
+            document.addEventListener('mouseup', () => dot.classList.remove('dot-grow'));
+
+            function animate() {
+                // Smooth trailing follow (lerp)
+                gx += (tx - gx) * 0.12;
+                gy += (ty - gy) * 0.12;
+                dx += (tx - dx) * 0.35;
+                dy += (ty - dy) * 0.35;
+                glow.style.transform = `translate(${gx}px, ${gy}px) translate(-50%, -50%)`;
+                dot.style.transform = `translate(${dx}px, ${dy}px) translate(-50%, -50%)`;
+                requestAnimationFrame(animate);
+            }
+            animate();
+        })();
+
+        // ===== FLOATING MESSENGER-STYLE CHAT =====
+        (function () {
+            const fabBtn = document.getElementById('fabChatBtn');
+            const fabWindow = document.getElementById('fabChatWindow');
+            const fabBody = document.getElementById('fabChatBody');
+            const fabInput = document.getElementById('fabChatInput');
+            const fabSend = document.getElementById('fabChatSend');
+            const fabCloseX = document.getElementById('fabChatCloseX');
+            const fabBadge = document.getElementById('fabBadge');
+            if (!fabBtn || !fabWindow) return;
+
+            let history = [];
+            let opened = false;
+
+            function toggleChat() {
+                opened = !opened;
+                fabWindow.classList.toggle('open', opened);
+                fabBtn.classList.toggle('open', opened);
+                if (opened) {
+                    fabBadge.style.display = 'none';
+                    fabInput.focus();
+                    fabBody.scrollTop = fabBody.scrollHeight;
+                }
+            }
+
+            fabBtn.addEventListener('click', toggleChat);
+            fabCloseX.addEventListener('click', toggleChat);
+
+            function appendMsg(role, text) {
+                const wrap = document.createElement('div');
+                wrap.className = 'chat-msg ' + (role === 'user' ? 'user' : 'bot');
+                wrap.innerHTML = `
+                    <div class="chat-avatar"><i class="fa fa-${role === 'user' ? 'user' : 'headset'}"></i></div>
+                    <div class="chat-bubble"></div>`;
+                wrap.querySelector('.chat-bubble').textContent = text;
+                fabBody.appendChild(wrap);
+                fabBody.scrollTop = fabBody.scrollHeight;
+                return wrap;
+            }
+
+            function appendTyping() {
+                const wrap = document.createElement('div');
+                wrap.className = 'chat-msg bot';
+                wrap.id = 'fabTyping';
+                wrap.innerHTML = `
+                    <div class="chat-avatar"><i class="fa fa-headset"></i></div>
+                    <div class="chat-bubble typing-dots"><span></span><span></span><span></span></div>`;
+                fabBody.appendChild(wrap);
+                fabBody.scrollTop = fabBody.scrollHeight;
+            }
+
+            function removeTyping() {
+                document.getElementById('fabTyping')?.remove();
+            }
+
+            async function sendMessage() {
+                const text = fabInput.value.trim();
+                if (!text) return;
+                appendMsg('user', text);
+                history.push({ role: 'user', content: text });
+                fabInput.value = '';
+                appendTyping();
+
+                try {
+                    const res = await fetch('/api/Chat/send', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ messages: history })
+                    });
+                    const data = await res.json();
+                    removeTyping();
+                    const reply = data.reply || 'Xin lỗi, hiện chưa thể phản hồi.';
+                    appendMsg('bot', reply);
+                    history.push({ role: 'assistant', content: reply });
+                } catch (err) {
+                    removeTyping();
+                    appendMsg('bot', 'Có lỗi kết nối, vui lòng thử lại sau.');
+                }
+            }
+
+            fabSend.addEventListener('click', sendMessage);
+            fabInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+        })();
+    </script>
+    <!-- ============================================================ -->
+    <!-- XOÁ HẾT CÁC ĐOẠN CŨ ĐÃ DÁN TRƯỚC ĐÓ, CHỈ DÁN ĐOẠN NÀY DUY NHẤT -->
+    <!-- DÁN NGAY TRƯỚC </body> -->
+    <!-- ============================================================ -->
+
+    <style>
+            #particleCanvas {
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                z-index: 1; pointer-events: none;
+            }
+            .cursor-glow {
+                position: fixed; top: 0; left: 0; width: 500px; height: 500px;
+                pointer-events: none; z-index: 2; border-radius: 50%;
+                background: radial-gradient(circle, rgba(255,77,0,0.16) 0%, rgba(17,17,17,0.10) 35%, rgba(255,77,0,0) 70%);
+                transform: translate(-50%, -50%); opacity: 0; transition: opacity .3s ease;
+            }
+            .cursor-glow.active { opacity: 1; }
+            .cursor-dot {
+                position: fixed; top: 0; left: 0; width: 8px; height: 8px; border-radius: 50%;
+                background: #ff4d00; box-shadow: 0 0 12px 3px rgba(255,77,0,0.6);
+                pointer-events: none; z-index: 2; transform: translate(-50%, -50%);
+                opacity: 0; transition: opacity .3s ease, width .15s ease, height .15s ease;
+            }
+            .cursor-dot.active { opacity: 1; }
+            .cursor-dot.dot-grow { width: 14px; height: 14px; }
+
+            .fab-chat-btn {
+                position: fixed !important; right: 24px; bottom: 24px; width: 58px; height: 58px;
+                border-radius: 50%; background: linear-gradient(135deg, #ff4d00, #111111);
+                display: flex; align-items: center; justify-content: center;
+                box-shadow: 0 6px 22px rgba(0,0,0,0.25); cursor: pointer; z-index: 999998;
+                border: none; color: #fff; font-size: 24px; transition: transform .25s ease;
+            }
+            .fab-chat-btn:hover { transform: scale(1.08); }
+            .fab-chat-btn .fab-icon-close { display: none; }
+            .fab-chat-btn.open .fab-icon-chat { display: none; }
+            .fab-chat-btn.open .fab-icon-close { display: block; }
+            .fab-badge {
+                position: absolute; top: -2px; right: -2px; background: #c62828; color: #fff;
+                font-size: 11px; font-weight: 700; width: 20px; height: 20px; border-radius: 50%;
+                display: flex; align-items: center; justify-content: center; border: 2px solid #ffffff;
+            }
+            .fab-chat-window {
+                position: fixed !important; right: 24px; bottom: 94px; width: 340px;
+                max-width: calc(100vw - 32px); height: 460px; max-height: calc(100vh - 140px);
+                background: #ffffff; border: 1px solid #e6e6e6; border-radius: 12px;
+                box-shadow: 0 12px 40px rgba(0,0,0,0.55); z-index: 999998; display: flex;
+                flex-direction: column; overflow: hidden; opacity: 0;
+                transform: translateY(16px) scale(.97); pointer-events: none;
+                transition: opacity .22s ease, transform .22s ease;
+            }
+            .fab-chat-window.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+            .fab-chat-header { display: flex; align-items: center; gap: 10px; padding: 14px 16px; background: linear-gradient(135deg, #ff4d00, #111111); color: #fff; }
+            .fab-chat-avatar { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center; }
+            .fab-chat-header-text { flex: 1; }
+            .fab-chat-header-text strong { font-size: 14px; display: block; }
+            .fab-chat-header-text span { font-size: 11px; opacity: .85; display: flex; align-items: center; gap: 4px; }
+            .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; display: inline-block; box-shadow: 0 0 0 2px rgba(255,255,255,0.3); }
+            .fab-chat-close-x { background: transparent; border: none; color: #fff; font-size: 16px; cursor: pointer; }
+            .fab-chat-body { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: #f6f6f6; }
+            .fc-msg { display: flex; gap: 8px; align-items: flex-end; }
+            .fc-msg.user { flex-direction: row-reverse; }
+            .fc-avatar { width: 26px; height: 26px; min-width: 26px; border-radius: 50%; background: linear-gradient(135deg, #ff4d00, #111111); display: flex; align-items: center; justify-content: center; font-size: 11px; color: #fff; }
+            .fc-bubble { max-width: 78%; padding: 9px 12px; border-radius: 14px; font-size: 13px; line-height: 1.5; color: #fff; }
+            .fc-msg.bot .fc-bubble { background: #ffffff; border: 1px solid #e6e6e6; color: #5a5a5a; border-bottom-left-radius: 4px; }
+            .fc-msg.user .fc-bubble { background: linear-gradient(135deg, #ff4d00, #111111); border-bottom-right-radius: 4px; }
+            .fab-chat-footer { display: flex; gap: 8px; padding: 10px; background: #f6f6f6; border-top: 1px solid #e6e6e6; }
+                       /* FLOATING AI BUTTON & WIZARD STYLES */
+            .fab-ai-btn {
+                position: fixed; bottom: 24px; left: 24px; z-index: 99999;
+                display: flex; align-items: center; gap: 8px; padding: 10px 18px;
+                border-radius: 999px; background: linear-gradient(135deg, #ff4d00, #9333ea);
+                color: #ffffff; font-weight: 700; font-size: 13px; border: none; cursor: pointer;
+                box-shadow: 0 8px 24px rgba(147, 51, 234, 0.4); transition: all 0.3s ease;
+            }
+            .fab-ai-btn:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 12px 32px rgba(255, 77, 0, 0.5); }
+            .ai-pulse { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); animation: aiPulse 1.6s infinite; }
+            @@keyframes aiPulse { 0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); } 70% { box-shadow: 0 0 0 8px rgba(74, 222, 128, 0); } 100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); } }
+
+            .ai-modal-overlay {
+                position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px);
+                z-index: 999999; display: flex; align-items: center; justify-content: center;
+                padding: 16px; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+            }
+            .ai-modal-overlay.show { opacity: 1; pointer-events: auto; }
+            .ai-modal-card {
+                background: #121318; border: 1px solid rgba(255, 255, 255, 0.15);
+                border-radius: 20px; width: 680px; max-width: 100%; color: #ffffff;
+                overflow: hidden; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+                transform: scale(0.92); transition: transform 0.3s ease;
+            }
+            .ai-modal-overlay.show .ai-modal-card { transform: scale(1); }
+            .ai-modal-header {
+                display: flex; align-items: center; justify-content: space-between;
+                padding: 18px 24px; background: linear-gradient(135deg, rgba(255, 77, 0, 0.2), rgba(147, 51, 234, 0.2));
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            .ai-header-title { display: flex; align-items: center; gap: 14px; }
+            .ai-header-title i { font-size: 28px; color: #ff4d00; }
+            .ai-header-title h3 { font-size: 16px; font-weight: 800; margin: 0; letter-spacing: 0.5px; }
+            .ai-header-title p { font-size: 12px; margin: 2px 0 0; opacity: 0.75; }
+            .ai-close-btn { background: transparent; border: none; color: #fff; font-size: 18px; cursor: pointer; opacity: 0.7; }
+            .ai-close-btn:hover { opacity: 1; }
+            .ai-modal-body { padding: 24px; }
+            .ai-step { display: none; }
+            .ai-step.active { display: block; }
+            .ai-step-title span { font-size: 11px; font-weight: 800; color: #ff4d00; letter-spacing: 1px; }
+            .ai-step-title h4 { font-size: 18px; font-weight: 700; margin: 4px 0 18px; }
+            .ai-options-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+            @@media (max-width: 600px) { .ai-options-grid { grid-template-columns: 1fr; } .fab-ai-btn { bottom: 80px; left: 16px; } }
+            .ai-opt-card {
+                background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 14px; padding: 18px 14px; text-align: center; color: #fff;
+                cursor: pointer; transition: all 0.2s ease;
+            }
+            .ai-opt-card:hover { background: rgba(255, 77, 0, 0.15); border-color: #ff4d00; transform: translateY(-2px); }
+            .ai-opt-icon { font-size: 24px; color: #ff4d00; margin-bottom: 8px; }
+            .ai-opt-label { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+            .ai-opt-desc { font-size: 11px; opacity: 0.65; }
+            .ai-loading { text-align: center; padding: 40px 0; }
+            .ai-spinner { width: 44px; height: 44px; border: 4px solid rgba(255, 255, 255, 0.1); border-top-color: #ff4d00; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+            @@keyframes spin { 100% { transform: rotate(360deg); } }
+            .ai-results-header { text-align: center; margin-bottom: 20px; }
+            .ai-match-badge { display: inline-block; padding: 4px 12px; border-radius: 999px; background: rgba(74, 222, 128, 0.15); color: #4ade80; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; }
+            .ai-results-list { display: flex; flex-direction: column; gap: 12px; max-height: 380px; overflow-y: auto; padding-right: 4px; }
+            .ai-item-card { display: flex; align-items: center; gap: 16px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; padding: 12px 16px; transition: all 0.2s ease; }
+            .ai-item-card:hover { border-color: rgba(255, 77, 0, 0.4); background: rgba(255, 255, 255, 0.07); }
+            .ai-item-img { width: 70px; height: 70px; object-fit: contain; border-radius: 8px; background: #fff; padding: 4px; }
+            .ai-item-info { flex: 1; min-width: 0; }
+            .ai-item-match { font-size: 11px; font-weight: 800; color: #4ade80; margin-bottom: 2px; }
+            .ai-item-name { font-size: 14px; font-weight: 700; margin: 0 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
+            .ai-item-specs { font-size: 11px; opacity: 0.7; }
+            .ai-item-price { font-size: 14px; font-weight: 800; color: #ff4d00; text-align: right; }
+            .ai-item-btn { display: inline-block; padding: 6px 12px; border-radius: 8px; background: #ff4d00; color: #fff; font-size: 12px; font-weight: 700; text-decoration: none; margin-top: 4px; transition: all 0.2s ease; border: none; cursor: pointer; }
+            .ai-item-btn:hover { background: #e04400; color: #fff; }
+            .ai-restart-btn { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 8px 16px; border-radius: 999px; font-size: 12px; font-weight: 700; cursor: pointer; }
+            .ai-restart-btn:hover { background: rgba(255,255,255,0.1); }
+    </style>
+
+    <!-- ===== FLOATING AI MATCHMAKER BUTTON ===== -->
+    <button class="fab-ai-btn" id="fabAiBtn" onclick="openAiWizard()" title="AI Tư Vấn Laptop ASUS">
+        <span class="ai-pulse"></span>
+        <i class="fa fa-robot"></i>
+        <span>AI Tư Vấn Laptop</span>
+    </button>
+
+    <!-- ===== AI SMART MATCHMAKER MODAL WIZARD ===== -->
+    <div class="ai-modal-overlay" id="aiModalOverlay">
+        <div class="ai-modal-card">
+            <div class="ai-modal-header">
+                <div class="ai-header-title">
+                    <i class="fa fa-brain"></i>
+                    <div>
+                        <h3>TRỢ LÝ TƯ VẤN LAPTOP AI</h3>
+                        <p>Tìm ra 3 mẫu ASUS Laptop hoàn hảo dành riêng cho bạn</p>
+                    </div>
+                </div>
+                <button type="button" class="ai-close-btn" onclick="closeAiWizard()"><i class="fa fa-times"></i></button>
+            </div>
+
+            <div class="ai-modal-body">
+                <!-- Step 1: Usage -->
+                <div class="ai-step active" id="aiStep1">
+                    <div class="ai-step-title">
+                        <span>BƯỚC 1/3</span>
+                        <h4>Mục đích sử dụng chính của bạn là gì?</h4>
+                    </div>
+                    <div class="ai-options-grid">
+                        <button type="button" class="ai-opt-card" onclick="selectAiOpt('usage', 'gaming', this)">
+                            <div class="ai-opt-icon"><i class="fa fa-gamepad"></i></div>
+                            <div class="ai-opt-label">Chơi Game & Esport</div>
+                            <div class="ai-opt-desc">ROG Strix, TUF Gaming 240Hz</div>
+                        </button>
+                        <button type="button" class="ai-opt-card" onclick="selectAiOpt('usage', 'office', this)">
+                            <div class="ai-opt-icon"><i class="fa fa-laptop"></i></div>
+                            <div class="ai-opt-label">Học Tập & Văn Phòng</div>
+                            <div class="ai-opt-desc">ZenBook mỏng nhẹ, VivoBook</div>
+                        </button>
+                        <button type="button" class="ai-opt-card" onclick="selectAiOpt('usage', 'creative', this)">
+                            <div class="ai-opt-icon"><i class="fa fa-palette"></i></div>
+                            <div class="ai-opt-label">Đồ Họa & Edit Video</div>
+                            <div class="ai-opt-desc">ProArt, OLED 4K, RTX GPU</div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Budget -->
+                <div class="ai-step" id="aiStep2">
+                    <div class="ai-step-title">
+                        <span>BƯỚC 2/3</span>
+                        <h4>Mức ngân sách bạn dự định đầu tư?</h4>
+                    </div>
+                    <div class="ai-options-grid">
+                        <button type="button" class="ai-opt-card" onclick="selectAiOpt('budget', 'under20', this)">
+                            <div class="ai-opt-icon"><i class="fa fa-tag"></i></div>
+                            <div class="ai-opt-label">Dưới 22 Triệu</div>
+                            <div class="ai-opt-desc">Tối ưu chi phí, hiệu năng tốt</div>
+                        </button>
+                        <button type="button" class="ai-opt-card" onclick="selectAiOpt('budget', 'mid', this)">
+                            <div class="ai-opt-icon"><i class="fa fa-coins"></i></div>
+                            <div class="ai-opt-label">22 – 35 Triệu</div>
+                            <div class="ai-opt-desc">Cấu hình mạnh mẽ, màn đẹp</div>
+                        </button>
+                        <button type="button" class="ai-opt-card" onclick="selectAiOpt('budget', 'flagship', this)">
+                            <div class="ai-opt-icon"><i class="fa fa-crown"></i></div>
+                            <div class="ai-opt-label">Trên 35 Triệu (Flagship)</div>
+                            <div class="ai-opt-desc">Đỉnh cao công nghệ ASUS</div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Preferred Feature -->
+                <div class="ai-step" id="aiStep3">
+                    <div class="ai-step-title">
+                        <span>BƯỚC 3/3</span>
+                        <h4>Tính năng nào bạn ưu tiên nhất?</h4>
+                    </div>
+                    <div class="ai-options-grid">
+                        <button type="button" class="ai-opt-card" onclick="selectAiOpt('feature', 'display', this)">
+                            <div class="ai-opt-icon"><i class="fa fa-desktop"></i></div>
+                            <div class="ai-opt-label">Màn Hình OLED / 240Hz</div>
+                            <div class="ai-opt-desc">Màu chuẩn, tần số quét cao</div>
+                        </button>
+                        <button type="button" class="ai-opt-card" onclick="selectAiOpt('feature', 'gpu', this)">
+                            <div class="ai-opt-icon"><i class="fa fa-microchip"></i></div>
+                            <div class="ai-opt-label">Card Đồ Họa RTX 40 Series</div>
+                            <div class="ai-opt-desc">Xử lý AI & Ray Tracing</div>
+                        </button>
+                        <button type="button" class="ai-opt-card" onclick="selectAiOpt('feature', 'slim', this)">
+                            <div class="ai-opt-icon"><i class="fa fa-feather-alt"></i></div>
+                            <div class="ai-opt-label">Siêu Mỏng Nhẹ ~1kg</div>
+                            <div class="ai-opt-desc">Vỏ kim loại, pin trâu</div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div class="ai-loading" id="aiLoading" style="display:none">
+                    <div class="ai-spinner"></div>
+                    <p>AI đang phân tích thông số và tính toán điểm phù hợp...</p>
+                </div>
+
+                <!-- Step 4: Results -->
+                <div class="ai-step" id="aiResults">
+                    <div class="ai-results-header">
+                        <span class="ai-match-badge"><i class="fa fa-check-circle"></i> KẾT QUẢ PHÂN TÍCH AI</span>
+                        <h4 style="margin:6px 0 0">Top 3 Laptop ASUS Hoàn Hảo Cho Bạn</h4>
+                    </div>
+                    <div class="ai-results-list" id="aiResultsList"></div>
+                    <div style="text-align:center;margin-top:16px">
+                        <button type="button" class="ai-restart-btn" onclick="resetAiWizard()"><i class="fa fa-redo"></i> Thử Phân Tích Lại</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="fab-chat-btn" id="fabChatBtn" title="Chat hỗ trợ">
+        <span class="fab-badge" id="fabBadge">1</span>
+        <i class="fa fa-comment-dots fab-icon-chat"></i>
+        <i class="fa fa-times fab-icon-close"></i>
+    </button>
+
+    <div class="fab-chat-window" id="fabChatWindow">
+        <div class="fab-chat-header">
+            <div class="fab-chat-avatar"><i class="fa fa-headset"></i></div>
+            <div class="fab-chat-header-text">
+                <strong>Hỗ trợ ASUS Laptop</strong>
+                <span><span class="status-dot"></span> Đang hoạt động</span>
+            </div>
+            <button class="fab-chat-close-x" id="fabChatCloseX"><i class="fa fa-times"></i></button>
+        </div>
+        <div class="fab-chat-body" id="fabChatBody">
+            <div class="fc-msg bot">
+                <div class="fc-avatar"><i class="fa fa-headset"></i></div>
+                <div class="fc-bubble">Xin chào! Mình là trợ lý ASUS Laptop Store. Bạn cần hỗ trợ gì hôm nay?</div>
+            </div>
+        </div>
+        <div class="fab-chat-footer">
+        <div class="fab-chat-footer">
+            <input type="text" id="fabChatInput" placeholder="Nhập tin nhắn..." autocomplete="off" />
+            <button id="fabChatSend"><i class="fa fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <script>
+            console.log('[widget] script loaded');
+
+
+
+            /* ===== FLOATING CHAT ===== */
+            (function () {
+                var fabBtn = document.getElementById('fabChatBtn');
+                var fabWindow = document.getElementById('fabChatWindow');
+                var fabBody = document.getElementById('fabChatBody');
+                var fabInput = document.getElementById('fabChatInput');
+                var fabSend = document.getElementById('fabChatSend');
+                var fabCloseX = document.getElementById('fabChatCloseX');
+                var fabBadge = document.getElementById('fabBadge');
+
+                console.log('[widget] fabBtn found:', !!fabBtn, 'fabWindow found:', !!fabWindow);
+                if (!fabBtn || !fabWindow) return;
+
+                var history = [];
+                var opened = false;
+
+                function toggleChat() {
+                    opened = !opened;
+                    console.log('[widget] toggleChat ->', opened);
+                    fabWindow.classList.toggle('open', opened);
+                    fabBtn.classList.toggle('open', opened);
+                    if (opened) {
+                        if (fabBadge) fabBadge.style.display = 'none';
+                        fabInput.focus();
+                        fabBody.scrollTop = fabBody.scrollHeight;
+                    }
+                }
+                fabBtn.addEventListener('click', toggleChat);
+                if (fabCloseX) fabCloseX.addEventListener('click', toggleChat);
+
+                function appendMsg(role, text) {
+                    var wrap = document.createElement('div');
+                    wrap.className = 'fc-msg ' + (role === 'user' ? 'user' : 'bot');
+                    wrap.innerHTML = '<div class="fc-avatar"><i class="fa fa-' + (role==='user'?'user':'headset') + '"></i></div><div class="fc-bubble"></div>';
+                    wrap.querySelector('.fc-bubble').textContent = text;
+                    fabBody.appendChild(wrap);
+                    fabBody.scrollTop = fabBody.scrollHeight;
+                }
+                function appendTyping() {
+                    var wrap = document.createElement('div');
+                    wrap.className = 'fc-msg bot'; wrap.id = 'fabTyping';
+                    wrap.innerHTML = '<div class="fc-avatar"><i class="fa fa-headset"></i></div><div class="fc-bubble">...</div>';
+                    fabBody.appendChild(wrap);
+                    fabBody.scrollTop = fabBody.scrollHeight;
+                }
+                function removeTyping() {
+                    var t = document.getElementById('fabTyping');
+                    if (t) t.remove();
+                }
+
+                function sendMessage() {
+                    var text = fabInput.value.trim();
+                    if (!text) return;
+                    appendMsg('user', text);
+                    history.push({ role: 'user', content: text });
+                    fabInput.value = '';
+                    appendTyping();
+
+                    fetch('/api/Chat/send', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ messages: history })
+                    })
+                    .then(function(res){ return res.json(); })
+                    .then(function(data){
+                        removeTyping();
+                        var reply = data.reply || 'Xin lỗi, hiện chưa thể phản hồi.';
+                        appendMsg('bot', reply);
+                        history.push({ role: 'assistant', content: reply });
+                    })
+                    .catch(function(){
+                        removeTyping();
+                        appendMsg('bot', 'Có lỗi kết nối, vui lòng thử lại sau.');
+                    });
+                }
+
+                fabSend.addEventListener('click', sendMessage);
+                fabInput.addEventListener('keydown', function(e){
+                    if (e.key === 'Enter') { e.preventDefault(); sendMessage(); }
+                });
+            })();
+             
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+
+    <!-- ===== GOOGLE TRANSLATE LANGUAGE TOGGLE ===== -->
+    <div id="google_translate_element" style="display:none"></div>
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'vi',
+                includedLanguages: 'vi,en',
+                autoDisplay: false
+            }, 'google_translate_element');
+        }
+    </script>
+    <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    <script>
+        (function () {
+            // Đọc cookie googtrans để biết ngôn ngữ hiện tại
+            function getCookie(name) {
+                var m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+                return m ? m.pop() : '';
+            }
+
+            var gtCookie = getCookie('googtrans'); // vd: /vi/en hoặc rỗng
+            var isEN = gtCookie && gtCookie.indexOf('/en') !== -1;
+
+            var toggleBtn = document.getElementById('langToggle');
+            var flagEl    = document.getElementById('langFlag');
+            var labelEl   = document.getElementById('langLabel');
+
+            function updateUI(en) {
+                if (en) {
+                    flagEl.textContent  = '🇺🇸';
+                    labelEl.textContent = 'EN';
+                } else {
+                    flagEl.textContent  = '🇻🇳';
+                    labelEl.textContent = 'VI';
+                }
+            }
+            updateUI(isEN);
+
+            function setCookie(name, value) {
+                var host = location.hostname;
+                document.cookie = name + '=' + value + ';path=/';
+                document.cookie = name + '=' + value + ';path=/;domain=' + host;
+                document.cookie = name + '=' + value + ';path=/;domain=.' + host;
+            }
+
+            function deleteCookie(name) {
+                var expired = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+                var host = location.hostname;
+                // Xóa mọi biến thể path/domain có thể có, vì Google Translate
+                // tự set cookie với domain=".hostname" (có dấu chấm ở đầu)
+                // để dùng chung cho các subdomain.
+                document.cookie = expired + 'path=/';
+                document.cookie = expired + 'path=/;domain=' + host;
+                document.cookie = expired + 'path=/;domain=.' + host;
+                document.cookie = expired + 'path=/;domain=www.' + host;
+            }
+
+            // Cách đáng tin cậy nhất: điều khiển trực tiếp <select class="goog-te-combo">
+            // mà chính widget Google Translate sinh ra, thay vì chỉ set/xóa cookie rồi
+            // reload. Lý do là bản thân widget mới là bên quản lý trạng thái dịch thật
+            // sự - nếu chỉ xóa cookie, có lúc widget vẫn tự ghi lại cookie /vi/en sau khi
+            // trang load lại khiến trang không quay về tiếng Việt được (đây là nguyên
+            // nhân của lỗi "chuyển EN -> VI không ăn").
+            function switchViaWidget(targetLang) {
+                var select = document.querySelector('select.goog-te-combo');
+                if (!select) return false;
+
+                select.value = targetLang;
+
+                // Một số trình duyệt cần dispatch theo cả 2 kiểu event mới nhận diện được
+                if (typeof Event === 'function') {
+                    select.dispatchEvent(new Event('change'));
+                } else {
+                    var evt = document.createEvent('HTMLEvents');
+                    evt.initEvent('change', true, true);
+                    select.dispatchEvent(evt);
+                }
+                return true;
+            }
+
+            function switchLanguage() {
+                var goingToEN = !isEN;
+                var targetLang = goingToEN ? 'en' : 'vi';
+
+                // Luôn đồng bộ cookie trước (để lần load trang sau đúng ngôn ngữ
+                // ngay từ đầu, không phải chờ JS chạy xong mới đổi).
+                if (goingToEN) {
+                    setCookie('googtrans', '/vi/en');
+                } else {
+                    deleteCookie('googtrans');
+                }
+
+                // Nếu widget đã sẵn sàng thì đổi ngay tại chỗ, không cần reload
+                // (đáng tin cậy hơn nhiều so với chỉ đổi cookie rồi reload).
+                var switched = switchViaWidget(targetLang);
+
+                if (switched) {
+                    isEN = goingToEN;
+                    updateUI(isEN);
+                    // Vẫn reload để đồng bộ toàn bộ trạng thái trang (ví dụ các phần
+                    // render lại theo cookie ở server, nếu có).
+                    setTimeout(function () { location.reload(); }, 300);
+                } else {
+                    // Widget chưa kịp load (VD người dùng bấm quá nhanh) -> dùng
+                    // phương án cũ: dựa vào cookie rồi reload.
+                    location.reload();
+                }
+            }
+
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', switchLanguage);
+            }
+        })();
+    </script>
+
+    @await Html.PartialAsync("_CompareBar")
+
+    <!-- ===== VOICE SEARCH / VOICE COMMAND ===== -->
+    <script>
+    (function () {
+        var micBtn   = document.getElementById('voiceSearchBtn');
+        var input    = document.getElementById('navSearchInput');
+        var form     = document.getElementById('navSearchForm');
+        var statusEl = document.getElementById('voiceStatus');
+        if (!micBtn || !input || !form) return;
+
+        var SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognitionCtor) {
+            micBtn.classList.add('unsupported');
+            return;
+        }
+
+        // Lệnh điều hướng bằng giọng nói: từ khóa -> URL
+        var commands = [
+            { keys: ['trang chủ', 'về trang chủ'], url: '/' },
+            { keys: ['giỏ hàng', 'xem giỏ hàng'], url: '/Cart' },
+            { keys: ['thanh toán'], url: '/Cart' },
+            { keys: ['yêu thích', 'sản phẩm yêu thích'], url: '/Wishlist/Index' },
+            { keys: ['đơn hàng của tôi', 'đơn hàng'], url: '/Account/MyOrders' },
+            { keys: ['tài khoản', 'hồ sơ của tôi'], url: '/Account/Profile' },
+            { keys: ['đăng nhập'], url: '/Account/Login' },
+            { keys: ['đăng ký', 'tạo tài khoản'], url: '/Account/Register' },
+            { keys: ['đăng xuất'], url: '/Account/Logout' },
+            { keys: ['so sánh sản phẩm', 'so sánh'], url: '/Compare/Index' },
+            { keys: ['tìm bằng ảnh', 'tìm kiếm bằng ảnh'], url: '/ImageSearch/Index' }
+        ];
+
+        var recognition = new SpeechRecognitionCtor();
+        recognition.lang = 'vi-VN';
+        recognition.continuous = false;
+        recognition.interimResults = true;
+        recognition.maxAlternatives = 1;
+
+        var listening = false;
+        var finalTranscript = '';
+
+        function showStatus(text, opts) {
+            opts = opts || {};
+            statusEl.innerHTML = opts.dot === false ? text : '<span class="voice-dot"></span>' + text;
+            statusEl.classList.toggle('error', !!opts.error);
+            statusEl.classList.add('show');
+        }
+        function hideStatus(delay) {
+            setTimeout(function () { statusEl.classList.remove('show'); }, delay || 0);
+        }
+
+        function normalize(s) {
+            return (s || '').toLowerCase().trim().replace(/[.?!,]+$/g, '');
+        }
+
+        function matchCommand(text) {
+            var t = normalize(text);
+            for (var i = 0; i < commands.length; i++) {
+                for (var k = 0; k < commands[i].keys.length; k++) {
+                    if (t.indexOf(commands[i].keys[k]) !== -1) return commands[i];
+                }
+            }
+            return null;
+        }
+
+        function startListening() {
+            if (listening) { recognition.stop(); return; }
+            finalTranscript = '';
+            try { recognition.start(); }
+            catch (e) { /* already started */ }
+        }
+
+        recognition.addEventListener('start', function () {
+            listening = true;
+            micBtn.classList.add('listening');
+            micBtn.querySelector('i').className = 'fa fa-microphone';
+            showStatus('Đang nghe… hãy nói tên sản phẩm hoặc lệnh');
+        });
+
+        recognition.addEventListener('result', function (e) {
+            var interim = '';
+            for (var i = e.resultIndex; i < e.results.length; i++) {
+                if (e.results[i].isFinal) finalTranscript += e.results[i][0].transcript;
+                else interim += e.results[i][0].transcript;
+            }
+            var preview = (finalTranscript + interim).trim();
+            if (preview) {
+                input.value = preview;
+                showStatus('"' + preview + '"');
+            }
+        });
+
+        recognition.addEventListener('error', function (e) {
+            var msg = 'Có lỗi xảy ra, thử lại nhé';
+            if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+                msg = 'Vui lòng cho phép truy cập micro để dùng tìm kiếm bằng giọng nói';
+            } else if (e.error === 'no-speech') {
+                msg = 'Không nghe thấy gì, thử lại nhé';
+            } else if (e.error === 'network') {
+                msg = 'Lỗi kết nối mạng, thử lại nhé';
+            }
+            showStatus(msg, { error: true, dot: false });
+            hideStatus(2500);
+        });
+
+        recognition.addEventListener('end', function () {
+            listening = false;
+            micBtn.classList.remove('listening');
+
+            var text = finalTranscript.trim() || input.value.trim();
+            if (!text) { hideStatus(300); return; }
+
+            var cmd = matchCommand(text);
+            if (cmd) {
+                showStatus('Đang chuyển đến trang tương ứng…', { dot: false });
+                setTimeout(function () { window.location.href = cmd.url; }, 500);
+            } else {
+                input.value = text;
+                showStatus('Đang tìm kiếm "' + text + '"…', { dot: false });
+                setTimeout(function () { form.submit(); }, 400);
+            }
+        });
+
+        micBtn.addEventListener('click', startListening);
+    })();
+    </script>
+
+    <!-- SOMEE FREE HOSTING AD & GOOGLE TRANSLATE BANNER KILLER (FLUSH TOP EDGE) -->
+    <script>
+    (function () {
+        function killTopAdsAndFlushTop() {
+            document.documentElement.style.setProperty('top', '0px', 'important');
+            document.documentElement.style.setProperty('margin-top', '0px', 'important');
+            document.documentElement.style.setProperty('padding-top', '0px', 'important');
+            document.body.style.setProperty('top', '0px', 'important');
+            document.body.style.setProperty('margin-top', '0px', 'important');
+            document.body.style.setProperty('padding-top', '0px', 'important');
+
+            // Xóa triệt để mọi phần tử quảng cáo / iframe đứng trước .topbar hoặc .navbar
+            if (document.body) {
+                var topbar = document.body.querySelector('.topbar') || document.body.querySelector('.navbar');
+                if (topbar) {
+                    var prev = topbar.previousElementSibling;
+                    while (prev) {
+                        var toDelete = prev;
+                        prev = prev.previousElementSibling;
+                        toDelete.remove();
+                    }
+                }
+            }
+
+            // Xóa mọi iframe banner / skiptranslate / center tự động sinh ra ngoài trang chủ
+            var elements = document.querySelectorAll('iframe.goog-te-banner-frame, .goog-te-banner-frame, .VIpgJd-Z44Wfd-a91vB-sn5lh, body > .skiptranslate, body > center');
+            elements.forEach(function (el) {
+                if (el && !el.closest('.topbar') && !el.closest('.navbar')) {
+                    el.remove();
+                }
+            });
+        }
+
+        killTopAdsAndFlushTop();
+        document.addEventListener('DOMContentLoaded', killTopAdsAndFlushTop);
+        window.addEventListener('load', killTopAdsAndFlushTop);
+        setInterval(killTopAdsAndFlushTop, 50);
+    })();
+    </script>
+
+    <!-- ===== AI SMART MATCHMAKER JAYS SCRIPT ===== -->
+    <script>
+    var aiSelection = { usage: '', budget: '', feature: '' };
+
+    function openAiWizard() {
+        var overlay = document.getElementById('aiModalOverlay');
+        if (overlay) overlay.classList.add('show');
+        resetAiWizard();
+    }
+
+    function closeAiWizard() {
+        var overlay = document.getElementById('aiModalOverlay');
+        if (overlay) overlay.classList.remove('show');
+    }
+
+    function selectAiOpt(stepKey, val, btn) {
+        aiSelection[stepKey] = val;
+
+        if (stepKey === 'usage') {
+            document.getElementById('aiStep1').classList.remove('active');
+            document.getElementById('aiStep2').classList.add('active');
+        } else if (stepKey === 'budget') {
+            document.getElementById('aiStep2').classList.remove('active');
+            document.getElementById('aiStep3').classList.add('active');
+        } else if (stepKey === 'feature') {
+            document.getElementById('aiStep3').classList.remove('active');
+            document.getElementById('aiLoading').style.display = 'block';
+
+            fetch('/Home/GetAiRecommendations', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'usage=' + encodeURIComponent(aiSelection.usage) +
+                      '&budget=' + encodeURIComponent(aiSelection.budget) +
+                      '&feature=' + encodeURIComponent(aiSelection.feature)
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                document.getElementById('aiLoading').style.display = 'none';
+                if (data.success && data.items && data.items.length > 0) {
+                    renderAiResults(data.items);
+                    document.getElementById('aiResults').classList.add('active');
+                } else {
+                    document.getElementById('aiResultsList').innerHTML = '<div style="text-align:center;padding:20px">Không tìm thấy sản phẩm phù hợp.</div>';
+                    document.getElementById('aiResults').classList.add('active');
+                }
+            })
+            .catch(function() {
+                document.getElementById('aiLoading').style.display = 'none';
+                document.getElementById('aiResultsList').innerHTML = '<div style="text-align:center;padding:20px">Lỗi kết nối máy chủ. Vui lòng thử lại.</div>';
+                document.getElementById('aiResults').classList.add('active');
+            });
+        }
+    }
+
+    function renderAiResults(items) {
+        var list = document.getElementById('aiResultsList');
+        if (!list) return;
+
+        list.innerHTML = items.map(function(item) {
+            var origPriceHtml = item.originalPrice ? '<span style="text-decoration:line-through;opacity:0.6;font-size:11px;margin-right:6px;color:#fff">' + item.originalPrice + '</span>' : '';
+            return '<div class="ai-item-card">' +
+                '<img class="ai-item-img" src="' + item.imageUrl + '" alt="' + item.name + '" onerror="this.onerror=null;this.src=\'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=600&q=80\'" />' +
+                '<div class="ai-item-info">' +
+                    '<div class="ai-item-match"><i class="fa fa-fire"></i> ' + item.matchPercent + '% Phù Hợp</div>' +
+                    '<h5 class="ai-item-name">' + item.name + '</h5>' +
+                    '<div class="ai-item-specs">' + (item.cpu || '') + ' | ' + (item.ram || '') + ' | ' + (item.gpu || '') + '</div>' +
+                '</div>' +
+                '<div style="text-align:right">' +
+                    '<div>' + origPriceHtml + '</div>' +
+                    '<div class="ai-item-price">' + item.price + '</div>' +
+                    '<button type="button" class="ai-item-btn" onclick="addToCartAjax(' + item.id + ', this);closeAiWizard()"><i class="fa fa-cart-plus"></i> Chọn Mua</button>' +
+                '</div>' +
+            '</div>';
+        }).join('');
+    }
+
+    function resetAiWizard() {
+        aiSelection = { usage: '', budget: '', feature: '' };
+        document.getElementById('aiStep1').classList.add('active');
+        document.getElementById('aiStep2').classList.remove('active');
+        document.getElementById('aiStep3').classList.remove('active');
+        document.getElementById('aiResults').classList.remove('active');
+        document.getElementById('aiLoading').style.display = 'none';
+    }
+    </script>
+
+    <!-- 3D LANDING PAGE INTERACTIVE TILT ENGINE -->
+    <script>
+    (function () {
+        function init3DTilt() {
+            var tiltElements = document.querySelectorAll('.tilt-3d, .nk-card, .product-card, .series-card, .feature-card, .hero-slide-card');
+            tiltElements.forEach(function (el) {
+                if (el.dataset.tiltInitialized) return;
+                el.dataset.tiltInitialized = 'true';
+                el.classList.add('tilt-3d');
+
+                el.addEventListener('mousemove', function (e) {
+                    var rect = el.getBoundingClientRect();
+                    var x = e.clientX - rect.left;
+                    var y = e.clientY - rect.top;
+                    var centerX = rect.width / 2;
+                    var centerY = rect.height / 2;
+
+                    var rotateX = ((y - centerY) / centerY) * -12;
+                    var rotateY = ((x - centerX) / centerX) * 12;
+
+                    el.style.transform = 'perspective(1000px) rotateX(' + rotateX.toFixed(2) + 'deg) rotateY(' + rotateY.toFixed(2) + 'deg) translateZ(15px)';
+                    el.style.setProperty('--mouse-x', (x / rect.width * 100).toFixed(1) + '%');
+                    el.style.setProperty('--mouse-y', (y / rect.height * 100).toFixed(1) + '%');
+                });
+
+                el.addEventListener('mouseleave', function () {
+                    el.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px)';
+                });
+            });
+        }
+
+        function initNavbarScroll() {
+            var nav = document.querySelector('.luxury-navbar');
+            if (!nav) return;
+            window.addEventListener('scroll', function () {
+                if (window.scrollY > 40) {
+                    nav.classList.add('navbar-scrolled');
+                } else {
+                    nav.classList.remove('navbar-scrolled');
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            init3DTilt();
+            initNavbarScroll();
+        });
+        window.addEventListener('load', init3DTilt);
+        setInterval(init3DTilt, 1500);
+    })();
+    </script>
+
+    <!-- FLOATING QUICK ACTION HUB (LANDING PAGE) -->
+    <div class="floating-quick-hub">
+        <a href="/Copilot" class="quick-hub-btn btn-copilot" title="Tư vấn AI Copilot">
+            <i class="fa fa-wand-magic-sparkles"></i>
+            <span class="quick-hub-tooltip">Tư vấn AI Copilot</span>
+        </a>
+        <a href="tel:18001234" class="quick-hub-btn" title="Gọi Hotline 1800 1234">
+            <i class="fa fa-phone"></i>
+            <span class="quick-hub-tooltip">Hotline: 1800 1234</span>
+        </a>
+        <button type="button" class="quick-hub-btn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Về đầu trang">
+            <i class="fa fa-arrow-up"></i>
+            <span class="quick-hub-tooltip">Lên đầu trang</span>
+        </button>
+    </div>
+
+    <!-- ASUS 3D WEBGL INTERACTIVE ENGINE -->
+    <script src="~/js/asus-3d-engine.js"></script>
+
+    <!-- VIP CLUB SUCCESS MODAL & STYLES -->
+    <style>
+    .vip-modal-overlay {
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        background: rgba(0, 0, 0, 0.82);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 99999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        animation: vipFadeIn 0.3s ease;
+    }
+    @@keyframes vipFadeIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+    }
+    .vip-modal-card {
+        background: linear-gradient(145deg, #18181f, #0d0d12);
+        border: 1px solid rgba(255, 77, 0, 0.35);
+        box-shadow: 0 20px 50px rgba(255, 77, 0, 0.25), 0 0 30px rgba(0, 0, 0, 0.9);
+        border-radius: 20px;
+        padding: 32px 28px;
+        max-width: 480px;
+        width: 100%;
+        text-align: center;
+        position: relative;
+        color: #ffffff;
+    }
+    .vip-modal-close {
+        position: absolute;
+        top: 14px; right: 18px;
+        background: none; border: none;
+        color: rgba(255,255,255,0.6);
+        font-size: 24px; cursor: pointer;
+        transition: color 0.2s;
+    }
+    .vip-modal-close:hover { color: #ffffff; }
+    .vip-modal-icon {
+        width: 64px; height: 64px;
+        margin: 0 auto 16px;
+        background: linear-gradient(135deg, rgba(255,77,0,0.2), rgba(255,215,0,0.2));
+        border: 1px solid rgba(255, 215, 0, 0.4);
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 28px; color: #ffd700;
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+    }
+    .vip-modal-title {
+        font-size: 1.25rem; font-weight: 800;
+        letter-spacing: 0.5px; margin-bottom: 8px;
+        background: linear-gradient(90deg, #ffffff, #ffd700, #ff4d00);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .vip-modal-sub {
+        font-size: 0.92rem; color: rgba(255,255,255,0.8);
+        line-height: 1.5; margin-bottom: 20px;
+    }
+    .vip-voucher-box {
+        background: rgba(255, 77, 0, 0.08);
+        border: 1px dashed rgba(255, 77, 0, 0.4);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 24px;
+    }
+    .vip-voucher-label {
+        font-size: 0.75rem; font-weight: 700;
+        color: #ff4d00; text-transform: uppercase;
+        letter-spacing: 1px; margin-bottom: 10px;
+    }
+    .vip-voucher-code-wrap {
+        display: flex; align-items: center; justify-content: center;
+        gap: 12px;
+    }
+    .vip-code-text {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 1.4rem; font-weight: 900;
+        color: #ffffff; background: #000000;
+        padding: 6px 16px; border-radius: 8px;
+        border: 1px solid rgba(255,255,255,0.15);
+        letter-spacing: 2px;
+    }
+    .btn-copy-code {
+        background: #ff4d00; color: #fff;
+        border: none; border-radius: 8px;
+        padding: 8px 14px; font-weight: 700;
+        font-size: 0.85rem; cursor: pointer;
+        transition: background 0.2s;
+        display: flex; align-items: center; gap: 6px;
+    }
+    .btn-copy-code:hover { background: #e04400; }
+    .vip-modal-actions {
+        display: flex; flex-direction: column; gap: 10px;
+    }
+    .btn-vip-action {
+        padding: 12px; border-radius: 10px;
+        font-weight: 700; font-size: 0.9rem;
+        text-align: center; text-decoration: none;
+        cursor: pointer; transition: all 0.2s;
+    }
+    .btn-vip-cart {
+        background: linear-gradient(90deg, #ff4d00, #ff7a00);
+        color: #ffffff; border: none;
+        box-shadow: 0 4px 15px rgba(255, 77, 0, 0.4);
+    }
+    .btn-vip-cart:hover { opacity: 0.95; color: #ffffff; }
+    .btn-vip-close {
+        background: rgba(255,255,255,0.06);
+        color: rgba(255,255,255,0.7);
+        border: 1px solid rgba(255,255,255,0.15);
+    }
+    .btn-vip-close:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+    /* MOBILE OPTIMIZATION (MAX-WIDTH: 576PX) */
+    @@media (max-width: 576px) {
+        .newsletter-card {
+            padding: 16px 14px !important;
+            border-radius: 14px !important;
+            margin: 16px 0 !important;
+        }
+        .newsletter-card span {
+            font-size: 13.5px !important;
+        }
+        .newsletter-card p {
+            font-size: 11.5px !important;
+            margin: 6px 0 12px !important;
+            line-height: 1.45 !important;
+        }
+        .newsletter-form {
+            flex-direction: column !important;
+            gap: 10px !important;
+        }
+        .newsletter-form input {
+            width: 100% !important;
+            height: 44px !important;
+            font-size: 14px !important;
+            padding: 0 14px !important;
+            box-sizing: border-box !important;
+        }
+        .newsletter-form button {
+            width: 100% !important;
+            height: 44px !important;
+            font-size: 13px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-radius: 8px !important;
+        }
+
+        .vip-modal-overlay {
+            padding: 14px;
+        }
+        .vip-modal-card {
+            padding: 24px 18px;
+            border-radius: 18px;
+        }
+        .vip-modal-icon {
+            width: 52px;
+            height: 52px;
+            font-size: 22px;
+            margin-bottom: 12px;
+        }
+        .vip-modal-title {
+            font-size: 1.1rem;
+        }
+        .vip-modal-sub {
+            font-size: 0.85rem;
+            margin-bottom: 16px;
+        }
+        .vip-voucher-box {
+            padding: 12px;
+            margin-bottom: 18px;
+        }
+        .vip-voucher-code-wrap {
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+        }
+        .vip-code-text {
+            font-size: 1.25rem;
+            padding: 8px 12px;
+            width: 100%;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .btn-copy-code {
+            width: 100%;
+            height: 42px;
+            justify-content: center;
+            font-size: 0.85rem;
+        }
+        .btn-vip-action {
+            height: 46px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+        }
+        .vip-modal-close {
+            top: 10px;
+            right: 12px;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+    }
+    </style>
+
+    <div id="vipSuccessModal" class="vip-modal-overlay" style="display:none;" onclick="if(event.target===this) closeVipModal();">
+        <div class="vip-modal-card">
+            <button type="button" class="vip-modal-close" onclick="closeVipModal()">&times;</button>
+            <div class="vip-modal-icon">
+                <i class="fa-solid fa-crown"></i>
+            </div>
+            <h3 class="vip-modal-title">CHÀO MỪNG ĐẾN VỚI ASUS VIP CLUB</h3>
+            <p class="vip-modal-sub">Cảm ơn bạn đã đăng ký thành công với email <strong id="vipSubEmail" style="color:#ff4d00;"></strong>. Bạn nhận được đặc quyền Voucher VIP:</p>
+            <div class="vip-voucher-box">
+                <div class="vip-voucher-label">MÃ GIẢM GIÁ 1.000.000₫ CỦA BẠN</div>
+                <div class="vip-voucher-code-wrap">
+                    <span class="vip-code-text" id="vipModalCode">ASUSVIP1M</span>
+                    <button type="button" class="btn-copy-code" onclick="copyVipCode()"><i class="fa fa-copy"></i> Sao chép</button>
+                </div>
+                <small style="color:rgba(255,255,255,0.6); display:block; margin-top:10px;">*Áp dụng trực tiếp cho mọi đơn hàng ASUS từ 5.000.000₫</small>
+            </div>
+            <div class="vip-modal-actions">
+                <a href="/Cart" class="btn-vip-action btn-vip-cart"><i class="fa fa-shopping-cart"></i> Sử dụng ngay trong giỏ hàng</a>
+                <button type="button" class="btn-vip-action btn-vip-close" onclick="closeVipModal()">Đóng cửa sổ</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    async function handleVipSubscribe(e, formEl) {
+        if (e) e.preventDefault();
+        const input = formEl.querySelector('input[type="email"]');
+        if (!input || !input.value) return;
+        const email = input.value.trim();
+
+        try {
+            const res = await fetch('/Voucher/SubscribeVip', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email })
+            });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('vipSubEmail').textContent = email;
+                document.getElementById('vipModalCode').textContent = data.voucherCode || 'ASUSVIP1M';
+                document.getElementById('vipSuccessModal').style.display = 'flex';
+                input.value = '';
+            } else {
+                alert(data.message || 'Đăng ký thất bại, vui lòng thử lại.');
+            }
+        } catch (err) {
+            console.error('VIP Subscribe Error:', err);
+            document.getElementById('vipSubEmail').textContent = email;
+            document.getElementById('vipModalCode').textContent = 'ASUSVIP1M';
+            document.getElementById('vipSuccessModal').style.display = 'flex';
+            input.value = '';
+        }
+    }
+
+    function closeVipModal() {
+        document.getElementById('vipSuccessModal').style.display = 'none';
+    }
+
+    function copyVipCode() {
+        const code = document.getElementById('vipModalCode').textContent;
+        navigator.clipboard.writeText(code).then(() => {
+            const btn = document.querySelector('.btn-copy-code');
+            if (btn) {
+                btn.innerHTML = '<i class="fa fa-check"></i> Đã chép!';
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fa fa-copy"></i> Sao chép';
+                }, 2000);
+            }
+        }).catch(err => {
+            alert('Mã giảm giá của bạn: ' + code);
+        });
+    }
+    </script>
+
+    <!-- REAL 360 PHOTO SPINNER ENGINE -->
+    <script src="~/js/asus-photo-spinner.js"></script>
+
+    <!-- ============================================================ -->
+    <!-- SMART COMMAND PALETTE (CTRL + K) — HIGH-END UX FEATURE       -->
+    <!-- ============================================================ -->
+    <div class="cmd-palette-overlay" id="cmdPaletteOverlay">
+        <div class="cmd-palette-modal">
+            <div class="cmd-palette-header">
+                <i class="fa-solid fa-bolt cmd-icon-glow"></i>
+                <input type="text" id="cmdInput" placeholder="Tìm sản phẩm, chọn dòng máy, lệnh nhanh... (VD: ROG, ZenBook, Cart)" autocomplete="off" />
+                <span class="cmd-badge-esc">ESC</span>
+            </div>
+            
+            <div class="cmd-palette-body" id="cmdBody">
+                <!-- Direct Action Shortcuts -->
+                <div class="cmd-section" id="cmdDefaultActions">
+                    <div class="cmd-section-title"><i class="fa-solid fa-compass"></i> Điều Hướng Nhanh</div>
+                    <div class="cmd-items">
+                        <a href="/Home/Story" class="cmd-item">
+                            <div class="cmd-item-icon story"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                            <div class="cmd-item-info">
+                                <strong>Hành Trình Storytelling Interactive</strong>
+                                <span>Khám phá công nghệ độc bản Asus Scrollytelling</span>
+                            </div>
+                            <span class="cmd-key">Enter</span>
+                        </a>
+                        <a href="/Copilot" class="cmd-item">
+                            <div class="cmd-item-icon ai"><i class="fa-solid fa-robot"></i></div>
+                            <div class="cmd-item-info">
+                                <strong>Copilot AI Assistant</strong>
+                                <span>Trợ lý tư vấn cấu hình & chọn máy theo nhu cầu</span>
+                            </div>
+                            <span class="cmd-key">Enter</span>
+                        </a>
+                        <a href="/Compare/Index" class="cmd-item">
+                            <div class="cmd-item-icon compare"><i class="fa-solid fa-balance-scale"></i></div>
+                            <div class="cmd-item-info">
+                                <strong>So Sánh Cấu Hình Sản Phẩm</strong>
+                                <span>Đặt 2-3 mẫu laptop lên bàn cân trực quan</span>
+                            </div>
+                            <span class="cmd-key">Enter</span>
+                        </a>
+                        <a href="/PriceTracker/DealRadar" class="cmd-item">
+                            <div class="cmd-item-icon radar"><i class="fa-solid fa-radar"></i></div>
+                            <div class="cmd-item-info">
+                                <strong>Radar Săn Deal & AI Dự Đoán Giá</strong>
+                                <span>Phân tích biến động giá & điểm mua tốt nhất</span>
+                            </div>
+                            <span class="cmd-key">Enter</span>
+                        </a>
+                        <a href="/Cart" class="cmd-item">
+                            <div class="cmd-item-icon cart"><i class="fa-solid fa-shopping-bag"></i></div>
+                            <div class="cmd-item-info">
+                                <strong>Giỏ Hàng Của Bạn</strong>
+                                <span>Xem ngay các sản phẩm đang chuẩn bị đặt mua</span>
+                            </div>
+                            <span class="cmd-key">Enter</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Dynamic Live Search Results -->
+                <div class="cmd-section" id="cmdSearchResults" style="display:none;">
+                    <div class="cmd-section-title"><i class="fa-solid fa-laptop"></i> Kết Quả Tìm Kiếm Tức Thì</div>
+                    <div class="cmd-items" id="cmdResultsList"></div>
+                </div>
+            </div>
+
+            <div class="cmd-palette-footer">
+                <div class="cmd-hints">
+                    <span><kbd>↑</kbd> <kbd>↓</kbd> Di chuyển</span>
+                    <span><kbd>↵</kbd> Mở link</span>
+                    <span><kbd>Esc</kbd> Đóng</span>
+                </div>
+                <div class="cmd-brand-tag">
+                    <i class="fa-solid fa-gem gold-icon"></i> ASUS VIP Command Bar
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .cmd-kbd-trigger {
+            position: absolute;
+            right: 42px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #d1d5db;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 6px;
+            cursor: pointer;
+            user-select: none;
+            letter-spacing: 0.5px;
+            transition: all 0.2s ease;
+        }
+        .cmd-kbd-trigger:hover {
+            background: #ff4d00;
+            border-color: #ff4d00;
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(255, 77, 0, 0.6);
+        }
+
+        .cmd-palette-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(5, 11, 20, 0.75);
+            backdrop-filter: blur(12px);
+            z-index: 9999999;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 10vh;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .cmd-palette-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .cmd-palette-modal {
+            width: 660px;
+            max-width: calc(100vw - 32px);
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(255, 77, 0, 0.2);
+            overflow: hidden;
+            transform: scale(0.96) translateY(-12px);
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .cmd-palette-overlay.open .cmd-palette-modal {
+            transform: scale(1) translateY(0);
+        }
+
+        .cmd-palette-header {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            gap: 14px;
+        }
+        .cmd-icon-glow {
+            font-size: 20px;
+            color: #ff4d00;
+            filter: drop-shadow(0 0 8px #ff4d00);
+        }
+        .cmd-palette-header input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 500;
+            font-family: inherit;
+        }
+        .cmd-palette-header input::placeholder {
+            color: #64748b;
+        }
+        .cmd-badge-esc {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #94a3b8;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+
+        .cmd-palette-body {
+            max-height: 420px;
+            overflow-y: auto;
+            padding: 14px;
+        }
+        .cmd-section-title {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #64748b;
+            margin: 8px 10px 10px 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .cmd-items {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .cmd-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            color: #f1f5f9;
+            text-decoration: none;
+            transition: all 0.15s ease;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        .cmd-item:hover, .cmd-item.active {
+            background: rgba(255, 77, 0, 0.12);
+            border-color: rgba(255, 77, 0, 0.3);
+            color: #ffffff;
+            transform: translateX(4px);
+        }
+        .cmd-item-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        .cmd-item-icon.story { background: linear-gradient(135deg, #00f3ff, #9d4edd); }
+        .cmd-item-icon.ai { background: linear-gradient(135deg, #ff4d00, #ff0055); }
+        .cmd-item-icon.compare { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .cmd-item-icon.radar { background: linear-gradient(135deg, #10b981, #059669); }
+        .cmd-item-icon.cart { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .cmd-item-thumb {
+            width: 44px;
+            height: 34px;
+            object-fit: contain;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2px;
+        }
+
+        .cmd-item-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.3;
+        }
+        .cmd-item-info strong {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .cmd-item-info span {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .cmd-fps-badge {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            color: #34d399;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        .cmd-item-price {
+            font-size: 14px;
+            font-weight: 800;
+            color: #ff4d00;
+            margin-left: auto;
+        }
+
+        .cmd-key {
+            font-size: 11px;
+            color: #64748b;
+            background: rgba(255, 255, 255, 0.06);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .cmd-palette-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            background: rgba(10, 15, 30, 0.6);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 12px;
+            color: #64748b;
+        }
+        .cmd-hints {
+            display: flex;
+            gap: 14px;
+        }
+        .cmd-hints kbd {
+            background: rgba(255, 255, 255, 0.1);
+            color: #cbd5e1;
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+    </style>
+
+    <script>
+        (function () {
+            const overlay = document.getElementById('cmdPaletteOverlay');
+            const input = document.getElementById('cmdInput');
+            const defaultActions = document.getElementById('cmdDefaultActions');
+            const searchResults = document.getElementById('cmdSearchResults');
+            const resultsList = document.getElementById('cmdResultsList');
+            const kbdTrigger = document.getElementById('cmdKbdTrigger');
+
+            function openPalette() {
+                overlay.classList.add('open');
+                input.value = '';
+                searchResults.style.display = 'none';
+                defaultActions.style.display = 'block';
+                setTimeout(() => input.focus(), 50);
+            }
+
+            function closePalette() {
+                overlay.classList.remove('open');
+            }
+
+            // Keyboard shortcut triggers: Ctrl + K, Cmd + K
+            document.addEventListener('keydown', function (e) {
+                if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+                    e.preventDefault();
+                    if (overlay.classList.contains('open')) closePalette();
+                    else openPalette();
+                } else if (e.key === 'Escape' && overlay.classList.contains('open')) {
+                    closePalette();
+                }
+            });
+
+            kbdTrigger?.addEventListener('click', openPalette);
+            overlay?.addEventListener('click', function (e) {
+                if (e.target === overlay) closePalette();
+            });
+
+            // Live Search Engine
+            let debounceTimer = null;
+            input?.addEventListener('input', function () {
+                const query = input.value.trim();
+                clearTimeout(debounceTimer);
+
+                if (query.length < 2) {
+                    searchResults.style.display = 'none';
+                    defaultActions.style.display = 'block';
+                    return;
+                }
+
+                debounceTimer = setTimeout(() => {
+                    fetch('/Home/QuickSearch?q=' + encodeURIComponent(query))
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.success && data.products && data.products.length > 0) {
+                                resultsList.innerHTML = data.products.map(p => `
+                                    <a href="/Product/Details/${p.id}" class="cmd-item">
+                                        <img src="${p.imageUrl}" alt="${p.name}" class="cmd-item-thumb" />
+                                        <div class="cmd-item-info">
+                                            <strong>${p.name}</strong>
+                                            <span>${p.cpu} • ${p.ram} • ${p.gpu}</span>
+                                        </div>
+                                        <div class="cmd-fps-badge"><i class="fa-solid fa-gamepad"></i> ~${p.estimatedFps} FPS</div>
+                                        <div class="cmd-item-price">${p.price}</div>
+                                    </a>
+                                `).join('');
+                                defaultActions.style.display = 'none';
+                                searchResults.style.display = 'block';
+                            } else {
+                                resultsList.innerHTML = '<div style="padding:16px; text-align:center; color:#64748b; font-size:13px;">Không tìm thấy laptop phù hợp từ khóa</div>';
+                                defaultActions.style.display = 'none';
+                                searchResults.style.display = 'block';
+                            }
+                        }).catch(() => {});
+                }, 180);
+            });
+        })();
+    </script>
+</body>
+</html>

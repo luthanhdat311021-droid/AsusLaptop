@@ -1,0 +1,332 @@
+@model AsusLaptop.Models.Order
+@{
+    Layout = null; // Trang in độc lập, không kèm header/footer của site
+    ViewData["Title"] = "Hoá đơn #" + Model.Id;
+    var subTotal = Model.OrderDetails.Sum(d => d.Price * d.Quantity);
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"]</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #111111;
+            --paper: #ffffff;
+            --grey-50: #fafafa;
+            --grey-100: #f2f2f2;
+            --grey-300: #d9d9d9;
+            --grey-500: #8a8a8a;
+            --grey-700: #4a4a4a;
+            --accent: #ff4d00; /* single bold accent, Nike-Swoosh-orange energy */
+            --ok: #0a7d3c;
+            --warn: #c62828;
+        }
+        * { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            background: var(--grey-100);
+            color: var(--ink);
+            padding: 40px 20px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Toolbar ── */
+        .inv-toolbar {
+            max-width: 860px; margin: 0 auto 20px; display: flex; justify-content: flex-end; gap: 10px;
+        }
+        .btn-print, .btn-close {
+            display: inline-flex; align-items: center; gap: 8px; padding: 13px 26px;
+            font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: .08em;
+            cursor: pointer; border: 2px solid var(--ink); text-decoration: none;
+            border-radius: 999px; transition: all .15s ease;
+        }
+        .btn-print { background: var(--ink); color: #fff; }
+        .btn-print:hover { background: var(--accent); border-color: var(--accent); }
+        .btn-close { background: transparent; color: var(--ink); }
+        .btn-close:hover { background: var(--ink); color: #fff; }
+
+        /* ── Sheet ── */
+        .invoice-sheet {
+            max-width: 860px;
+            margin: 0 auto;
+            background: var(--paper);
+            padding: 0;
+            overflow: hidden;
+        }
+
+        /* ── Header: big bold Nike-esque banner ── */
+        .inv-header {
+            background: var(--ink);
+            color: #fff;
+            padding: 56px 56px 40px;
+            position: relative;
+        }
+        .inv-brand {
+            font-size: 15px; font-weight: 800; letter-spacing: .22em; text-transform: uppercase;
+            color: #fff; margin-bottom: 2px;
+        }
+        .inv-brand span { color: var(--accent); }
+        .inv-brand-sub { font-size: 11.5px; color: var(--grey-500); letter-spacing: .04em; }
+
+        .inv-title-row {
+            display: flex; justify-content: space-between; align-items: flex-end;
+            margin-top: 46px;
+        }
+        .inv-title h1 {
+            margin: 0; font-size: 44px; font-weight: 900; letter-spacing: -.02em;
+            line-height: 1; text-transform: uppercase;
+        }
+        .inv-title .inv-id {
+            font-size: 12.5px; color: var(--grey-500); margin-top: 10px; letter-spacing: .04em;
+        }
+        .inv-title .inv-id strong { color: #fff; font-weight: 700; }
+        .inv-order-no {
+            text-align: right; font-size: 12px; color: var(--grey-500);
+            letter-spacing: .1em; text-transform: uppercase;
+        }
+        .inv-order-no .num {
+            display: block; font-size: 26px; font-weight: 900; color: var(--accent);
+            letter-spacing: 0; margin-top: 4px; font-variant-numeric: tabular-nums;
+        }
+
+        /* ── Meta info ── */
+        .inv-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-bottom: 1px solid var(--grey-300);
+        }
+        .inv-box {
+            padding: 30px 56px;
+        }
+        .inv-box:first-child { border-right: 1px solid var(--grey-300); }
+        .inv-box-label {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--grey-500);
+            text-transform: uppercase;
+            letter-spacing: .14em;
+            margin-bottom: 12px;
+        }
+        .inv-box div { font-size: 13.5px; line-height: 2; color: var(--grey-700); }
+        .inv-box strong { color: var(--ink); font-weight: 700; }
+
+        .inv-status {
+            display: inline-block;
+            font-size: 10.5px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            padding: 4px 12px;
+            border-radius: 999px;
+            margin-left: 6px;
+        }
+        .st-paid { background: #e6f6ec; color: var(--ok); }
+        .st-unpaid { background: #fdecec; color: var(--warn); }
+
+        /* ── Table sản phẩm ── */
+        .inv-table-wrap { padding: 0 56px; }
+        table.inv-table { width: 100%; border-collapse: collapse; margin: 8px 0 0; }
+        .inv-table thead th {
+            color: var(--grey-500); font-size: 10.5px; font-weight: 800; text-transform: uppercase;
+            letter-spacing: .1em; padding: 20px 8px 14px; text-align: left;
+            border-bottom: 2px solid var(--ink);
+        }
+        .inv-table thead th.num { text-align: right; }
+        .inv-table tbody td {
+            padding: 18px 8px; border-bottom: 1px solid var(--grey-100); font-size: 13.5px; vertical-align: top;
+        }
+        .inv-table tbody td.num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+        .inv-table tbody tr:last-child td { border-bottom: 1px solid var(--ink); }
+        .prod-index { color: var(--grey-500); font-weight: 700; }
+        .prod-name { font-weight: 700; color: var(--ink); letter-spacing: -.01em; }
+        .prod-variant {
+            font-size: 11px; color: var(--grey-500); margin-top: 4px; text-transform: uppercase; letter-spacing: .04em;
+        }
+
+        /* ── Tổng kết ── */
+        .inv-summary-wrap { padding: 4px 56px 0; display: flex; justify-content: flex-end; }
+        .inv-summary { width: 320px; padding: 24px 0 8px; }
+        .inv-summary-row {
+            display: flex; justify-content: space-between; padding: 7px 0; font-size: 13px; color: var(--grey-700);
+        }
+        .inv-summary-row.total {
+            border-top: 2px solid var(--ink); margin-top: 10px; padding-top: 16px;
+            font-size: 15px; font-weight: 800; color: var(--ink); text-transform: uppercase; letter-spacing: .04em;
+        }
+        .inv-summary-row.total .amount { font-size: 26px; color: var(--accent); letter-spacing: -.01em; }
+        .inv-summary-row .discount { color: var(--ok); }
+        .amount { font-variant-numeric: tabular-nums; }
+
+        .inv-note {
+            margin: 32px 56px 0; padding: 18px 20px; background: var(--grey-50); border-left: 3px solid var(--accent);
+            font-size: 12.5px; color: var(--grey-700); line-height: 1.7;
+        }
+        .inv-note strong {
+            display: block; font-size: 10.5px; text-transform: uppercase; letter-spacing: .1em;
+            color: var(--ink); margin-bottom: 4px;
+        }
+
+        .inv-footer {
+            margin-top: 48px; padding: 28px 56px 44px; text-align: center; font-size: 11.5px; color: var(--grey-500);
+            border-top: 1px solid var(--grey-300); letter-spacing: .02em; line-height: 1.8;
+        }
+        .inv-footer strong { color: var(--ink); text-transform: uppercase; letter-spacing: .08em; }
+
+        @@media print {
+            body { background: #fff; padding: 0; }
+            .inv-toolbar { display: none; }
+            .invoice-sheet { box-shadow: none; max-width: 100%; }
+            .inv-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+
+        @@media (max-width: 640px) {
+            .inv-header, .inv-box, .inv-table-wrap, .inv-summary-wrap, .inv-note, .inv-footer { padding-left: 24px; padding-right: 24px; }
+            .inv-box:first-child { border-right: none; border-bottom: 1px solid var(--grey-300); }
+            .inv-meta { grid-template-columns: 1fr; }
+            .inv-title-row { flex-direction: column; align-items: flex-start; gap: 20px; }
+            .inv-order-no { text-align: left; }
+            .inv-title h1 { font-size: 32px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="inv-toolbar">
+        <button type="button" class="btn-print" onclick="window.print()">
+            In hoá đơn / Lưu PDF
+        </button>
+        <a href="javascript:window.close()" class="btn-close">Đóng</a>
+    </div>
+
+    <div class="invoice-sheet">
+        <!-- Header -->
+        <div class="inv-header">
+            <div class="inv-brand">ASUS<span>LAPTOP</span> STORE</div>
+            <div class="inv-brand-sub">www.asuslaptopstore.vn · Hotline: 1900 1234</div>
+
+            <div class="inv-title-row">
+                <div class="inv-title">
+                    <h1>Hoá đơn<br />bán hàng</h1>
+                    <div class="inv-id">
+                        Ngày đặt: <strong>@Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</strong>
+                    </div>
+                </div>
+                <div class="inv-order-no">
+                    Mã đơn hàng
+                    <span class="num">#@Model.Id.ToString("D6")</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thông tin khách hàng & thanh toán -->
+        <div class="inv-meta">
+            <div class="inv-box">
+                <div class="inv-box-label">Thông tin khách hàng</div>
+                <div><strong>@Model.CustomerName</strong></div>
+                <div>SĐT: @Model.Phone</div>
+                <div>Địa chỉ: @Model.Address</div>
+                @if (!string.IsNullOrEmpty(Model.Email))
+                {
+                    <div>Email: @Model.Email</div>
+                }
+            </div>
+            <div class="inv-box">
+                <div class="inv-box-label">Thông tin thanh toán</div>
+                <div>Phương thức: <strong>@(Model.PaymentMethod == "VNPay" ? "VNPay" : Model.PaymentMethod == "Momo" ? "Ví MoMo" : Model.PaymentMethod == "BankTransfer" ? "Chuyển khoản" : "Thanh toán khi nhận hàng (COD)")</strong></div>
+                <div>
+                    Trạng thái:
+                    <span class="inv-status @(Model.PaymentStatus == "Paid" ? "st-paid" : "st-unpaid")">
+                        @(Model.PaymentStatus == "Paid" ? "Đã thanh toán" : "Chưa thanh toán")
+                    </span>
+                </div>
+                <div>Trạng thái đơn: <strong>
+                    @(Model.Status switch {
+                        "Pending" => "Chờ xử lý",
+                        "Processing" => "Đang xử lý",
+                        "Shipped" => "Đang giao hàng",
+                        "Completed" => "Hoàn thành",
+                        "Cancelled" => "Đã huỷ",
+                        "Refunded" => "Đã hoàn tiền",
+                        _ => Model.Status
+                    })
+                </strong></div>
+            </div>
+        </div>
+
+        <!-- Bảng sản phẩm -->
+        <div class="inv-table-wrap">
+            <table class="inv-table">
+                <thead>
+                    <tr>
+                        <th style="width:36px">#</th>
+                        <th>Sản phẩm</th>
+                        <th class="num" style="width:60px">SL</th>
+                        <th class="num" style="width:120px">Đơn giá</th>
+                        <th class="num" style="width:130px">Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{ int stt = 1; }
+                    @foreach (var detail in Model.OrderDetails)
+                    {
+                        <tr>
+                            <td class="prod-index">@(stt++)</td>
+                            <td>
+                                <div class="prod-name">@detail.Product?.Name</div>
+                                @if (detail.Variant != null)
+                                {
+                                    <div class="prod-variant">@detail.Variant.RAM · @detail.Variant.Color</div>
+                                }
+                            </td>
+                            <td class="num">@detail.Quantity</td>
+                            <td class="num">@detail.Price.ToString("N0")₫</td>
+                            <td class="num"><strong>@((detail.Price * detail.Quantity).ToString("N0"))₫</strong></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Tổng kết -->
+        <div class="inv-summary-wrap">
+            <div class="inv-summary">
+                <div class="inv-summary-row">
+                    <span>Tạm tính</span>
+                    <span class="amount">@subTotal.ToString("N0")₫</span>
+                </div>
+                @if (Model.DiscountAmount > 0)
+                {
+                    <div class="inv-summary-row discount">
+                        <span>Giảm giá @(!string.IsNullOrEmpty(Model.VoucherCode) ? $"({Model.VoucherCode})" : "")</span>
+                        <span class="amount">-@Model.DiscountAmount.ToString("N0")₫</span>
+                    </div>
+                }
+                <div class="inv-summary-row total">
+                    <span>Tổng cộng</span>
+                    <span class="amount">@Model.TotalAmount.ToString("N0")₫</span>
+                </div>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.Note))
+        {
+            <div class="inv-note"><strong>Ghi chú đơn hàng</strong>@Model.Note</div>
+        }
+
+        <div class="inv-footer">
+            Cảm ơn quý khách đã mua hàng tại <strong>ASUS Laptop Store</strong><br />
+            Hoá đơn được xuất tự động từ hệ thống — vui lòng giữ lại để đối chiếu khi cần bảo hành.
+        </div>
+    </div>
+
+    <script>
+        // Tự mở hộp thoại in khi truy cập trực tiếp qua nút "In hoá đơn"
+        // (bỏ comment dòng dưới nếu muốn tự động bật hộp thoại in ngay khi mở trang)
+        // window.onload = () => window.print();
+    </script>
+</body>
+</html>

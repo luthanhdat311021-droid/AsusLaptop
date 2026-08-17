@@ -1,0 +1,163 @@
+@model List<AsusLaptop.Models.Order>
+@{
+    ViewData["Title"] = "Đơn hàng của tôi";
+}
+
+<div class="account-wrap">
+    <div class="account-layout">
+        <div class="account-sidebar">
+            <div class="account-sidebar-header">
+                <h3>@User.FindFirst("FullName")?.Value</h3>
+                <p>@User.Identity?.Name</p>
+            </div>
+            <a href="/Account/Profile" class="sidebar-link"><i class="fa fa-user"></i> Thông tin cá nhân</a>
+            <a href="/Account/MyOrders" class="sidebar-link active"><i class="fa fa-box"></i> Đơn hàng của tôi</a>
+            <a href="/Account/Addresses" class="sidebar-link"><i class="fa fa-map-marker-alt"></i> Sổ địa chỉ</a>
+            <a href="/Return/MyReturns" class="sidebar-link"><i class="fa fa-undo-alt"></i> Trả hàng/Hoàn tiền</a>
+                                    <a href="/Account/ChangePassword" class="sidebar-link"><i class="fa fa-lock"></i> Đổi mật khẩu</a>
+            <a href="/Account/Logout" class="sidebar-link" style="color:var(--rog-red)"><i class="fa fa-sign-out-alt"></i> Đăng xuất</a>
+        </div>
+
+        <div>
+            <div class="account-card">
+                <div class="account-card-header">
+                    <h2><i class="fa fa-box"></i> Đơn hàng của tôi</h2>
+                    <span class="text-muted text-sm">@Model.Count đơn hàng</span>
+                </div>
+                <div class="account-card-body">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success mb-2"><i class="fa fa-check-circle"></i> @TempData["SuccessMessage"]</div>
+                    }
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger mb-2"><i class="fa fa-exclamation-circle"></i> @TempData["ErrorMessage"]</div>
+                    }
+
+                    @if (!Model.Any())
+                    {
+                        <div class="empty-state" style="padding:40px">
+                            <i class="fa fa-box-open"></i>
+                            <h3>Chưa có đơn hàng nào</h3>
+                            <p>Hãy mua sắm ngay để trải nghiệm dịch vụ của chúng tôi!</p>
+                            <a href="/" class="btn-primary"><i class="fa fa-laptop"></i> Mua sắm ngay</a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="orders-list">
+                            @foreach (var order in Model)
+                            {
+                                <div class="order-card">
+                                    <div class="order-card-header">
+                                        <div>
+                                            <span class="order-id">Đơn hàng #@order.Id</span>
+                                            <div class="order-date">@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</div>
+                                        </div>
+                                        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+                                            <span class="order-status status-@order.Status.ToLower()">
+                                                @(order.Status switch {
+                                                    "Pending" => "Chờ xử lý",
+                                                    "Processing" => "Đang xử lý",
+                                                    "Shipped" => "Đang giao",
+                                                    "Completed" => "Hoàn thành",
+                                                    "Cancelled" => "Đã hủy",
+                                                    "Refunded" => "Đã hoàn tiền",
+                                                    _ => order.Status
+                                                })
+                                            </span>
+                                            @if (order.PaymentMethod == "BankTransfer" || order.PaymentMethod == "VNPay" || order.PaymentMethod == "Momo")
+                                            {
+                                                string psColor2 = order.PaymentStatus == "Paid" ? "var(--success)" : order.PaymentStatus == "Pending" ? "var(--tuf-yellow)" : "var(--text-muted)";
+                                                string psText = order.PaymentStatus == "Paid" ? "✅ Đã thanh toán" : "⏳ Chờ thanh toán";
+                                                <span style="font-size:10px;font-weight:700;color:@psColor2">@psText</span>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="order-card-body">
+                                        @foreach (var detail in order.OrderDetails)
+                                        {
+                                            <div class="order-item-row">
+                                                <span style="color:var(--accent);font-weight:600;font-size:12px">@detail.Product?.Series</span>
+                                                <span class="fw-bold" style="font-size:13px">@detail.Product?.Name</span>
+                                                <span style="margin-left:auto;color:var(--text-muted);font-size:12px">x@(detail.Quantity)</span>
+                                                <span style="color:var(--rog-red);font-weight:700;font-size:13px">@((detail.Price * detail.Quantity).ToString("N0"))₫</span>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="order-card-footer">
+                                        <div>
+                                            <span style="font-size:12px;color:var(--text-muted)">Tổng tiền: </span>
+                                            <span class="order-total">@order.TotalAmount.ToString("N0")₫</span>
+                                            @{
+                                                (string pmIcon, string pmLabel, string pmColor) = order.PaymentMethod switch
+                                                {
+                                                    "BankTransfer" => ("fa-qrcode", "Chuyển khoản", "var(--success)"),
+                                                    "VNPay"        => ("fa-credit-card", "VNPay", "#0064dc"),
+                                                    "Momo"         => ("fa-wallet", "Ví MoMo", "#d7196e"),
+                                                    _              => ("fa-money-bill-wave", "COD", "var(--text-muted)")
+                                                };
+                                            }
+                                            <span style="font-size:10px;color:@pmColor;margin-left:8px"><i class="fa @pmIcon"></i> @pmLabel</span>
+                                        </div>
+                                        <div class="order-actions">
+                                            <a href="/Account/OrderDetail/@order.Id" class="btn-action btn-view">
+                                                <i class="fa fa-eye"></i> Chi tiết
+                                            </a>
+                                            @if (order.Status == "Shipped" || order.Status == "Processing")
+                                            {
+                                                <a href="/OrderTracking/Track/@order.Id" class="btn-action btn-view" style="background:var(--accent);color:#fff;border-color:var(--accent)">
+                                                    <i class="fa fa-map-marker-alt"></i> Theo dõi
+                                                </a>
+                                            }
+                                            @if (order.Status == "Completed" && (DateTime.Now - order.OrderDate).TotalDays <= 30)
+                                            {
+                                                <a href="/Return/Create/@order.Id" class="btn-action btn-view" style="color:var(--rog-red,#e0393e)">
+                                                    <i class="fa fa-undo-alt"></i> Trả hàng
+                                                </a>
+                                            }
+                                            @if (order.Status == "Pending" && (order.PaymentMethod == "VNPay" || order.PaymentMethod == "Momo") && order.PaymentStatus != "Paid")
+                                            {
+                                                <a asp-action="ContinuePayment" asp-controller="Cart" asp-route-orderId="@order.Id"
+                                                   class="btn-action btn-view" style="background:var(--success,#2e9e4f);color:#fff;border-color:var(--success,#2e9e4f)">
+                                                    <i class="fa fa-credit-card"></i> Tiếp tục thanh toán
+                                                </a>
+                                            }
+                                            @if (order.Status == "Pending")
+                                            {
+                                                <form asp-action="CancelOrder" method="post" style="display:inline"
+                                                      data-name="@order.Id"
+                                                      onsubmit="return confirm('Hủy đơn hàng #' + this.dataset.name + '?')">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="orderId" value="@order.Id" />
+                                                    <button type="submit" class="btn-action btn-delete">
+                                                        <i class="fa fa-times"></i> Hủy đơn
+                                                    </button>
+                                                </form>
+                                            }
+                                        </div>
+                                    </div>
+                                    @if (order.Status == "Pending" && (order.PaymentMethod == "VNPay" || order.PaymentMethod == "Momo") && order.PaymentStatus != "Paid")
+                                    {
+                                        <div style="padding:8px 16px;font-size:11.5px;color:var(--tuf-yellow,#e0a000);background:rgba(224,160,0,.08);border-top:1px solid var(--border)">
+                                            <i class="fa fa-clock"></i> Đơn sẽ tự động hủy nếu không hoàn tất thanh toán trong vòng <strong>15 phút</strong> kể từ lúc đặt hàng.
+                                        </div>
+                                    }
+                                    @if (order.PaymentMethod == "BankTransfer" && order.PaymentStatus != "Paid" && order.Status == "Pending")
+                                    {
+                                        <div style="padding:12px 16px;border-top:1px solid var(--border);background:rgba(0,180,216,0.04)">
+                                            <a href="/Account/OrderDetail/@order.Id"
+                                               style="font-size:12px;color:var(--accent);font-weight:600;text-decoration:none">
+                                                <i class="fa fa-qrcode"></i> Xem mã QR để thanh toán →
+                                            </a>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

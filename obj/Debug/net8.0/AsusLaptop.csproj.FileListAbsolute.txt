@@ -1,0 +1,8 @@
+D:\1\AsusLaptop_NikeStyle_Updated\AsusLaptop_HoanThien\AsusLaptop\obj\Debug\net8.0\AsusLaptop.csproj.AssemblyReference.cache
+D:\1\AsusLaptop_NikeStyle_Updated\AsusLaptop_HoanThien\AsusLaptop\obj\Debug\net8.0\AsusLaptop.GeneratedMSBuildEditorConfig.editorconfig
+D:\1\AsusLaptop_NikeStyle_Updated\AsusLaptop_HoanThien\AsusLaptop\obj\Debug\net8.0\AsusLaptop.AssemblyInfoInputs.cache
+D:\1\AsusLaptop_NikeStyle_Updated\AsusLaptop_HoanThien\AsusLaptop\obj\Debug\net8.0\AsusLaptop.AssemblyInfo.cs
+D:\1\AsusLaptop_NikeStyle_Updated\AsusLaptop_HoanThien\AsusLaptop\obj\Debug\net8.0\AsusLaptop.csproj.CoreCompileInputs.cache
+D:\1\AsusLaptop_NikeStyle_Updated\AsusLaptop_HoanThien\AsusLaptop\obj\Debug\net8.0\AsusLaptop.MvcApplicationPartsAssemblyInfo.cache
+D:\1\AsusLaptop_NikeStyle_Updated\AsusLaptop_HoanThien\AsusLaptop\obj\Debug\net8.0\AsusLaptop.RazorAssemblyInfo.cache
+D:\1\AsusLaptop_NikeStyle_Updated\AsusLaptop_HoanThien\AsusLaptop\obj\Debug\net8.0\AsusLaptop.RazorAssemblyInfo.cs

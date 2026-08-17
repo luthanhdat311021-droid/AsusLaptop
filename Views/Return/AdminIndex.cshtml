@@ -1,0 +1,75 @@
+@model List<AsusLaptop.Models.ReturnRequest>
+@{
+    ViewData["Title"] = "Quản lý trả hàng / hoàn tiền";
+    string? status = ViewBag.Status;
+}
+
+<div class="admin-wrap">
+    <div class="admin-header">
+        <h1 class="admin-title"><i class="fa fa-undo-alt"></i> TRẢ HÀNG <span>/ HOÀN TIỀN</span></h1>
+        <a href="/Admin/Dashboard" class="btn-ghost"><i class="fa fa-arrow-left"></i> Dashboard</a>
+    </div>
+
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3><i class="fa fa-list"></i> Danh sách yêu cầu (@Model.Count)</h3>
+            <form method="get" asp-action="AdminIndex" class="search-bar">
+                <select name="status" class="form-control" onchange="this.form.submit()">
+                    <option value="">— Tất cả trạng thái —</option>
+                    <option value="Pending" selected="@(status == "Pending")">Chờ duyệt</option>
+                    <option value="Approved" selected="@(status == "Approved")">Đã duyệt</option>
+                    <option value="Refunded" selected="@(status == "Refunded")">Đã hoàn tiền</option>
+                    <option value="Rejected" selected="@(status == "Rejected")">Đã từ chối</option>
+                    <option value="Cancelled" selected="@(status == "Cancelled")">Đã huỷ</option>
+                </select>
+                @if (!string.IsNullOrEmpty(status))
+                {
+                    <a href="/Return/AdminIndex" class="btn-action btn-delete"><i class="fa fa-times"></i> Xóa lọc</a>
+                }
+            </form>
+        </div>
+        <div style="overflow-x:auto">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Đơn hàng</th>
+                        <th>Khách hàng</th>
+                        <th>Loại</th>
+                        <th>Lý do</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày gửi</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text-muted)">Không có yêu cầu nào.</td></tr>
+                    }
+                    @foreach (var r in Model)
+                    {
+                        string badgeColor = r.Status switch {
+                            "Pending" => "var(--tuf-yellow,#e6b800)",
+                            "Approved" => "var(--accent)",
+                            "Refunded" => "var(--success)",
+                            "Rejected" => "var(--rog-red,#e0393e)",
+                            "Cancelled" => "var(--text-muted)",
+                            _ => "var(--text-muted)"
+                        };
+                        <tr>
+                            <td>#@r.Id</td>
+                            <td><a href="/Admin/OrderDetail/@r.OrderId">#@r.OrderId</a></td>
+                            <td>@(r.User?.FullName ?? "—")</td>
+                            <td>@r.RequestTypeVi</td>
+                            <td style="max-width:180px;font-size:12.5px;">@r.Reason</td>
+                            <td><span style="background:@badgeColor;color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap;">@r.StatusVi</span></td>
+                            <td style="white-space:nowrap;font-size:12.5px;">@r.CreatedAt.ToString("HH:mm dd/MM")</td>
+                            <td><a href="/Return/AdminDetail/@r.Id" class="btn-action btn-view"><i class="fa fa-eye"></i> Xem</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

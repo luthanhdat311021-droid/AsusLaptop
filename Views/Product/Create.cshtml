@@ -1,0 +1,197 @@
+@model AsusLaptop.Models.Product
+@{
+    ViewData["Title"] = "Thêm sản phẩm mới";
+    Layout = "_Layout";
+}
+
+<div class="admin-wrap">
+    <div class="admin-header">
+        <h1 class="admin-title"><span>THÊM SẢN PHẨM</span> MỚI</h1>
+        <a href="/Admin/Products" class="btn-ghost"><i class="fa fa-arrow-left"></i> Quay lại</a>
+    </div>
+
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3><i class="fa fa-plus-circle"></i> Thông tin sản phẩm</h3>
+        </div>
+        <div style="padding:28px">
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="All" class="alert alert-danger" style="@(ViewData.ModelState.IsValid ? "display:none" : "")"></div>
+
+                <div class="form-row" style="margin-bottom:16px">
+                    <div class="form-group" style="grid-column:1/-1">
+                        <label class="form-label">Tên sản phẩm *</label>
+                        <input asp-for="Name" class="form-control" placeholder="VD: ASUS ROG Strix G16 G614JV" />
+                    </div>
+                </div>
+
+                <div class="form-row" style="margin-bottom:16px">
+                    <div class="form-group">
+                        <label class="form-label">Danh mục</label>
+                        <select asp-for="CategoryId" asp-items="ViewBag.Categories" class="form-control filter-select" style="width:100%">
+                            <option value="">-- Chọn danh mục --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Thương hiệu (Brands)</label>
+                        <select asp-for="BrandId" asp-items="ViewBag.Brands" class="form-control filter-select" style="width:100%">
+                            <option value="">-- Chọn thương hiệu --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row" style="margin-bottom:16px">
+                    <div class="form-group">
+                        <label class="form-label">Thương hiệu (text) *</label>
+                        <select asp-for="Brand" class="form-control filter-select" style="width:100%">
+                            <option value="ASUS">ASUS</option>
+                            <option value="Acer">Acer</option>
+                            <option value="Dell">Dell</option>
+                            <option value="HP">HP</option>
+                            <option value="Lenovo">Lenovo</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Dòng sản phẩm *</label>
+                        <select asp-for="Series" class="form-control filter-select" style="width:100%">
+                            <option value="ROG Strix">ROG Strix</option>
+                            <option value="ROG Zephyrus">ROG Zephyrus</option>
+                            <option value="ROG Flow">ROG Flow</option>
+                            <option value="TUF Gaming">TUF Gaming</option>
+                            <option value="ZenBook">ZenBook</option>
+                            <option value="VivoBook">VivoBook</option>
+                            <option value="ProArt">ProArt</option>
+                            <option value="ExpertBook">ExpertBook</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row" style="margin-bottom:16px">
+                    <div class="form-group">
+                        <label class="form-label">Giá bán (₫) *</label>
+                        <input asp-for="Price" class="form-control" placeholder="VD: 25990000" type="number" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Giá gốc (₫)</label>
+                        <input asp-for="OriginalPrice" class="form-control" placeholder="VD: 30000000" type="number" />
+                    </div>
+                </div>
+
+                <div class="form-row" style="margin-bottom:16px">
+                    <div class="form-group">
+                        <label class="form-label">Số lượng tồn kho *</label>
+                        <input asp-for="Quantity" class="form-control" placeholder="VD: 50" type="number" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">URL ảnh sản phẩm</label>
+                        <input asp-for="ImageUrl" class="form-control" placeholder="https://..." />
+                    </div>
+                </div>
+
+                <div class="form-row" style="margin-bottom:16px">
+                    <div class="form-group" style="flex:1">
+                        <label class="form-label">Link video đánh giá (YouTube)</label>
+                        <input asp-for="VideoUrl" class="form-control" placeholder="https://www.youtube.com/watch?v=..." />
+                        <small style="color:var(--text-muted,#888);font-size:12px;display:block;margin-top:4px">
+                            Dán link video YouTube review sản phẩm. Để trống nếu chưa có video.
+                        </small>
+                    </div>
+                </div>
+
+                <hr style="border-color:var(--border);margin:20px 0" />
+                <p style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;font-weight:700">Thông số kỹ thuật</p>
+
+                <div class="form-row" style="margin-bottom:16px">
+                    <div class="form-group">
+                        <label class="form-label">CPU</label>
+                        <input asp-for="CPU" class="form-control" placeholder="VD: Intel Core i7-13620H" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">GPU</label>
+                        <input asp-for="GPU" class="form-control" placeholder="VD: NVIDIA RTX 4060 8GB" />
+                    </div>
+                </div>
+
+                <div class="form-row" style="margin-bottom:16px">
+                    <div class="form-group">
+                        <label class="form-label">RAM</label>
+                        <input asp-for="RAM" class="form-control" placeholder="VD: 16 GB DDR5" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Ổ cứng</label>
+                        <input asp-for="Storage" class="form-control" placeholder="VD: 512 GB NVMe SSD" />
+                    </div>
+                </div>
+
+                <div class="form-row" style="margin-bottom:16px">
+                    <div class="form-group">
+                        <label class="form-label">Kích thước màn hình</label>
+                        <input asp-for="ScreenSize" class="form-control" placeholder="VD: 15.6 inch" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Độ phân giải</label>
+                        <input asp-for="ScreenResolution" class="form-control" placeholder="VD: FHD 144Hz" />
+                    </div>
+                </div>
+
+                <div class="form-row" style="margin-bottom:16px">
+                    <div class="form-group">
+                        <label class="form-label">Pin</label>
+                        <input asp-for="Battery" class="form-control" placeholder="VD: 90 WHr" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Trọng lượng</label>
+                        <input asp-for="Weight" class="form-control" placeholder="VD: 2.2 kg" />
+                    </div>
+                </div>
+
+                <div class="form-row" style="margin-bottom:16px">
+                    <div class="form-group">
+                        <label class="form-label">Hệ điều hành</label>
+                        <input asp-for="OS" class="form-control" placeholder="VD: Windows 11 Home" />
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:20px">
+                    <label class="form-label">Mô tả sản phẩm</label>
+                    <textarea asp-for="Description" class="form-control" rows="4" placeholder="Mô tả chi tiết về sản phẩm..."></textarea>
+                </div>
+
+                <div style="display:flex;align-items:center;gap:10px;margin:-8px 0 20px">
+                    <button type="button" id="aiDescriptionBtn" onclick="generateAiDescription()" class="btn-ghost" style="border-color:#ff4d00;color:#d64200">
+                        <i class="fa fa-wand-magic-sparkles"></i> AI tạo mô tả
+                    </button>
+                    <span id="aiDescriptionStatus" style="font-size:12px;color:#777">Dựa trên thông số bạn đã nhập</span>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn-add"><i class="fa fa-save"></i> Lưu sản phẩm</button>
+                    <a href="/Admin/Products" class="btn-ghost"><i class="fa fa-times"></i> Hủy</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+async function generateAiDescription() {
+    const value = id => (document.getElementById(id)?.value || '').trim();
+    const button = document.getElementById('aiDescriptionBtn');
+    const status = document.getElementById('aiDescriptionStatus');
+    const description = document.getElementById('Description');
+    if (!value('Name')) { status.textContent = 'Hãy nhập tên sản phẩm trước.'; document.getElementById('Name')?.focus(); return; }
+    button.disabled = true; status.innerHTML = '<i class="fa fa-spinner fa-spin"></i> AI đang viết mô tả...';
+    try {
+        const response = await fetch('/Product/GenerateDescription', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name:value('Name'), brand:value('Brand'), series:value('Series'), price:Number(value('Price')) || 0, cpu:value('CPU'), ram:value('RAM'), storage:value('Storage'), gpu:value('GPU'), screenSize:value('ScreenSize'), screenResolution:value('ScreenResolution'), battery:value('Battery'), weight:value('Weight'), os:value('OS') })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'Không thể tạo mô tả.');
+        description.value = data.description; status.textContent = 'Đã tạo mô tả — bạn có thể chỉnh sửa trước khi lưu.';
+    } catch (error) { status.textContent = error.message; }
+    finally { button.disabled = false; }
+}
+</script>
+<script src="~/js/product-autofill.js"></script>

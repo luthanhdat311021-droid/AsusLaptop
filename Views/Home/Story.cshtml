@@ -1,0 +1,342 @@
+@model IEnumerable<AsusLaptop.Models.Product>
+@{
+    ViewData["Title"] = "ASUS Storytelling — Hành Trình Công Nghệ & Chế Tác";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var rogProduct = ViewBag.RogProduct as AsusLaptop.Models.Product;
+    var zenbookProduct = ViewBag.ZenbookProduct as AsusLaptop.Models.Product;
+    var proartProduct = ViewBag.ProartProduct as AsusLaptop.Models.Product;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/scrollytelling.css" />
+}
+
+<div class="st-wrapper">
+    <div class="st-ambient-bg"></div>
+    <div class="st-grid-overlay"></div>
+
+    <!-- AUDIO TOGGLE BUTTON -->
+    <div class="st-audio-toggle muted" id="stAudioToggle" title="Bật/Tắt âm thanh trải nghiệm Scrollytelling">
+        <div class="st-sound-waves">
+            <span class="st-sound-bar"></span>
+            <span class="st-sound-bar"></span>
+            <span class="st-sound-bar"></span>
+        </div>
+        <span class="st-audio-text">Âm thanh: Tắt</span>
+    </div>
+
+    <!-- FLOATING SIDEBAR CHAPTER INDICATORS -->
+    <div class="st-side-nav">
+        <div class="st-nav-dot active" data-chapter="1">
+            <span class="st-nav-label">Chương 01: Khởi Nguyên</span>
+        </div>
+        <div class="st-nav-dot" data-chapter="2">
+            <span class="st-nav-label">Chương 02: Triết Lý Thiết Kế</span>
+        </div>
+        <div class="st-nav-dot" data-chapter="3">
+            <span class="st-nav-label">Chương 03: Chế Tác & AI</span>
+        </div>
+        <div class="st-nav-dot" data-chapter="4">
+            <span class="st-nav-label">Chương 04: Hành Trình 24H</span>
+        </div>
+        <div class="st-nav-dot" data-chapter="5">
+            <span class="st-nav-label">Chương 05: Biểu Tượng Kiệt Tác</span>
+        </div>
+    </div>
+
+    <!-- CHAPTER 01: PROLOGUE & HERO HOOK (PURE STORYTELLING - NO BUTTONS) -->
+    <section class="st-chapter-hero" id="chapter1">
+        <div class="st-hero-badge">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> SCROLLYTELLING EXPERIENCE
+        </div>
+        <h1 class="st-hero-title">
+            KHI CÔNG NGHỆ BÙNG NỔ<br />THÀNH KIỆT TÁC NGHỆ THUẬT
+        </h1>
+        <p class="st-hero-subtitle">
+            Hành trình kéo dài hàng thập kỷ của ASUS — nơi từng milimét nhôm gốm Ceraluminum™ và từng nhân NPU AI được nhào nặn thành đỉnh cao chế tác. Cuộn trang để đắm chìm vào câu chuyện tiến hóa.
+        </p>
+
+        <!-- ELEGANT SCROLL CUE (NO BUTTON) -->
+        <div class="st-scroll-guide">
+            <div class="st-scroll-mouse">
+                <span class="st-scroll-wheel"></span>
+            </div>
+            <span class="st-scroll-text">CUỘN TRANG ĐỂ KHÁM PHÁ CÂU CHUYỆN</span>
+        </div>
+    </section>
+
+    <!-- CHAPTER 02 & 03: SCROLLYTELLING MAIN STAGE & CARDS -->
+    <section class="st-scrolly-section" id="scrollyMain">
+        <div class="st-scrolly-grid">
+            
+            <!-- STICKY VISUAL STAGE (LEFT COLUMN) -->
+            <div class="st-sticky-stage">
+                <!-- Stage Scene 1: ROG Genesis -->
+                <div class="st-stage-content active" id="stage-ch1">
+                    <span class="st-stage-badge"><i class="fa-solid fa-gamepad"></i> ROG CYBERNETIC ERA</span>
+                    <img src="~/image/rog_bg.png" alt="ROG Flagship" class="st-stage-img" onerror="this.src='https://images.unsplash.com/photo-1603302576837-37561b2e2302?auto=format&fit=crop&w=800&q=80'" />
+                    <div class="st-stage-caption">
+                        <h4 class="st-stage-title">ROG STRIX SCAR 18</h4>
+                        <p class="st-stage-desc">Biểu Tượng Sức Mạnh Gaming Tối Thượng</p>
+                    </div>
+                </div>
+
+                <!-- Stage Scene 2: Precision Craft -->
+                <div class="st-stage-content" id="stage-ch2">
+                    <span class="st-stage-badge"><i class="fa-solid fa-feather"></i> ZENBOOK LUMINA OLED</span>
+                    <img src="~/image/zenbook_bg.png" alt="ZenBook Craft" class="st-stage-img" onerror="this.src='https://images.unsplash.com/photo-1541807084-5c52b6b3adef?auto=format&fit=crop&w=800&q=80'" />
+                    <div class="st-stage-caption">
+                        <h4 class="st-stage-title" style="color: var(--st-purple);">ZENBOOK S 16 CERALUMINUM</h4>
+                        <p class="st-stage-desc">Hợp Kim Gốm Nhôm Siêu Nhẹ 1.2kg</p>
+                    </div>
+                </div>
+
+                <!-- Stage Scene 3: Exploded View & Hotspots -->
+                <div class="st-stage-content" id="stage-ch3">
+                    <span class="st-stage-badge"><i class="fa-solid fa-microchip"></i> EXPLODED HARDWARE VIEW</span>
+                    <div class="st-hotspots-stage">
+                        <img src="https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?auto=format&fit=crop&w=800&q=80" alt="Hardware View" class="st-stage-img" style="opacity: 0.85; filter: contrast(1.2) brightness(0.9);" />
+                        
+                        <!-- Interactive Hotspot Nodes -->
+                        <div class="st-hotspot-node st-hp-cpu">
+                            <div class="st-hotspot-tooltip">
+                                <strong>Intel Core Ultra 9 NPU</strong><br />Tích hợp nhân AI tăng tốc xử lý real-time.
+                            </div>
+                        </div>
+
+                        <div class="st-hotspot-node st-hp-gpu">
+                            <div class="st-hotspot-tooltip">
+                                <strong>NVIDIA RTX 4090 16GB</strong><br />Sức mạnh Ray Tracing & DLSS 3.5.
+                            </div>
+                        </div>
+
+                        <div class="st-hotspot-node st-hp-display">
+                            <div class="st-hotspot-tooltip">
+                                <strong>Màn Hình ROG Nebula 240Hz</strong><br />Độ sáng 1100 nits, Mini-LED chuẩn HDR.
+                            </div>
+                        </div>
+
+                        <div class="st-hotspot-node st-hp-fan">
+                            <div class="st-hotspot-tooltip">
+                                <strong>ROG Intelligent Cooling</strong><br />Tản nhiệt keo kim loại lỏng Liquid Metal.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- NARRATIVE CARDS COLUMN (RIGHT COLUMN - PURE STORYTELLING) -->
+            <div class="st-cards-col">
+                
+                <!-- CARD 1 -->
+                <div class="st-story-card is-active" data-stage="stage-ch1" data-chapter="1">
+                    <div class="st-card-ch-num">CHƯƠNG 01 — TRIẾT LÝ CẢM CỨNG</div>
+                    <h3 class="st-card-title">Thiết Kế Cyberpunk Mang Hơi Thở Tương Lai</h3>
+                    <p class="st-card-desc">
+                        Không chỉ là chiếc máy tính cá nhân, mỗi đường nét trên ASUS ROG đại diện cho tinh thần bứt phá mọi giới hạn của game thủ chuyên nghiệp. Khung vỏ hợp kim tối màu kết hợp cùng dải đèn RGB Aura Sync tạo nên không gian trải nghiệm huyền ảo.
+                    </p>
+                    <div class="st-card-specs-list">
+                        <div class="st-spec-item">
+                            <span class="st-spec-val">240Hz / 3ms</span>
+                            <span class="st-spec-lbl">Màn Hình Nebula</span>
+                        </div>
+                        <div class="st-spec-item">
+                            <span class="st-spec-val">Aura Sync</span>
+                            <span class="st-spec-lbl">Đèn Led RGB Đa Chiều</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 2 -->
+                <div class="st-story-card" data-stage="stage-ch2" data-chapter="2">
+                    <div class="st-card-ch-num">CHƯƠNG 02 — KIỆT TÁC CHẾ TÁC</div>
+                    <h3 class="st-card-title">Công Nghệ Ceraluminum™ & Màn Hình OLED Lumina</h3>
+                    <p class="st-card-desc">
+                        Dòng ZenBook phá vỡ định kiến về độ bền và mỏng nhẹ. Chất liệu Ceraluminum™ độc quyền kết hợp gốm và nhôm thông qua quá trình oxy hóa tự nhiên, tạo bề mặt chống bám vân tay, chống xước vượt trội mà vẫn giữ nét tối giản thanh lịch.
+                    </p>
+                    <div class="st-card-specs-list">
+                        <div class="st-spec-item">
+                            <span class="st-spec-val">1.2 kg</span>
+                            <span class="st-spec-lbl">Trọng Lượng Siêu Nhẹ</span>
+                        </div>
+                        <div class="st-spec-item">
+                            <span class="st-spec-val">3.2K OLED</span>
+                            <span class="st-spec-lbl">Chuẩn Màu 100% DCI-P3</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 3 -->
+                <div class="st-story-card" data-stage="stage-ch3" data-chapter="3">
+                    <div class="st-card-ch-num">CHƯƠNG 03 — KỶ NGUYÊN TRÍ TUỆ AI</div>
+                    <h3 class="st-card-title">Sức Mạnh NPU Tích Hợp & Tản Nhiệt Thông Minh</h3>
+                    <p class="st-card-desc">
+                        Bộ vi xử lý tích hợp NPU (Neural Processing Unit) chuyên dụng mở ra kỷ nguyên AI PC: Tự động tối ưu hóa pin, tăng tốc đồ họa rendering 3D và bảo vệ dữ liệu cá nhân theo thời gian thực mà không tiêu tốn điện năng CPU.
+                    </p>
+                    <div class="st-card-specs-list">
+                        <div class="st-spec-item">
+                            <span class="st-spec-val">45+ TOPS</span>
+                            <span class="st-spec-lbl">Hiệu Năng AI Copilot</span>
+                        </div>
+                        <div class="st-spec-item">
+                            <span class="st-spec-val">Tri-Fan Tech</span>
+                            <span class="st-spec-lbl">Tản Nhiệt 3 Quạt Êm Ái</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- CHAPTER 04: CONTINUOUS STORYLINE - DAY IN THE LIFE (NO BUTTON TABS) -->
+    <section class="st-persona-section" id="chapter4">
+        <div class="st-section-header">
+            <div class="st-hero-badge" style="background: rgba(157, 78, 221, 0.12); border-color: rgba(157, 78, 221, 0.35); color: var(--st-purple);">
+                CHƯƠNG 04 — HÀNH TRÌNH THỰC TẾ
+            </div>
+            <h2 class="st-section-title">24 Giờ Đồng Hành Cùng Mọi Lối Sống</h2>
+            <p class="st-section-subtitle">Dòng máy ASUS hòa quyện hoàn hảo vào nhịp sống thường nhật từ sáng sớm đến đêm muộn.</p>
+        </div>
+
+        <div class="st-storyline-matrix">
+            
+            <!-- STREAM 1: GAMER PRO -->
+            <div class="st-storyline-col">
+                <div class="st-stream-header">
+                    <i class="fa-solid fa-gamepad" style="color: var(--st-cyan);"></i>
+                    <span>Game Thủ Pro</span>
+                </div>
+                <div class="st-timeline-card">
+                    <div class="st-tl-time">08:00 AM</div>
+                    <h4 class="st-tl-title">Warm-up & Strategy</h4>
+                    <p class="st-tl-desc">Màn hình Nebula 240Hz hiển thị đồ họa mượt mà không vệt mờ, tạo lợi thế đè đường phản xạ từ giây đầu.</p>
+                </div>
+                <div class="st-timeline-card">
+                    <div class="st-tl-time">02:00 PM</div>
+                    <h4 class="st-tl-title">Max-Setting Cyberpunk 2077</h4>
+                    <p class="st-tl-desc">Tản nhiệt Vapor Chamber 3 quạt giữ CPU/GPU luôn ở nhiệt độ tối ưu 68°C kể cả khi bật Full Ray Tracing.</p>
+                </div>
+                <div class="st-timeline-card">
+                    <div class="st-tl-time">09:00 PM</div>
+                    <h4 class="st-tl-title">Livestream 4K Tournament</h4>
+                    <p class="st-tl-desc">Card mạng Wi-Fi 6E cùng NPU AI tự động ưu tiên băng thông game, loại bỏ hoàn toàn độ trễ lag.</p>
+                </div>
+            </div>
+
+            <!-- STREAM 2: CREATOR -->
+            <div class="st-storyline-col">
+                <div class="st-stream-header">
+                    <i class="fa-solid fa-wand-magic" style="color: var(--st-purple);"></i>
+                    <span>Nhà Sáng Tạo Content</span>
+                </div>
+                <div class="st-timeline-card">
+                    <div class="st-tl-time">09:30 AM</div>
+                    <h4 class="st-tl-title">Render Video 8K ProRes</h4>
+                    <p class="st-tl-desc">32GB LPDDR5X RAM & Card đồ họa RTX 4080 xử lý mượt mà hàng trăm hiệu ứng After Effects cùng lúc.</p>
+                </div>
+                <div class="st-timeline-card">
+                    <div class="st-tl-time">03:15 PM</div>
+                    <h4 class="st-tl-title">Color Grading OLED Lumina</h4>
+                    <p class="st-tl-desc">Độ phủ màu 100% DCI-P3 & chuẩn Pantone Validated đem đến độ chính xác màu sắc tuyệt đối từng pixel.</p>
+                </div>
+                <div class="st-timeline-card">
+                    <div class="st-tl-time">08:30 PM</div>
+                    <h4 class="st-tl-title">Chỉnh Sửa Nhạc & Studio Design</h4>
+                    <p class="st-tl-desc">Hệ thống 6 loa Dolby Atmos mang tới chất âm vòm chân thực, cân chuẩn từng âm tần sản xuất.</p>
+                </div>
+            </div>
+
+            <!-- STREAM 3: EXECUTIVE -->
+            <div class="st-storyline-col">
+                <div class="st-stream-header">
+                    <i class="fa-solid fa-user-tie" style="color: var(--st-amber);"></i>
+                    <span>Doanh Nhân & Chuyên Gia</span>
+                </div>
+                <div class="st-timeline-card">
+                    <div class="st-tl-time">07:30 AM</div>
+                    <h4 class="st-tl-title">Họp Board Meeting Trên Máy Bay</h4>
+                    <p class="st-tl-desc">Trọng lượng siêu nhẹ chỉ 1.2kg và vỏ hợp kim Ceraluminum chống xước cao cấp, di chuyển linh hoạt.</p>
+                </div>
+                <div class="st-timeline-card">
+                    <div class="st-tl-time">01:00 PM</div>
+                    <h4 class="st-tl-title">AI Noise Canceling & FaceID</h4>
+                    <p class="st-tl-desc">Camera IR AI lọc sạch 99% tiếng ồn xung quanh và đăng nhập bảo mật trong 0.5 giây.</p>
+                </div>
+                <div class="st-timeline-card">
+                    <div class="st-tl-time">11:00 PM</div>
+                    <h4 class="st-tl-title">Pin 75Wh Cả Ngày Dài</h4>
+                    <p class="st-tl-desc">Thời lượng pin tới 14 tiếng hoạt động liên tục không cần mang theo cục sạc vướng bận.</p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- CHAPTER 05: FINALE MODEL NARRATIVE SHOWCASE (NO BUY BUTTONS) -->
+    <section class="st-finale-section" id="chapter5">
+        <div class="st-section-header">
+            <div class="st-hero-badge" style="background: rgba(255, 0, 85, 0.12); border-color: rgba(255, 0, 85, 0.35); color: var(--st-pink);">
+                CHƯƠNG 05 — BIỂU TƯỢNG KIỆT TÁC
+            </div>
+            <h2 class="st-section-title">Những Dòng Máy Định Hình Tương Lai</h2>
+            <p class="st-section-subtitle">Chính sách bảo hành toàn cầu 2 năm — Giao hàng VIP 2 giờ — Hỗ trợ kỹ thuật 24/7.</p>
+        </div>
+
+        <div class="st-compare-matrix">
+            
+            <!-- MODEL 1: ROG STRIX SCAR -->
+            <a href="@(rogProduct != null ? $"/Product/Details/{rogProduct.Id}" : "/Product")" class="st-matrix-card">
+                <div class="st-matrix-tag">FLAGSHIP GAMING</div>
+                <img src="@(rogProduct?.ImageUrl ?? "https://images.unsplash.com/photo-1603302576837-37561b2e2302?auto=format&fit=crop&w=600&q=80")" alt="ROG Strix" class="st-matrix-img" />
+                <h3 class="st-matrix-name">@(rogProduct?.Name ?? "ASUS ROG Strix Scar 18")</h3>
+                <div class="st-matrix-price">@(rogProduct != null ? rogProduct.Price.ToString("N0") + "₫" : "79.990.000₫")</div>
+                <ul class="st-matrix-features">
+                    <li><i class="fa-solid fa-check" style="color: var(--st-cyan);"></i> Intel Core i9 / RTX 4090</li>
+                    <li><i class="fa-solid fa-check" style="color: var(--st-cyan);"></i> 32GB DDR5 / 2TB SSD NVMe</li>
+                    <li><i class="fa-solid fa-check" style="color: var(--st-cyan);"></i> Màn hình ROG Nebula 240Hz</li>
+                    <li><i class="fa-solid fa-check" style="color: var(--st-cyan);"></i> Bàn phím cơ Per-Key RGB</li>
+                </ul>
+                <span class="st-model-link-text">Khám Phá Chi Tiết Dòng Máy <i class="fa-solid fa-arrow-right"></i></span>
+            </a>
+
+            <!-- MODEL 2: ZENBOOK OLED -->
+            <a href="@(zenbookProduct != null ? $"/Product/Details/{zenbookProduct.Id}" : "/Product")" class="st-matrix-card">
+                <div class="st-matrix-tag" style="background: rgba(157, 78, 221, 0.15); color: var(--st-purple); border-color: rgba(157, 78, 221, 0.35);">ULTRA SLIM CRAFT</div>
+                <img src="@(zenbookProduct?.ImageUrl ?? "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?auto=format&fit=crop&w=600&q=80")" alt="ZenBook OLED" class="st-matrix-img" />
+                <h3 class="st-matrix-name">@(zenbookProduct?.Name ?? "ASUS ZenBook S 16 OLED")</h3>
+                <div class="st-matrix-price">@(zenbookProduct != null ? zenbookProduct.Price.ToString("N0") + "₫" : "39.990.000₫")</div>
+                <ul class="st-matrix-features">
+                    <li><i class="fa-solid fa-check" style="color: var(--st-cyan);"></i> AMD Ryzen AI 9 365 NPU</li>
+                    <li><i class="fa-solid fa-check" style="color: var(--st-cyan);"></i> Màn hình 3.2K OLED 120Hz</li>
+                    <li><i class="fa-solid fa-check" style="color: var(--st-cyan);"></i> Vỏ gốm gốm nhôm Ceraluminum</li>
+                    <li><i class="fa-solid fa-check" style="color: var(--st-cyan);"></i> Thời lượng pin lên tới 14h</li>
+                </ul>
+                <span class="st-model-link-text">Khám Phá Chi Tiết Dòng Máy <i class="fa-solid fa-arrow-right"></i></span>
+            </a>
+
+            <!-- MODEL 3: PROART / VIVOBOOK -->
+            <a href="@(proartProduct != null ? $"/Product/Details/{proartProduct.Id}" : "/Product")" class="st-matrix-card">
+                <div class="st-matrix-tag" style="background: rgba(255, 183, 3, 0.15); color: var(--st-amber); border-color: rgba(255, 183, 3, 0.35);">CREATOR STUDIO</div>
+                <img src="@(proartProduct?.ImageUrl ?? "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=600&q=80")" alt="ASUS ProArt" class="st-matrix-img" />
+                <h3 class="st-matrix-name">@(proartProduct?.Name ?? "ASUS ProArt Studiobook")</h3>
+                <div class="st-matrix-price">@(proartProduct != null ? proartProduct.Price.ToString("N0") + "₫" : "54.990.000₫")</div>
+                <ul class="st-matrix-features">
+                    <li><i class="fa-solid fa-check" style="color: var(--st-cyan);"></i> Core Ultra 9 / RTX 4070</li>
+                    <li><i class="fa-solid fa-check" style="color: var(--st-cyan);"></i> Nút DialPad đồ họa vật lý</li>
+                    <li><i class="fa-solid fa-check" style="color: var(--st-cyan);"></i> Chuẩn màu Calman Verified</li>
+                    <li><i class="fa-solid fa-check" style="color: var(--st-cyan);"></i> Cổng kết nối Thunderbolt 4</li>
+                </ul>
+                <span class="st-model-link-text">Khám Phá Chi Tiết Dòng Máy <i class="fa-solid fa-arrow-right"></i></span>
+            </a>
+
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/scrollytelling.js"></script>
+}

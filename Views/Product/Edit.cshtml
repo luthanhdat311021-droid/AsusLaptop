@@ -1,0 +1,284 @@
+@model AsusLaptop.Models.Product
+@{
+    ViewData["Title"] = "Chỉnh sửa sản phẩm";
+}
+
+<div class="admin-wrap">
+    <div class="admin-header">
+        <h1 class="admin-title">CHỈNH SỬA <span>SẢN PHẨM</span></h1>
+        <a href="/Admin/Products" class="btn-ghost"><i class="fa fa-arrow-left"></i> Quay lại</a>
+    </div>
+
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3><i class="fa fa-edit"></i> #@Model.Id — @Model.Name</h3>
+        </div>
+        <div style="padding:28px">
+            <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="CreatedAt" />
+
+                <div asp-validation-summary="All" class="alert alert-danger"></div>
+
+                <div class="form-group" style="margin-bottom:16px">
+                    <label class="form-label">Tên sản phẩm *</label>
+                    <input asp-for="Name" class="form-control" />
+                </div>
+
+                <div class="form-row" style="margin-bottom:16px">
+                    <div class="form-group">
+                        <label class="form-label">Danh mục</label>
+                        <select asp-for="CategoryId" asp-items="ViewBag.Categories" class="form-control filter-select" style="width:100%">
+                            <option value="">-- Chọn danh mục --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Thương hiệu (Brands)</label>
+                        <select asp-for="BrandId" asp-items="ViewBag.Brands" class="form-control filter-select" style="width:100%">
+                            <option value="">-- Chọn thương hiệu --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row" style="margin-bottom:16px">
+                    <div class="form-group">
+                        <label class="form-label">Thương hiệu (text)</label>
+                        <select asp-for="Brand" class="form-control filter-select" style="width:100%">
+                            <option value="ASUS">ASUS</option>
+                            <option value="Acer">Acer</option>
+                            <option value="Dell">Dell</option>
+                            <option value="HP">HP</option>
+                            <option value="Lenovo">Lenovo</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Dòng sản phẩm</label>
+                        <select asp-for="Series" class="form-control filter-select" style="width:100%">
+                            <option value="ROG Strix">ROG Strix</option>
+                            <option value="ROG Zephyrus">ROG Zephyrus</option>
+                            <option value="ROG Flow">ROG Flow</option>
+                            <option value="TUF Gaming">TUF Gaming</option>
+                            <option value="ZenBook">ZenBook</option>
+                            <option value="VivoBook">VivoBook</option>
+                            <option value="ProArt">ProArt</option>
+                            <option value="ExpertBook">ExpertBook</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row" style="margin-bottom:16px">
+                    <div class="form-group">
+                        <label class="form-label">Giá bán (₫)</label>
+                        <input asp-for="Price" class="form-control" type="number" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Giá gốc (₫)</label>
+                        <input asp-for="OriginalPrice" class="form-control" type="number" />
+                    </div>
+                </div>
+
+                <div class="form-row" style="margin-bottom:16px">
+                    <div class="form-group">
+                        <label class="form-label">Số lượng tồn</label>
+                        <input asp-for="Quantity" class="form-control" type="number" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">URL ảnh</label>
+                        <input asp-for="ImageUrl" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="form-row" style="margin-bottom:16px">
+                    <div class="form-group" style="flex:1">
+                        <label class="form-label">Link video đánh giá (YouTube)</label>
+                        <input asp-for="VideoUrl" class="form-control" placeholder="https://www.youtube.com/watch?v=..." />
+                        <small style="color:var(--text-muted,#888);font-size:12px;display:block;margin-top:4px">
+                            Dán link video YouTube review sản phẩm. Để trống nếu chưa có video.
+                        </small>
+                    </div>
+                </div>
+
+                <hr style="border-color:var(--border);margin:20px 0" />
+
+                <div class="form-row" style="margin-bottom:16px">
+                    <div class="form-group" style="flex:1">
+                        <label class="form-label">Thư viện ảnh sản phẩm (nhiều góc chụp)</label>
+                        <div style="display:flex;gap:8px;margin-bottom:12px;">
+                            <input type="text" id="newImgUrl" class="form-control" placeholder="https://... (URL ảnh)" style="flex:1" />
+                            <button type="button" class="btn-primary" onclick="addGalleryImage()" style="white-space:nowrap;padding:0 18px;">
+                                <i class="fa fa-plus"></i> Thêm ảnh
+                            </button>
+                        </div>
+                        <div id="galleryGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;">
+                            <div style="grid-column:1/-1;color:var(--text-muted,#888);font-size:12.5px;">Đang tải...</div>
+                        </div>
+                        <small style="color:var(--text-muted,#888);font-size:12px;display:block;margin-top:8px">
+                            Ảnh đầu tiên (viền cam) là ảnh chính hiển thị mặc định. Bấm vào ảnh khác để đặt làm ảnh chính.
+                        </small>
+                    </div>
+                </div>
+
+                <hr style="border-color:var(--border);margin:20px 0" />
+
+                <div class="form-row" style="margin-bottom:16px">
+                    <div class="form-group">
+                        <label class="form-label">CPU</label>
+                        <input asp-for="CPU" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">GPU</label>
+                        <input asp-for="GPU" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="form-row" style="margin-bottom:16px">
+                    <div class="form-group">
+                        <label class="form-label">RAM</label>
+                        <input asp-for="RAM" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Ổ cứng</label>
+                        <input asp-for="Storage" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="form-row" style="margin-bottom:16px">
+                    <div class="form-group">
+                        <label class="form-label">Màn hình</label>
+                        <input asp-for="ScreenSize" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Độ phân giải</label>
+                        <input asp-for="ScreenResolution" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="form-row" style="margin-bottom:16px">
+                    <div class="form-group">
+                        <label class="form-label">Pin</label>
+                        <input asp-for="Battery" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Trọng lượng</label>
+                        <input asp-for="Weight" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="form-row" style="margin-bottom:16px">
+                    <div class="form-group">
+                        <label class="form-label">Hệ điều hành</label>
+                        <input asp-for="OS" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:20px">
+                    <label class="form-label">Mô tả</label>
+                    <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                </div>
+
+                <div style="display:flex;align-items:center;gap:10px;margin:-8px 0 20px">
+                    <button type="button" id="aiDescriptionBtn" onclick="generateAiDescription()" class="btn-ghost" style="border-color:#ff4d00;color:#d64200">
+                        <i class="fa fa-wand-magic-sparkles"></i> AI tạo mô tả
+                    </button>
+                    <span id="aiDescriptionStatus" style="font-size:12px;color:#777">Dựa trên thông số bạn đã nhập</span>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn-add"><i class="fa fa-save"></i> Cập nhật</button>
+                    <a href="/Admin/Products" class="btn-ghost"><i class="fa fa-times"></i> Hủy</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        var productId = @Model.Id;
+        var grid = document.getElementById('galleryGrid');
+
+        function token() {
+            var el = document.querySelector('input[name="__RequestVerificationToken"]');
+            return el ? el.value : '';
+        }
+
+        function postForm(url, params) {
+            var body = new URLSearchParams(params);
+            return fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'RequestVerificationToken': token() },
+                body: body
+            }).then(function (r) { return r.json(); });
+        }
+
+        function render(images) {
+            if (!images.length) {
+                grid.innerHTML = '<div style="grid-column:1/-1;color:var(--text-muted,#888);font-size:12.5px;">Chưa có ảnh nào trong thư viện.</div>';
+                return;
+            }
+            grid.innerHTML = images.map(function (img) {
+                return '<div style="position:relative;border:2px solid ' + (img.isPrimary ? 'var(--accent,#ff8c00)' : 'var(--border,#ddd)') + ';border-radius:8px;overflow:hidden;cursor:pointer;aspect-ratio:1/1;" data-id="' + img.id + '" class="gallery-thumb">' +
+                    '<img src="' + img.imageUrl + '" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.opacity=0.2" />' +
+                    '<button type="button" class="gallery-del-btn" data-id="' + img.id + '" style="position:absolute;top:3px;right:3px;width:22px;height:22px;border-radius:50%;border:none;background:rgba(220,50,50,.9);color:#fff;font-size:11px;cursor:pointer;">×</button>' +
+                    (img.isPrimary ? '<span style="position:absolute;bottom:0;left:0;right:0;background:var(--accent,#ff8c00);color:#fff;font-size:9.5px;text-align:center;padding:2px;">ẢNH CHÍNH</span>' : '') +
+                    '</div>';
+            }).join('');
+
+            grid.querySelectorAll('.gallery-thumb').forEach(function (el) {
+                el.addEventListener('click', function (e) {
+                    if (e.target.classList.contains('gallery-del-btn')) return;
+                    postForm('/Product/SetPrimaryImage', { id: this.dataset.id }).then(loadGallery);
+                });
+            });
+            grid.querySelectorAll('.gallery-del-btn').forEach(function (btn) {
+                btn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    if (!confirm('Xoá ảnh này khỏi thư viện?')) return;
+                    postForm('/Product/DeleteImage', { id: this.dataset.id }).then(loadGallery);
+                });
+            });
+        }
+
+        function loadGallery() {
+            fetch('/Product/Images?productId=' + productId)
+                .then(function (r) { return r.json(); })
+                .then(render)
+                .catch(function () { grid.innerHTML = '<div style="grid-column:1/-1;color:#c00;font-size:12.5px;">Lỗi tải thư viện ảnh.</div>'; });
+        }
+
+        window.addGalleryImage = function () {
+            var input = document.getElementById('newImgUrl');
+            var url = input.value.trim();
+            if (!url) { alert('Vui lòng nhập URL ảnh'); return; }
+            postForm('/Product/AddImage', { productId: productId, imageUrl: url }).then(function (res) {
+                if (res.success) { input.value = ''; loadGallery(); }
+                else alert(res.message || 'Có lỗi xảy ra');
+            });
+        };
+
+        loadGallery();
+    })();
+</script>
+<script src="~/js/product-autofill.js"></script>
+
+<script>
+async function generateAiDescription() {
+    const value = id => (document.getElementById(id)?.value || '').trim();
+    const button = document.getElementById('aiDescriptionBtn');
+    const status = document.getElementById('aiDescriptionStatus');
+    const description = document.getElementById('Description');
+    if (!value('Name')) { status.textContent = 'Hãy nhập tên sản phẩm trước.'; document.getElementById('Name')?.focus(); return; }
+    button.disabled = true; status.innerHTML = '<i class="fa fa-spinner fa-spin"></i> AI đang viết mô tả...';
+    try {
+        const response = await fetch('/Product/GenerateDescription', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name:value('Name'), brand:value('Brand'), series:value('Series'), price:Number(value('Price')) || 0, cpu:value('CPU'), ram:value('RAM'), storage:value('Storage'), gpu:value('GPU'), screenSize:value('ScreenSize'), screenResolution:value('ScreenResolution'), battery:value('Battery'), weight:value('Weight'), os:value('OS') })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'Không thể tạo mô tả.');
+        description.value = data.description; status.textContent = 'Đã tạo mô tả — bạn có thể chỉnh sửa trước khi lưu.';
+    } catch (error) { status.textContent = error.message; }
+    finally { button.disabled = false; }
+}
+</script>

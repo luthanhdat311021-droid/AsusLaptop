@@ -1,0 +1,52 @@
+@model List<AsusLaptop.Models.WishlistItem>
+@{
+    ViewData["Title"] = "Sản phẩm yêu thích";
+    Layout = "_Layout";
+}
+
+<div class="account-wrap" style="max-width:1100px">
+    <h1 class="section-title" style="margin-bottom:24px;"><i class="fa fa-heart" style="color:var(--accent);margin-right:10px;"></i>Sản phẩm yêu thích</h1>
+
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <i class="fa fa-heart-broken"></i>
+            <h3>Bạn chưa có sản phẩm yêu thích nào</h3>
+            <p><a href="/" style="color:var(--accent);font-weight:700;">Khám phá sản phẩm ngay →</a></p>
+        </div>
+    }
+    else
+    {
+        <div class="products-grid">
+            @foreach (var item in Model)
+            {
+                var p = item.Product;
+                if (p == null) continue;
+                <div class="product-card">
+                    @if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Admin") || User.IsInRole("SubAdmin")))
+                    {
+                        <a href="/Product/Edit/@p.Id" class="product-edit-btn" title="Chỉnh sửa sản phẩm">
+                            <i class="fa fa-pen"></i>
+                        </a>
+                    }
+                    <a href="@Url.Action("Details", "Product", new { id = p.Id })" class="product-img">
+                        <img src="@p.ImageUrl" alt="@p.Name" />
+                    </a>
+                    <div class="product-body">
+                        <a href="@Url.Action("Details", "Product", new { id = p.Id })" class="product-name">
+                            @p.Name
+                        </a>
+                        <div class="product-price" style="margin-bottom:12px;">@p.Price.ToString("N0")₫</div>
+                        <form method="post" asp-action="Remove" asp-controller="Wishlist">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@item.Id" />
+                            <button type="submit" class="btn-action btn-delete" style="width:100%;justify-content:center;padding:10px;">
+                                <i class="fa fa-trash"></i> Bỏ yêu thích
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

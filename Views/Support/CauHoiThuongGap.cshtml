@@ -1,0 +1,105 @@
+@{
+    ViewData["Title"] = "Câu hỏi thường gặp";
+}
+
+<div class="support-page">
+    <div class="support-hero">
+        <i class="fa fa-question-circle support-hero-icon" style="color:var(--accent2)"></i>
+        <h1>Câu Hỏi Thường Gặp</h1>
+        <p>Giải đáp nhanh các thắc mắc phổ biến của khách hàng</p>
+    </div>
+
+    <div class="support-container">
+        <div class="support-card">
+            <h3><i class="fa fa-shopping-bag" style="color:var(--accent)"></i> Về mua hàng</h3>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Sản phẩm có phải hàng chính hãng không?</span>
+                        <i class="fa fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        100% sản phẩm tại ASUS Laptop Store là hàng chính hãng ASUS Việt Nam, có đầy đủ tem bảo hành và hoá đơn VAT. Chúng tôi là đại lý ủy quyền chính thức của ASUS.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Tôi có thể đặt hàng mà không cần tài khoản không?</span>
+                        <i class="fa fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Có, bạn có thể đặt hàng với tư cách khách vãng lai. Tuy nhiên, đăng ký tài khoản giúp bạn theo dõi đơn hàng, tra cứu lịch sử mua sắm và hưởng ưu đãi thành viên.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Có được xem thực tế sản phẩm trước khi mua không?</span>
+                        <i class="fa fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Có, bạn có thể đến trực tiếp showroom tại 123 Nguyễn Huệ, Q.1, TP.HCM để xem và trải nghiệm sản phẩm. Mở cửa từ 8:00 - 21:00 tất cả các ngày trong tuần.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="support-card">
+            <h3><i class="fa fa-truck" style="color:var(--success)"></i> Về giao hàng</h3>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Thời gian giao hàng mất bao lâu?</span>
+                        <i class="fa fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Nội thành TP.HCM và Hà Nội: 1-2 ngày làm việc. Các tỉnh thành khác: 3-5 ngày làm việc. Đơn hàng sẽ được xử lý sau khi nhân viên xác nhận qua điện thoại.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Phí vận chuyển được tính như thế nào?</span>
+                        <i class="fa fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Miễn phí vận chuyển cho nội thành TP.HCM và Hà Nội. Các khu vực khác: 30.000đ. Đơn hàng trên 20 triệu đồng được miễn phí ship toàn quốc.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="support-card">
+            <h3><i class="fa fa-shield-alt" style="color:var(--tuf-yellow)"></i> Về bảo hành</h3>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Thời gian bảo hành là bao lâu?</span>
+                        <i class="fa fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Tất cả laptop ASUS được bảo hành chính hãng 24 tháng toàn quốc. Một số dòng cao cấp như ROG, ProArt có thể được bảo hành lên đến 36 tháng.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Bảo hành có bao gồm màn hình và pin không?</span>
+                        <i class="fa fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Màn hình được bảo hành theo chính sách chính hãng (lỗi điểm chết, đốm sáng). Pin được bảo hành 12 tháng hoặc khi dung lượng giảm xuống dưới 80% trong điều kiện sử dụng bình thường.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleFaq(el) {
+    var answer = el.nextElementSibling;
+    var icon = el.querySelector('i');
+    var isOpen = answer.style.maxHeight && answer.style.maxHeight !== '0px';
+    answer.style.maxHeight = isOpen ? '0px' : answer.scrollHeight + 'px';
+    answer.style.opacity = isOpen ? '0' : '1';
+    icon.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+}
+</script>

@@ -1,0 +1,267 @@
+is_global = true
+build_property.TargetFramework = net8.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = AsusLaptop
+build_property.RootNamespace = AsusLaptop
+build_property.ProjectDir = D:\1\AsusLaptop_NikeStyle_Updated\AsusLaptop_HoanThien\AsusLaptop\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 8.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = D:\1\AsusLaptop_NikeStyle_Updated\AsusLaptop_HoanThien\AsusLaptop
+build_property._RazorSourceGeneratorDebug = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Account/AccessDenied.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxBY2Nlc3NEZW5pZWQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Account/Addresses.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxBZGRyZXNzZXMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Account/ChangePassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxDaGFuZ2VQYXNzd29yZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Account/FaceId.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxGYWNlSWQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Account/ForgotPassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxGb3Jnb3RQYXNzd29yZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Account/Invoice.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxJbnZvaWNlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Account/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Account/MyOrders.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxNeU9yZGVycy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Account/OrderDetail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxPcmRlckRldGFpbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Account/Profile.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxQcm9maWxlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Account/Register.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZWdpc3Rlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Account/ResetPassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZXNldFBhc3N3b3JkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Account/VerifyOtp.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxWZXJpZnlPdHAuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/AdminVariant/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5WYXJpYW50XENyZWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/AdminVariant/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5WYXJpYW50XEVkaXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/AdminVariant/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5WYXJpYW50XEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/AdminVariant/Serials.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5WYXJpYW50XFNlcmlhbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Admin/Automation.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQXV0b21hdGlvbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Admin/Dashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRGFzaGJvYXJkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Admin/InventoryLogs.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cSW52ZW50b3J5TG9ncy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Admin/Invoice.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cSW52b2ljZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Admin/MyOrders.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTXlPcmRlcnMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Admin/OrderDetail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cT3JkZXJEZXRhaWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Admin/Products.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cUHJvZHVjdHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Admin/Users.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cVXNlcnMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Cart/CheckoutSuccess.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2FydFxDaGVja291dFN1Y2Nlc3MuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Cart/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2FydFxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Compare/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29tcGFyZVxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Copilot/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29waWxvdFxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Home/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Home/Story.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxTdG9yeS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/ImageSearch/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSW1hZ2VTZWFyY2hcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/OrderTracking/AdminPanel.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcT3JkZXJUcmFja2luZ1xBZG1pblBhbmVsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/OrderTracking/Track.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcT3JkZXJUcmFja2luZ1xUcmFjay5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Product/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZHVjdFxDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Product/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZHVjdFxEZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Product/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZHVjdFxFZGl0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Product/Specs.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZHVjdFxTcGVjcy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Return/AdminDetail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmV0dXJuXEFkbWluRGV0YWlsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Return/AdminIndex.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmV0dXJuXEFkbWluSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Return/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmV0dXJuXENyZWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Return/Detail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmV0dXJuXERldGFpbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Return/MyReturns.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmV0dXJuXE15UmV0dXJucy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Shared/_CompareBar.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Db21wYXJlQmFyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Shared/_TrendingWidget.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9UcmVuZGluZ1dpZGdldC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Support/CauHoiThuongGap.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwcG9ydFxDYXVIb2lUaHVvbmdHYXAuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Support/ChamsocBaoHanh.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwcG9ydFxDaGFtc29jQmFvSGFuaC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Support/ChinhSachBaoMat.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwcG9ydFxDaGluaFNhY2hCYW9NYXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Support/ChinhSachDoiTra.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwcG9ydFxDaGluaFNhY2hEb2lUcmEuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Support/ChuongTrinhThanThiet.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwcG9ydFxDaHVvbmdUcmluaFRoYW5UaGlldC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Support/DangKySanPham.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwcG9ydFxEYW5nS3lTYW5QaGFtLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Support/HoTroKyThuatTrucTuyen.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwcG9ydFxIb1Ryb0t5VGh1YXRUcnVjVHV5ZW4uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Support/HuongDanCaiDatPhanMem.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwcG9ydFxIdW9uZ0RhbkNhaURhdFBoYW5NZW0uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Support/HuongDanMuaHang.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwcG9ydFxIdW9uZ0Rhbk11YUhhbmcuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Support/PhuongThucThanhToan.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwcG9ydFxQaHVvbmdUaHVjVGhhbmhUb2FuLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Support/TraCuuBaoHanh.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3VwcG9ydFxUcmFDdXVCYW9IYW5oLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Voucher/Manage.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVm91Y2hlclxNYW5hZ2UuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/Wishlist/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcV2lzaGxpc3RcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/1/AsusLaptop_NikeStyle_Updated/AsusLaptop_HoanThien/AsusLaptop/Views/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 

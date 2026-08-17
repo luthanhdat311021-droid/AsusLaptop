@@ -1,0 +1,195 @@
+@model List<AsusLaptop.Models.Product>
+@{
+    ViewData["Title"] = "Quản lý sản phẩm";
+}
+
+<div class="admin-wrap">
+    <div class="admin-header">
+        <h1 class="admin-title"><i class="fa fa-laptop"></i> QUẢN LÝ <span>SẢN PHẨM</span></h1>
+        <a href="/Product/Create" class="btn-add"><i class="fa fa-plus"></i> Thêm sản phẩm</a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success mb-2"><i class="fa fa-check-circle"></i> @TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger mb-2"><i class="fa fa-exclamation-circle"></i> @TempData["ErrorMessage"]</div>
+    }
+
+    <div id="stockToast" style="display:none;position:fixed;bottom:24px;right:24px;background:var(--success);color:#fff;padding:12px 18px;border-radius:var(--radius);font-weight:700;font-size:13px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.4)">
+        <i class="fa fa-check"></i> <span id="stockToastMsg">Đã cập nhật tồn kho!</span>
+    </div>
+
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3><i class="fa fa-list"></i> Danh sách sản phẩm (@Model.Count)</h3>
+            <form asp-controller="Admin" asp-action="Products" method="get" class="search-bar">
+                <input type="text" name="search" class="search-input" placeholder="Tìm theo tên, dòng, thương hiệu..." value="@ViewBag.Search" />
+                <button type="submit" class="btn-action btn-edit"><i class="fa fa-search"></i> Tìm</button>
+                @if (!string.IsNullOrEmpty(ViewBag.Search as string))
+                {
+                    <a href="/Admin/Products" class="btn-action btn-delete"><i class="fa fa-times"></i> Xóa lọc</a>
+                }
+            </form>
+        </div>
+        <div style="overflow-x:auto">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Ảnh</th>
+                        <th>#ID</th>
+                        <th>Sản phẩm</th>
+                        <th>Dòng</th>
+                        <th>CPU</th>
+                        <th>RAM / SSD</th>
+                        <th>Giá bán</th>
+                        <th style="min-width:160px">Tồn kho</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in Model)
+                    {
+                        <tr id="row-@p.Id">
+                            <td>
+                                @if (!string.IsNullOrEmpty(p.ImageUrl))
+                                {
+                                    <img src="@p.ImageUrl" alt="" class="product-thumb" onerror="this.style.display='none'" />
+                                }
+                                else
+                                {
+                                    <div style="width:60px;height:44px;background:var(--bg-card2);border-radius:var(--radius);display:flex;align-items:center;justify-content:center">
+                                        <i class="fa fa-laptop" style="color:var(--text-muted)"></i>
+                                    </div>
+                                }
+                            </td>
+                            <td><strong style="color:var(--accent)">#@p.Id</strong></td>
+                            <td style="max-width:200px">
+                                <a href="/Product/Details/@p.Id" style="font-weight:600;font-size:13px;color:var(--text-primary)" target="_blank">@p.Name</a>
+                            </td>
+                            <td>
+                                <span style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase">@p.Series</span>
+                            </td>
+                            <td style="font-size:12px;color:var(--text-secondary);max-width:140px">
+                                <span title="@p.CPU">@(p.CPU?.Length > 22 ? p.CPU.Substring(0, 22) + "…" : p.CPU)</span>
+                            </td>
+                            <td style="font-size:12px;color:var(--text-secondary)">@p.RAM / @p.Storage</td>
+                            <td>
+                                <strong style="color:var(--rog-red)">@p.Price.ToString("N0")₫</strong>
+                                @if (p.OriginalPrice > p.Price)
+                                {
+                                    <div style="font-size:11px;color:var(--text-muted);text-decoration:line-through">@p.OriginalPrice.ToString("N0")₫</div>
+                                }
+                            </td>
+                            <td>
+                                <div style="display:flex;align-items:center;gap:6px">
+                                    <button class="stock-btn" onclick="adjustStock(@p.Id, -1)" title="Giảm 1">−</button>
+                                    <input type="number" id="stock-@p.Id" value="@p.Quantity" min="0"
+                                           style="width:60px;text-align:center;padding:4px 6px;background:var(--bg-card2);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:13px;font-weight:700"
+                                           onchange="updateStock(@p.Id, this.value)" />
+                                    <button class="stock-btn" onclick="adjustStock(@p.Id, 1)" title="Tăng 1">+</button>
+                                    @{
+                                        string stockColor = p.Quantity < 5 ? "var(--rog-red)" : p.Quantity < 15 ? "var(--tuf-yellow)" : "var(--success)";
+                                    }
+                                    <span id="stock-icon-@p.Id" style="color:@stockColor;font-size:11px">
+                                        @if (p.Quantity < 5) { <text><i class="fa fa-exclamation-triangle"></i></text> }
+                                        else if (p.Quantity < 15) { <text><i class="fa fa-minus-circle"></i></text> }
+                                        else { <text><i class="fa fa-check-circle"></i></text> }
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <a href="/AdminVariant?productId=@p.Id" class="btn-action" style="background:var(--accent);color:#fff" title="Quản lý biến thể RAM & màu"><i class="fa fa-layer-group"></i></a>
+                                    <a href="/Product/Edit/@p.Id" class="btn-action btn-edit"><i class="fa fa-edit"></i></a>
+                                    <form asp-action="DeleteProduct" method="post" style="display:inline"
+                                          data-name="@p.Name"
+                                          onsubmit="return confirm('Xóa sản phẩm: ' + this.dataset.name + '?')">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@p.Id" />
+                                        <button type="submit" class="btn-action btn-delete"><i class="fa fa-trash"></i></button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+<style>
+.stock-btn {
+    width:26px;height:26px;border-radius:6px;border:1px solid var(--border);
+    background:var(--bg-card2);color:var(--text-primary);font-size:14px;font-weight:700;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:all .15s;flex-shrink:0;
+}
+.stock-btn:hover { background:var(--accent);color:#fff;border-color:var(--accent); }
+</style>
+}
+
+@section Scripts {
+<script>
+const token = document.querySelector('input[name=__RequestVerificationToken]')?.value
+    || '@Html.AntiForgeryToken()'.match(/value="([^"]+)"/)?.[1] || '';
+
+// Get a valid antiforgery token from a form on the page
+function getToken() {
+    return document.querySelector('input[name=__RequestVerificationToken]')?.value || '';
+}
+
+function adjustStock(id, delta) {
+    const input = document.getElementById('stock-' + id);
+    const newVal = Math.max(0, parseInt(input.value || 0) + delta);
+    input.value = newVal;
+    updateStock(id, newVal);
+}
+
+function updateStock(id, qty) {
+    qty = Math.max(0, parseInt(qty) || 0);
+    document.getElementById('stock-' + id).value = qty;
+
+    fetch('/Admin/UpdateStock', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `productId=${id}&quantity=${qty}&__RequestVerificationToken=${encodeURIComponent(getToken())}`
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) {
+            const iconEl = document.getElementById('stock-icon-' + id);
+            const input  = document.getElementById('stock-' + id);
+            if (qty < 5) {
+                iconEl.innerHTML = '<i class="fa fa-exclamation-triangle"></i>';
+                iconEl.style.color = 'var(--rog-red)';
+                input.style.color  = 'var(--rog-red)';
+            } else if (qty < 15) {
+                iconEl.innerHTML = '<i class="fa fa-minus-circle"></i>';
+                iconEl.style.color = 'var(--tuf-yellow)';
+                input.style.color  = 'var(--tuf-yellow)';
+            } else {
+                iconEl.innerHTML = '<i class="fa fa-check-circle"></i>';
+                iconEl.style.color = 'var(--success)';
+                input.style.color  = 'var(--success)';
+            }
+            showToast('Đã cập nhật tồn kho: ' + qty);
+        }
+    });
+}
+
+function showToast(msg) {
+    const t = document.getElementById('stockToast');
+    document.getElementById('stockToastMsg').textContent = msg;
+    t.style.display = 'block';
+    clearTimeout(window._toastTimer);
+    window._toastTimer = setTimeout(() => t.style.display = 'none', 2500);
+}
+</script>
+}

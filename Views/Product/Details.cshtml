@@ -1,0 +1,1195 @@
+@model AsusLaptop.Models.Product
+@using System.Text.Json
+@{
+    ViewData["Title"] = Model.Name;
+    var discount  = Model.OriginalPrice > 0 ? (int)Math.Round((1 - Model.Price / Model.OriginalPrice) * 100) : 0;
+    var variants  = ViewBag.Variants as List<AsusLaptop.Models.ProductVariant> ?? new();
+    var defVar    = variants.FirstOrDefault(v => v.IsDefault) ?? variants.FirstOrDefault();
+    var ramList   = variants.Select(v => v.RAM).Distinct().OrderBy(r => r).ToList();
+    var colorList = variants.Select(v => new { v.Color, v.ColorHex }).DistinctBy(x => x.Color).ToList();
+    var hasVariants = variants.Any();
+
+    // ── SEO: Open Graph cho trang sản phẩm ──────────────────────────────
+    ViewData["OgType"] = "product";
+    ViewData["OgTitle"] = $"{Model.Name} - {Model.Price:N0}₫";
+    ViewData["MetaDescription"] = !string.IsNullOrWhiteSpace(Model.Description)
+        ? (Model.Description.Length > 160 ? Model.Description.Substring(0, 157) + "..." : Model.Description)
+        : $"{Model.Name} chính hãng ASUS - {Model.CPU}, {Model.RAM}, {Model.Storage}. Giá {Model.Price:N0}₫ tại ASUS Laptop Store.";
+    ViewData["OgDescription"] = ViewData["MetaDescription"];
+    ViewData["OgImage"] = !string.IsNullOrEmpty(Model.ImageUrl) ? Model.ImageUrl : null;
+}
+
+<div class="product-detail-wrap">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a href="/">Trang chủ</a>
+        <i class="fa fa-chevron-right"></i>
+        <a href="/?series=@Uri.EscapeDataString(Model.Series)">@Model.Series</a>
+        <i class="fa fa-chevron-right"></i>
+        <span>@Model.Name</span>
+    </nav>
+
+    <!-- Main detail -->
+    <div class="product-detail-grid">
+        <!-- Image / 3D -->
+        <div class="product-detail-img-col">
+            <div class="pdv-tabs">
+                <button type="button" class="pdv-tab active" data-view="photo"><i class="fa fa-image"></i> Ảnh sản phẩm</button>
+                <button type="button" class="pdv-tab" data-view="video"><i class="fa fa-play-circle"></i> Video đánh giá</button>
+                <button type="button" class="pdv-tab" data-view="spin360"><i class="fa-solid fa-arrows-rotate" style="color:#ff4d00;"></i> Xoay Thật 360° Real Photo</button>
+            </div>
+            <div class="product-detail-img-wrap">
+                <div id="pdv-photo" class="pdv-panel active">
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                    {
+                        <img id="pdv-main-img" src="@Model.ImageUrl" alt="@Model.Name" onerror="this.src='';this.style.display='none'" />
+                    }
+                    else
+                    {
+                        <div style="text-align:center;color:var(--text-muted)">
+                            <i class="fa fa-laptop" style="font-size:80px;margin-bottom:12px;display:block"></i>
+                            <span>@Model.Name</span>
+                        </div>
+                    }
+                </div>
+                <div id="pdv-video" class="pdv-panel">
+                    <div id="pdv-video-root">
+                        <iframe id="pdv-video-frame"
+                                src=""
+                                data-video-url="@Model.VideoUrl"
+                                data-query="@Uri.EscapeDataString(Model.Name + " đánh giá review")"
+                                title="Video đánh giá @Model.Name"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen
+                                loading="lazy">
+                        </iframe>
+                        <div class="pdv-video-hint">
+                            @(string.IsNullOrWhiteSpace(Model.VideoUrl)
+                                ? "Video review được tự động tìm trên YouTube theo tên sản phẩm"
+                                : "Video đánh giá do ASUS Laptop Store cung cấp")
+                        </div>
+                    </div>
+                </div>
+                <div id="pdv-spin360" class="pdv-panel">
+                    <div id="pdv360Container" style="width:100%; height:100%; min-height:260px; position:relative; display:flex; align-items:center; justify-content:center;">
+                        <div id="pdv360Fallback" style="width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; cursor:grab; user-select:none; touch-action:none; background:radial-gradient(circle at 50% 45%, #202232 0%, #0d0e15 85%); border-radius:12px; padding:16px;">
+                            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                            {
+                                <img id="pdv360Img" src="@Model.ImageUrl" alt="@Model.Name" style="max-width:92%; max-height:220px; object-fit:contain; filter:drop-shadow(0 15px 35px rgba(255,77,0,0.35)); transition:transform 0.08s linear;" />
+                            }
+                            else
+                            {
+                                <i class="fa fa-laptop" style="font-size:70px; color:#ff4d00; margin-bottom:10px;"></i>
+                            }
+                            <div style="position:absolute; bottom:10px; background:rgba(0,0,0,0.75); backdrop-filter:blur(8px); padding:5px 14px; border-radius:99px; font-size:11.5px; font-weight:800; color:#ffd700; border:1px solid rgba(255,77,0,0.3); pointer-events:none; display:flex; align-items:center; gap:6px;">
+                                <i class="fa-solid fa-arrows-left-right" style="color:#ff4d00;"></i>
+                                <span>GÓC XOAY: <span id="pdv360AngleText">0°</span> (Kéo để xoay 360°)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @{
+                var gallery = ViewBag.Gallery as List<AsusLaptop.Models.ProductImage>;
+            }
+            @if (gallery != null && gallery.Any())
+            {
+                <div class="pdv-thumbs">
+                    <div class="pdv-thumb @(string.IsNullOrEmpty(Model.ImageUrl) ? "" : "active")" onclick="pdvSwapImage('@Model.ImageUrl', this)">
+                        <img src="@Model.ImageUrl" alt="@Model.Name" />
+                    </div>
+                    @foreach (var g in gallery)
+                    {
+                        <div class="pdv-thumb" onclick="pdvSwapImage('@g.ImageUrl', this)">
+                            <img src="@g.ImageUrl" alt="@(g.AltText ?? Model.Name)" />
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Info -->
+        <div class="product-detail-info">
+            <div class="detail-series">@Model.Brand — @Model.Series</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                <h1 class="detail-name" style="margin:0;">@Model.Name</h1>
+                <button id="wishlistBtn" type="button" onclick="toggleWishlist(@Model.Id, this)"
+                        title="Thêm vào yêu thích"
+                        style="flex-shrink:0;border:1px solid #ddd;background:@(ViewBag.IsInWishlist ? "#fff1eb" : "#fff");
+                               color:@(ViewBag.IsInWishlist ? "#ff4d00" : "#9a9a9a");width:42px;height:42px;border-radius:50%;
+                               cursor:pointer;font-size:18px;">
+                    <i class="@(ViewBag.IsInWishlist ? "fa" : "far") fa-heart"></i>
+                </button>
+                <button id="compareBtn" type="button" onclick="addToCompareAjax(@Model.Id, this)"
+                        title="So sánh sản phẩm"
+                        style="flex-shrink:0;border:1px solid #ddd;background:#fff;color:#999;
+                               width:42px;height:42px;border-radius:50%;cursor:pointer;font-size:17px;">
+                    <i class="fa fa-balance-scale"></i>
+                </button>
+                @if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Admin") || User.IsInRole("SubAdmin")))
+                {
+                    <a href="/Product/Edit/@Model.Id" title="Chỉnh sửa sản phẩm"
+                       style="flex-shrink:0;border:none;background:#ff8c00;color:#fff;
+                              width:42px;height:42px;border-radius:50%;cursor:pointer;font-size:17px;
+                              display:flex;align-items:center;justify-content:center;text-decoration:none;">
+                        <i class="fa fa-pen"></i>
+                    </a>
+                }
+            </div>
+
+            <!-- Đánh giá trung bình -->
+            <div style="display:flex;align-items:center;gap:8px;margin:6px 0 4px;">
+                <div style="color:#f5a623;font-size:15px;">
+                    @{ double avg = ViewBag.AverageRating; }
+                    @for (int s = 1; s <= 5; s++)
+                    {
+                        <i class="@(s <= Math.Round(avg) ? "fa" : "far") fa-star"></i>
+                    }
+                </div>
+                <span style="font-size:13.5px;color:var(--text-muted,#888);">
+                    @avg.ToString("0.0")/5 (@ViewBag.ReviewCount đánh giá)
+                </span>
+            </div>
+
+            <!-- Giá (cập nhật động theo biến thể) -->
+            <div class="detail-price-row">
+                <span class="detail-price" id="display-price">
+                    @((Model.Price + (defVar?.PriceAdjust ?? 0)).ToString("N0"))₫
+                </span>
+                @if (Model.OriginalPrice > 0 && Model.OriginalPrice > Model.Price)
+                {
+                    <span class="detail-original">@Model.OriginalPrice.ToString("N0")₫</span>
+                    @if (discount >= 5)
+                    {
+                        <span class="detail-discount">Tiết kiệm @discount%</span>
+                    }
+                }
+            </div>
+
+            <!-- Tồn kho -->
+            <div class="detail-stock @(Model.Quantity > 0 ? "in-stock" : "out")" id="stock-status">
+                @if (Model.Quantity > 0 || hasVariants)
+                {
+                    <i class="fa fa-check-circle"></i>
+                    <span id="stock-text">
+                        Còn hàng
+                        @if (defVar != null)
+                        { <text>(@defVar.Stock sản phẩm)</text> }
+                        else
+                        { <text>(@Model.Quantity sản phẩm)</text> }
+                    </span>
+                }
+                else
+                {
+                    <i class="fa fa-times-circle"></i>
+                    <span>Hết hàng</span>
+                }
+            </div>
+
+            @* ── VARIANT SELECTOR ──────────────────────────────────── *@
+            @if (hasVariants)
+            {
+                <!-- Dữ liệu JSON để JS xử lý -->
+                <script id="variants-json" type="application/json">
+                @Html.Raw(JsonSerializer.Serialize(variants.Select(v => new {
+                    id          = v.Id,
+                    ram         = v.RAM,
+                    color       = v.Color,
+                    colorHex    = v.ColorHex,
+                    priceAdjust = v.PriceAdjust,
+                    stock       = v.Stock,
+                    label       = v.DisplayLabel,
+                    isDefault   = v.IsDefault
+                })))
+                </script>
+
+                <!-- Chọn RAM -->
+                <div style="margin:16px 0 10px">
+                    <div style="font-size:13px;font-weight:600;margin-bottom:8px;color:var(--text-muted)">
+                        <i class="fa fa-memory me-1"></i> Dung lượng RAM
+                    </div>
+                    <div style="display:flex;flex-wrap:wrap;gap:8px" id="ram-options">
+                        @foreach (var ram in ramList)
+                        {
+                            <button type="button" class="variant-btn ram-btn @(ram == defVar?.RAM ? "active" : "")"
+                                    data-ram="@ram">@ram</button>
+                        }
+                    </div>
+                </div>
+
+                <!-- Chọn màu -->
+                <div style="margin-bottom:14px">
+                    <div style="font-size:13px;font-weight:600;margin-bottom:8px;color:var(--text-muted)">
+                        <i class="fa fa-palette me-1"></i> Màu sắc:
+                        <span id="color-name-label" style="font-weight:400">@defVar?.Color</span>
+                    </div>
+                    <div style="display:flex;flex-wrap:wrap;gap:10px" id="color-options">
+                        @foreach (var c in colorList)
+                        {
+                            <button type="button" class="color-circle-btn @(c.Color == defVar?.Color ? "selected" : "")"
+                                    data-color="@c.Color"
+                                    title="@c.Color"
+                                    style="background:@c.ColorHex">
+                            </button>
+                        }
+                    </div>
+                </div>
+
+                <!-- Thông tin biến thể đang chọn -->
+                <div id="variant-info-box" style="background:var(--bg-card2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+                    <div>
+                        <div style="font-size:13px;font-weight:600" id="vi-label">@defVar?.DisplayLabel</div>
+                        <div style="font-size:12px;color:var(--text-muted);margin-top:2px">
+                            Serial: Được gán sau khi mua
+                        </div>
+                    </div>
+                    <div style="text-align:right">
+                        <div style="font-size:11px;color:var(--text-muted)">Chênh lệch giá</div>
+                        <div id="vi-price-adj" style="font-weight:700;font-size:15px;color:var(--accent)">
+                            @(defVar?.PriceAdjust == 0 ? "Giá gốc"
+                              : defVar?.PriceAdjust > 0 ? "+" + defVar.PriceAdjust.ToString("N0") + "₫"
+                              : defVar?.PriceAdjust.ToString("N0") + "₫")
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Specs grid -->
+            <div class="detail-specs-grid">
+                @if (!string.IsNullOrEmpty(Model.CPU))
+                {
+                    <div class="detail-spec"><div class="spec-key">Bộ xử lý</div><div class="spec-val">@Model.CPU</div></div>
+                }
+                <div class="detail-spec">
+                    <div class="spec-key">RAM</div>
+                    <div class="spec-val" id="spec-ram">
+                        @(defVar != null ? defVar.RAM : Model.RAM)
+                    </div>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.Storage))
+                {
+                    <div class="detail-spec"><div class="spec-key">Ổ cứng</div><div class="spec-val">@Model.Storage</div></div>
+                }
+                @if (!string.IsNullOrEmpty(Model.GPU))
+                {
+                    <div class="detail-spec"><div class="spec-key">Card đồ họa</div><div class="spec-val">@Model.GPU</div></div>
+                }
+                @if (!string.IsNullOrEmpty(Model.ScreenSize))
+                {
+                    <div class="detail-spec"><div class="spec-key">Màn hình</div><div class="spec-val">@Model.ScreenSize — @Model.ScreenResolution</div></div>
+                }
+                @if (!string.IsNullOrEmpty(Model.Battery))
+                {
+                    <div class="detail-spec"><div class="spec-key">Pin</div><div class="spec-val">@Model.Battery</div></div>
+                }
+                @if (!string.IsNullOrEmpty(Model.Weight))
+                {
+                    <div class="detail-spec"><div class="spec-key">Trọng lượng</div><div class="spec-val">@Model.Weight</div></div>
+                }
+                @if (!string.IsNullOrEmpty(Model.OS))
+                {
+                    <div class="detail-spec"><div class="spec-key">Hệ điều hành</div><div class="spec-val">@Model.OS</div></div>
+                }
+            </div>
+
+            <!-- QR code sản phẩm -->
+            <div class="detail-qr-box" style="display:flex;align-items:center;gap:14px;margin:18px 0;padding:14px;border:1px dashed var(--border);border-radius:10px;">
+                <img src="@Url.Action("QrCode", "Product", new { id = Model.Id })"
+                     alt="QR sản phẩm" width="100" height="100"
+                     style="background:#fff;border-radius:8px;padding:4px;flex-shrink:0" />
+                <div style="font-size:13.5px;line-height:1.5">
+                    <strong>Quét mã QR để xem thông số</strong><br />
+                    <span style="color:var(--text-muted)">Dùng camera điện thoại quét mã này để xem nhanh thông số kỹ thuật của sản phẩm.</span><br />
+                    <a href="@Url.Action("QrCode", "Product", new { id = Model.Id, size = 20 })" download="qr-@(Model.Id).png" style="color:var(--accent)">
+                        <i class="fa fa-download"></i> Tải mã QR (in nhãn)
+                    </a>
+                </div>
+            </div>
+
+            <!-- Số lượng & Nút mua -->
+            @{
+                bool canBuy = hasVariants ? (defVar?.Stock > 0) : (Model.Quantity > 0);
+            }
+            <div id="buy-section">
+                @if (canBuy || hasVariants)
+                {
+                    <div class="qty-row">
+                        <span class="qty-label">Số lượng:</span>
+                        <div class="qty-control">
+                            <button class="qty-btn" id="qtyMinus" type="button">−</button>
+                            <input class="qty-input" id="qtyInput" type="number" value="1" min="1" max="@(defVar?.Stock ?? Model.Quantity)" />
+                            <button class="qty-btn" id="qtyPlus" type="button">+</button>
+                        </div>
+                    </div>
+                    <div class="detail-actions">
+                        <form asp-controller="Cart" asp-action="AddToCart" method="post" style="flex:1;display:flex">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="productId" value="@Model.Id" />
+                            <input type="hidden" name="quantity" id="hiddenQty" value="1" />
+                            <input type="hidden" name="variantId" id="hiddenVariantId" value="@defVar?.Id" />
+                            <button type="submit" class="btn-add-cart-lg" id="btn-add-cart" style="width:100%">
+                                <i class="fa fa-cart-plus"></i> Thêm vào giỏ
+                            </button>
+                        </form>
+                        <form asp-controller="Cart" asp-action="AddToCart" method="post" style="flex:1;display:flex">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="productId" value="@Model.Id" />
+                            <input type="hidden" name="quantity" value="1" />
+                            <input type="hidden" name="variantId" id="hiddenVariantId2" value="@defVar?.Id" />
+                            <button type="submit" class="btn-buy-now" id="btn-buy-now" style="width:100%">
+                                <i class="fa fa-bolt"></i> Mua ngay
+                            </button>
+                        </form>
+                    </div>
+                }
+                else
+                {
+                    <div style="margin-top:16px">
+                        <button class="btn-add-cart-lg" disabled style="width:100%;opacity:.4;cursor:not-allowed">
+                            <i class="fa fa-ban"></i> Hết hàng — Liên hệ để đặt trước
+                        </button>
+                    </div>
+                }
+            </div>
+
+            <!-- Chính sách -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px">
+                <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-muted)">
+                    <i class="fa fa-shield-alt" style="color:var(--success)"></i> Bảo hành 24 tháng
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-muted)">
+                    <i class="fa fa-truck" style="color:var(--accent)"></i> Giao hàng toàn quốc
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-muted)">
+                    <i class="fa fa-undo" style="color:var(--tuf-yellow)"></i> Đổi trả 30 ngày
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-muted)">
+                    <i class="fa fa-certificate" style="color:var(--proart-orange)"></i> 100% chính hãng
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mô tả -->
+    <section id="futureFit" style="margin:28px 0;padding:22px;border-radius:16px;background:linear-gradient(135deg,#111,#432000);color:#fff;box-shadow:0 10px 25px rgba(0,0,0,.15)">
+        <div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap">
+            <div>
+                <div style="font-size:11px;letter-spacing:1px;color:#ffbd98;font-weight:800"><i class="fa fa-crystal-ball"></i> AI FUTUREFIT</div>
+                <h3 style="margin:6px 0;font-size:21px">Hộ chiếu vòng đời laptop</h3>
+                <p style="margin:0;color:#f4d8ca;font-size:13px">Máy này còn phù hợp với nhu cầu của bạn sau bao lâu? AI sẽ mô phỏng điểm sẵn sàng, điểm nghẽn và kế hoạch nâng cấp.</p>
+            </div>
+            <button type="button" onclick="runFutureFit()" id="futureFitBtn" style="border:0;border-radius:9px;padding:11px 15px;background:#ff4d00;color:#fff;font-weight:800;cursor:pointer;white-space:nowrap"><i class="fa fa-wand-magic-sparkles"></i> Xem dự báo</button>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px">
+            <select id="futureScenario" style="border-radius:7px;padding:8px;border:1px solid #5d4a43;background:#fff;color:#222"><option value="office">Học tập / văn phòng</option><option value="programming">Lập trình</option><option value="creative">Thiết kế / sáng tạo</option><option value="gaming">Gaming</option></select>
+            <select id="futureYears" style="border-radius:7px;padding:8px;border:1px solid #5d4a43;background:#fff;color:#222"><option value="1">1 năm</option><option value="2">2 năm</option><option value="3" selected>3 năm</option><option value="4">4 năm</option><option value="5">5 năm</option></select>
+        </div>
+        <div id="futureFitResult" style="display:none;margin-top:16px;padding:14px;border-radius:10px;background:rgba(255,255,255,.1);font-size:13px"></div>
+    </section>
+
+    @if (!string.IsNullOrEmpty(Model.Description))
+    {
+        <div class="detail-desc">
+            <h3><i class="fa fa-info-circle"></i> Mô tả sản phẩm</h3>
+            <p>@Model.Description</p>
+        </div>
+    }
+
+    <!-- 🤖 AI PRICE INTELLIGENCE WIDGET -->
+    <div class="ai-price-widget reveal" style="background:#111; border-radius:24px; padding:32px; margin:36px 0; color:#fff; box-shadow: 0 16px 40px rgba(0,0,0,0.3);">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; margin-bottom:24px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:20px;">
+            <div>
+                <div style="display:inline-flex; align-items:center; gap:8px; background:rgba(255,77,0,0.15); color:#ff4d00; font-size:11px; font-weight:800; padding:6px 14px; border-radius:999px; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:8px;">
+                    <i class="fa fa-robot"></i> AI PRICE INTELLIGENCE
+                </div>
+                <h3 style="font-family:'Barlow Condensed',sans-serif; font-size:26px; font-weight:800; text-transform:uppercase; margin:0; color:#fff;">
+                    Dự Báo Biến Động Giá & Điểm Mua Tối Ưu (90 Ngày Tới)
+                </h3>
+            </div>
+            
+            <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+                <div style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); padding:10px 18px; border-radius:14px; text-align:center;">
+                    <div style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,0.6); font-weight:700;">ĐỘ TIN CẬY AI</div>
+                    <div style="font-size:18px; font-weight:800; color:#00e676;">94.8% <i class="fa fa-circle-check" style="font-size:14px;"></i></div>
+                </div>
+                <button type="button" class="btn-hero-primary" onclick="openPriceAlertModal()" style="background:#ff4d00; color:#fff; border:none; padding:12px 22px; font-weight:700; font-size:13px; cursor:pointer;">
+                    <i class="fa fa-bell me-1"></i> Cài Cảnh Báo Giá Kỳ Vọng
+                </button>
+            </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 2fr 1fr; gap:24px;">
+            <!-- Chart Container -->
+            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <span style="font-size:13px; font-weight:700; color:rgba(255,255,255,0.8);"><i class="fa fa-chart-line" style="color:#ff4d00;"></i> Biểu Đồ Lịch Sử & Dự Báo Giá (6 Thg Quá Khứ → 3 Thg Tới)</span>
+                    <span style="font-size:11px; color:rgba(255,255,255,0.5);">Đơn vị: VNĐ</span>
+                </div>
+                <div style="position:relative; height:240px; width:100%;">
+                    <canvas id="aiPriceChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Recommendation Stats Card -->
+            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:20px; display:flex; flex-direction:column; justify-content:space-between;">
+                <div>
+                    <div style="font-size:11px; font-weight:800; text-transform:uppercase; color:rgba(255,255,255,0.5); letter-spacing:0.5px; margin-bottom:6px;">KHUYẾN NGHỊ MUA SẮM AI</div>
+                    <div id="aiRecBadge" style="font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:800; color:#ff4d00; margin-bottom:10px;">
+                        Đang chạy phân tích AI...
+                    </div>
+                    <p id="aiRecReason" style="font-size:12.5px; color:rgba(255,255,255,0.75); line-height:1.5; margin-bottom:16px;">
+                        Hệ thống đang mô phỏng xu hướng giá cho sản phẩm này...
+                    </p>
+                </div>
+
+                <div style="border-top:1px dashed rgba(255,255,255,0.15); padding-top:14px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <span style="font-size:12px; color:rgba(255,255,255,0.6);">Điểm mua tối ưu (Buy Score):</span>
+                        <span id="aiBuyScore" style="font-weight:800; font-size:16px; color:#ff4d00;">--/100</span>
+                    </div>
+                    <div style="height:6px; background:rgba(255,255,255,0.1); border-radius:999px; overflow:hidden;">
+                        <div id="aiBuyScoreFill" style="height:100%; width:0%; background:linear-gradient(90deg, #ff4d00, #00e676); transition:width 1s ease;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Cài Đặt Cảnh Báo Giá Kỳ Vọng -->
+    <div id="priceAlertModal" class="modal" style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px); align-items:center; justify-content:center;">
+        <div style="background:#181920; border:1px solid rgba(255,255,255,0.15); border-radius:24px; padding:32px; max-width:480px; width:90%; color:#fff; box-shadow:0 20px 50px rgba(0,0,0,0.5);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h4 style="font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:800; text-transform:uppercase; margin:0;"><i class="fa fa-bell" style="color:#ff4d00;"></i> Đặt Cảnh Báo Giá Kỳ Vọng</h4>
+                <button type="button" onclick="closePriceAlertModal()" style="color:#888; font-size:18px; border:none; background:none; cursor:pointer;"><i class="fa fa-times"></i></button>
+            </div>
+            <p style="font-size:13px; color:rgba(255,255,255,0.7); margin-bottom:20px;">Nhập mức giá bạn mong muốn. Hệ thống AI SignalR sẽ tự động phát thông báo khi sản phẩm chạm ngưỡng này!</p>
+            <form id="priceAlertForm" onsubmit="event.preventDefault(); submitPriceAlert();">
+                <div style="margin-bottom:16px;">
+                    <label style="display:block; font-size:12px; font-weight:700; color:rgba(255,255,255,0.8); margin-bottom:6px;">Mức giá kỳ vọng (VNĐ):</label>
+                    <input type="number" id="alertTargetPrice" class="form-control" style="background:#0c0d10; border:1px solid rgba(255,255,255,0.2); color:#fff; padding:12px 16px; border-radius:12px; font-size:15px; font-weight:700; width:100%;" value="@(Math.Round(Model.Price * 0.9m))" required />
+                </div>
+                <div style="margin-bottom:24px;">
+                    <label style="display:block; font-size:12px; font-weight:700; color:rgba(255,255,255,0.8); margin-bottom:6px;">Email nhận thông báo:</label>
+                    <input type="email" id="alertEmail" class="form-control" style="background:#0c0d10; border:1px solid rgba(255,255,255,0.2); color:#fff; padding:12px 16px; border-radius:12px; font-size:14px; width:100%;" placeholder="nhap.email@domain.com" required />
+                </div>
+                <div style="display:flex; gap:12px;">
+                    <button type="button" onclick="closePriceAlertModal()" class="btn-hero-glass" style="flex:1; padding:12px; font-size:13px; border-color:rgba(255,255,255,0.3); cursor:pointer;">Hủy Bỏ</button>
+                    <button type="submit" class="btn-hero-primary" style="flex:1; background:#ff4d00; color:#fff; border:none; padding:12px; font-size:13px; font-weight:700; cursor:pointer;">Lưu Cảnh Báo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sản phẩm liên quan -->
+    @if (ViewBag.RelatedProducts is List<AsusLaptop.Models.Product> related && related.Any())
+    {
+        <div class="related-section">
+            <div class="section-header" style="margin-bottom:20px">
+                <h2 class="section-title">Sản phẩm liên quan</h2>
+                <a href="/?series=@Uri.EscapeDataString(Model.Series)" class="section-link">Xem thêm <i class="fa fa-arrow-right"></i></a>
+            </div>
+            <div class="related-grid">
+                @foreach (var rp in related)
+                {
+                    var rd = rp.OriginalPrice > 0 ? (int)Math.Round((1 - rp.Price / rp.OriginalPrice) * 100) : 0;
+                    <div class="product-card">
+                        @if (rd >= 5) { <span class="product-badge badge-sale">-@rd%</span> }
+                        <a href="/Product/Details/@rp.Id" class="product-img">
+                            @if (!string.IsNullOrEmpty(rp.ImageUrl))
+                            {
+                                <img src="@rp.ImageUrl" alt="@rp.Name" loading="lazy" onerror="this.style.display='none'" />
+                            }
+                            else
+                            {
+                                <div class="product-img-placeholder"><i class="fa fa-laptop"></i></div>
+                            }
+                        </a>
+                        <div class="product-body">
+                            <div class="product-series">@rp.Series</div>
+                            <a href="/Product/Details/@rp.Id" class="product-name">@rp.Name</a>
+                            <div class="product-footer">
+                                <div class="product-price-row">
+                                    <span class="product-price">@rp.Price.ToString("N0")₫</span>
+                                    @if (rp.OriginalPrice > rp.Price)
+                                    {
+                                        <span class="product-original">@rp.OriginalPrice.ToString("N0")₫</span>
+                                    }
+                                </div>
+                                <div class="product-actions">
+                                    <button class="btn-add-cart" onclick="addToCartAjax(@rp.Id, this)">
+                                        <i class="fa fa-cart-plus"></i> Thêm giỏ
+                                    </button>
+                                    <a href="/Product/Details/@rp.Id" class="btn-detail"><i class="fa fa-eye"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+<!-- ───────── ĐÁNH GIÁ 5 SAO ───────── -->
+<div class="detail-reviews-section" style="max-width:1100px;margin:30px auto 0;padding:0 16px;">
+    <h3 style="margin-bottom:16px;">⭐ Đánh giá sản phẩm (@ViewBag.ReviewCount)</h3>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div style="background:#d4edda;color:#155724;padding:10px 14px;border-radius:8px;margin-bottom:14px;">@TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div style="background:#f8d7da;color:#721c24;padding:10px 14px;border-radius:8px;margin-bottom:14px;">@TempData["ErrorMessage"]</div>
+    }
+
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <form method="post" asp-action="AddReview" asp-controller="Product"
+              style="background:var(--bg-card2);padding:16px;border-radius:12px;margin-bottom:20px;">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="productId" value="@Model.Id" />
+            <div style="margin-bottom:10px;font-size:14px;">
+                @(ViewBag.HasReviewed ? "Cập nhật đánh giá của bạn:" : "Chọn số sao và viết nhận xét:")
+            </div>
+            <div class="star-input" style="font-size:26px;color:#ccc;margin-bottom:10px;cursor:pointer;" id="starInput">
+                @for (int s = 1; s <= 5; s++)
+                {
+                    <i class="far fa-star" data-value="@s" style="margin-right:4px;"></i>
+                }
+            </div>
+            <input type="hidden" name="rating" id="ratingValue" value="5" />
+            <textarea name="comment" rows="2" placeholder="Nhận xét của bạn về sản phẩm..."
+                      style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;resize:vertical;font-size:14px;"></textarea>
+            <button type="submit" class="btn-add-cart-lg" style="margin-top:10px;padding:10px 22px;">
+                Gửi đánh giá
+            </button>
+        </form>
+    }
+    else
+    {
+        <div style="margin-bottom:20px;font-size:14px;">
+            <a href="/Account/Login" style="color:var(--accent);">Đăng nhập</a> để đánh giá sản phẩm này.
+        </div>
+    }
+
+    @{ var reviewList = (List<AsusLaptop.Models.Review>)ViewBag.Reviews; }
+    @if (!reviewList.Any())
+    {
+        <div style="color:#888;font-size:14px;">Chưa có đánh giá nào cho sản phẩm này.</div>
+    }
+    else
+    {
+        <div style="display:flex;flex-direction:column;gap:14px;">
+            @foreach (var rv in reviewList)
+            {
+                <div style="border:1px solid #eee;border-radius:10px;padding:14px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <div style="font-weight:600;font-size:14px;">@(rv.User?.FullName?.Length > 0 ? rv.User!.FullName : rv.User?.Username)</div>
+                        <div style="font-size:12px;color:#999;">@rv.CreatedAt.ToString("dd/MM/yyyy")</div>
+                    </div>
+                    <div style="color:#f5a623;font-size:13px;margin:4px 0;">
+                        @for (int s = 1; s <= 5; s++)
+                        {
+                            <i class="@(s <= rv.Rating ? "fa" : "far") fa-star"></i>
+                        }
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(rv.Comment))
+                    {
+                        <div style="font-size:14px;color:var(--text-primary,#333);">@rv.Comment</div>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@{
+    var seoGallery = ViewBag.Gallery as List<AsusLaptop.Models.ProductImage> ?? new();
+    var imageUrls = seoGallery.Select(g => g.ImageUrl).ToList();
+    if (!imageUrls.Any() && !string.IsNullOrEmpty(Model.ImageUrl)) imageUrls.Add(Model.ImageUrl);
+
+    double avgRating = ViewBag.AverageRating is double d ? d : 0;
+    int reviewCount = ViewBag.ReviewCount is int rc ? rc : 0;
+
+    var productSchema = new Dictionary<string, object?>
+    {
+        ["@context"] = "https://schema.org/",
+        ["@type"] = "Product",
+        ["name"] = Model.Name,
+        ["image"] = imageUrls,
+        ["description"] = ViewData["MetaDescription"],
+        ["brand"] = new Dictionary<string, object?> { ["@type"] = "Brand", ["name"] = string.IsNullOrEmpty(Model.Brand) ? "ASUS" : Model.Brand },
+        ["offers"] = new Dictionary<string, object?>
+        {
+            ["@type"] = "Offer",
+            ["url"] = $"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}",
+            ["priceCurrency"] = "VND",
+            ["price"] = Model.Price,
+            ["availability"] = Model.Quantity > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+        }
+    };
+    if (reviewCount > 0)
+    {
+        productSchema["aggregateRating"] = new Dictionary<string, object?>
+        {
+            ["@type"] = "AggregateRating",
+            ["ratingValue"] = avgRating,
+            ["reviewCount"] = reviewCount
+        };
+    }
+}
+<script type="application/ld+json">
+    @Html.Raw(JsonSerializer.Serialize(productSchema, new JsonSerializerOptions { Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping }))
+</script>
+
+@section Scripts {
+<style>
+    .variant-btn {
+        padding: 6px 14px;
+        border: 2px solid var(--border);
+        border-radius: 6px;
+        background: var(--bg-card2);
+        color: var(--text-primary);
+        font-size: 13px;
+        cursor: pointer;
+        transition: all .15s;
+    }
+    .variant-btn.active, .variant-btn:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: rgba(255,77,0,.08);
+    }
+    .color-circle-btn {
+        width: 30px; height: 30px;
+        border-radius: 50%;
+        border: 3px solid transparent;
+        cursor: pointer;
+        transition: all .15s;
+        outline: 2px solid var(--border);
+        outline-offset: 2px;
+    }
+    .color-circle-btn.selected, .color-circle-btn:hover {
+        outline-color: var(--accent);
+        transform: scale(1.15);
+    }
+    .variant-btn.disabled-opt, .color-circle-btn.disabled-opt {
+        opacity: .3;
+        cursor: not-allowed;
+        filter: grayscale(60%);
+    }
+    .variant-btn.disabled-opt:hover, .color-circle-btn.disabled-opt:hover {
+        border-color: var(--border);
+        color: var(--text-primary);
+        background: var(--bg-card2);
+        outline-color: var(--border);
+        transform: none;
+    }
+</style>
+<script src="~/js/site.js"></script>
+<script>
+(function () {
+    // ── Qty controls ───────────────────────────────────────────
+    const qtyInput  = document.getElementById('qtyInput');
+    const hiddenQty = document.getElementById('hiddenQty');
+
+    function getMax() { return parseInt(qtyInput?.max) || 99; }
+
+    document.getElementById('qtyMinus')?.addEventListener('click', () => {
+        let v = parseInt(qtyInput.value);
+        if (v > 1) { qtyInput.value = v - 1; hiddenQty.value = v - 1; }
+    });
+    document.getElementById('qtyPlus')?.addEventListener('click', () => {
+        let v = parseInt(qtyInput.value);
+        if (v < getMax()) { qtyInput.value = v + 1; hiddenQty.value = v + 1; }
+    });
+    qtyInput?.addEventListener('change', () => {
+        let v = Math.max(1, Math.min(getMax(), parseInt(qtyInput.value) || 1));
+        qtyInput.value = v; hiddenQty.value = v;
+    });
+
+    // ── Variant logic ──────────────────────────────────────────
+    const dataEl = document.getElementById('variants-json');
+    if (!dataEl) return;
+
+    const variants     = JSON.parse(dataEl.textContent);
+    const basePrice    = @Model.Price;
+    let selectedRAM    = variants.find(v => v.isDefault)?.ram   || variants[0]?.ram;
+    let selectedColor  = variants.find(v => v.isDefault)?.color || variants[0]?.color;
+
+    const fmt = n => n === 0 ? 'Giá gốc'
+              : n > 0 ? '+' + n.toLocaleString('vi-VN') + '₫'
+              : n.toLocaleString('vi-VN') + '₫';
+
+    // Chỉ khớp CHÍNH XÁC cả RAM lẫn Màu — không còn "chọn đại" biến thể khác khi tổ hợp không tồn tại
+    function findVariant(ram, color) {
+        return variants.find(v => v.ram === ram && v.color === color);
+    }
+
+    // Cập nhật trạng thái enable/disable của từng nút màu theo RAM đang chọn,
+    // và ngược lại — để không thể nào bấm ra được 1 tổ hợp không tồn tại.
+    function refreshAvailability() {
+        document.querySelectorAll('.ram-btn').forEach(btn => {
+            const ram = btn.dataset.ram;
+            const hasAny = variants.some(v => v.ram === ram);
+            btn.disabled = !hasAny;
+            btn.classList.toggle('disabled-opt', !hasAny);
+        });
+        document.querySelectorAll('.color-circle-btn').forEach(btn => {
+            const color = btn.dataset.color;
+            const validForCurrentRam = variants.some(v => v.ram === selectedRAM && v.color === color);
+            btn.disabled = !validForCurrentRam;
+            btn.classList.toggle('disabled-opt', !validForCurrentRam);
+        });
+    }
+
+    function syncActiveButtons() {
+        document.querySelectorAll('.ram-btn').forEach(b => b.classList.toggle('active', b.dataset.ram === selectedRAM));
+        document.querySelectorAll('.color-circle-btn').forEach(b => b.classList.toggle('selected', b.dataset.color === selectedColor));
+    }
+
+    function updateUI() {
+        // Nếu tổ hợp hiện tại không tồn tại (VD vừa đổi RAM), tự chuyển sang màu đầu tiên có sẵn cho RAM đó
+        let v = findVariant(selectedRAM, selectedColor);
+        if (!v) {
+            v = variants.find(x => x.ram === selectedRAM) || variants[0];
+            selectedColor = v.color;
+        }
+        selectedRAM   = v.ram;
+        selectedColor = v.color;
+
+        refreshAvailability();
+        syncActiveButtons();
+
+        // Giá
+        const totalPrice = basePrice + v.priceAdjust;
+        const priceEl = document.getElementById('display-price');
+        if (priceEl) priceEl.textContent = totalPrice.toLocaleString('vi-VN') + '₫';
+
+        // RAM trong spec
+        const specRam = document.getElementById('spec-ram');
+        if (specRam) specRam.textContent = v.ram;
+
+        // Tên màu
+        const colorLabel = document.getElementById('color-name-label');
+        if (colorLabel) colorLabel.textContent = v.color;
+
+        // Label & price adj
+        const viLabel = document.getElementById('vi-label');
+        if (viLabel) viLabel.textContent = v.label;
+        const viAdj = document.getElementById('vi-price-adj');
+        if (viAdj) viAdj.textContent = fmt(v.priceAdjust);
+
+        // Stock
+        const stockText = document.getElementById('stock-text');
+        if (stockText) {
+            if (v.stock > 0)
+                stockText.textContent = `Còn hàng (${v.stock} sản phẩm)`;
+            else
+                stockText.textContent = 'Hết hàng';
+        }
+        const stockStatus = document.getElementById('stock-status');
+        if (stockStatus) {
+            stockStatus.className = 'detail-stock ' + (v.stock > 0 ? 'in-stock' : 'out');
+        }
+
+        // Max qty
+        if (qtyInput) qtyInput.max = v.stock;
+
+        // Variant hidden inputs
+        document.getElementById('hiddenVariantId')?.setAttribute('value', v.id);
+        document.getElementById('hiddenVariantId2')?.setAttribute('value', v.id);
+
+        // Nút buy
+        const btnAdd  = document.getElementById('btn-add-cart');
+        const btnBuy  = document.getElementById('btn-buy-now');
+        if (btnAdd) btnAdd.disabled = v.stock === 0;
+        if (btnBuy) btnBuy.disabled = v.stock === 0;
+
+    }
+
+    // RAM click
+    document.querySelectorAll('.ram-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            if (this.disabled) return;
+            selectedRAM = this.dataset.ram;
+            updateUI();
+        });
+    });
+
+    // Color click
+    document.querySelectorAll('.color-circle-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            if (this.disabled) return;
+            selectedColor = this.dataset.color;
+            updateUI();
+        });
+    });
+
+    updateUI();
+})();
+
+// ───── Thư viện ảnh sản phẩm: đổi ảnh chính khi bấm thumbnail ─────
+function pdvSwapImage(url, thumbEl) {
+    var mainImg = document.getElementById('pdv-main-img');
+    if (mainImg) mainImg.src = url;
+    document.querySelectorAll('.pdv-thumb').forEach(function (t) { t.classList.remove('active'); });
+    if (thumbEl) thumbEl.classList.add('active');
+}
+
+// ───── Video đánh giá & Studio Xoay 360° Real Photo ─────
+(function () {
+    var productName = @Html.Raw(JsonSerializer.Serialize(Model.Name));
+
+    var tabs   = document.querySelectorAll('.pdv-tab');
+    var panels = { 
+        photo: document.getElementById('pdv-photo'), 
+        video: document.getElementById('pdv-video'),
+        spin360: document.getElementById('pdv-spin360')
+    };
+    var videoLoaded = false;
+    var spinnerLoaded = false;
+    var pdvSpinnerInstance = null;
+
+    tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            tabs.forEach(function (t) { t.classList.remove('active'); });
+            tab.classList.add('active');
+            var view = tab.dataset.view;
+            Object.keys(panels).forEach(function (k) { 
+                if (panels[k]) panels[k].classList.remove('active'); 
+            });
+            if (panels[view]) panels[view].classList.add('active');
+
+            if (view === 'video' && !videoLoaded) {
+                videoLoaded = true;
+                loadReviewVideo();
+            } else if (view === 'spin360') {
+                setTimeout(function() {
+                    if (!spinnerLoaded) {
+                        spinnerLoaded = true;
+                        initPdv360Spinner();
+                    } else if (pdvSpinnerInstance) {
+                        pdvSpinnerInstance.renderFrame();
+                    }
+                }, 50);
+            }
+        });
+    });
+
+    function initPdv360Spinner() {
+        var mainImg = @Html.Raw(JsonSerializer.Serialize(Model.ImageUrl));
+        var galleryImgs = @Html.Raw(JsonSerializer.Serialize(ViewBag.Gallery != null ? ((List<AsusLaptop.Models.ProductImage>)ViewBag.Gallery).Select(g => g.ImageUrl).ToList() : new List<string>()));
+        
+        var frames = [];
+        if (mainImg) frames.push(mainImg);
+        if (galleryImgs && galleryImgs.length > 0) {
+            galleryImgs.forEach(function(url) { if (url) frames.push(url); });
+        }
+
+        if (frames.length === 0) return;
+
+        var full360Sequence = [];
+        var repeats = Math.max(1, Math.ceil(16 / frames.length));
+        for (var i = 0; i < repeats; i++) {
+            full360Sequence = full360Sequence.concat(frames);
+        }
+
+        var hotspots = [
+            { frameIndex: 0, x: 50, y: 35, title: "Màn hình OLED & Tần số quét cao", description: "Hiển thị màu sắc 100% DCI-P3 chuẩn điện ảnh với tần số quét siêu mượt." },
+            { frameIndex: 4, x: 25, y: 55, title: "Hệ thống Cổng Kết Nối Sưu Tầm", description: "Tích hợp đầy đủ Thunderbolt 4, HDMI 2.1 FRL & USB-A 3.2 Gen 2." },
+            { frameIndex: 8, x: 50, y: 25, title: "Nắp Lưng Hợp Kim Cao Cấp", description: "Gia công CNC nhôm nguyên khối siêu bền đạt chuẩn quân đội MIL-STD-810H." },
+            { frameIndex: 12, x: 75, y: 55, title: "Tản Nhiệt Tri-Fan Đột Phá", description: "Keo kim loại lỏng Liquid Metal kết hợp 3 quạt tản nhiệt ROG cho nhiệt độ cực mát." }
+        ];
+
+        if (window.PhotoSpinner360) {
+            pdvSpinnerInstance = new PhotoSpinner360({
+                container: '#pdv360Container',
+                images: full360Sequence,
+                hotspots: hotspots
+            });
+        }
+    }
+
+    // Direct 3D Drag Rotation Fallback Engine
+    (function initDirect3DSpinner() {
+        var wrapper = document.getElementById('pdv360Fallback');
+        var img = document.getElementById('pdv360Img');
+        var angleText = document.getElementById('pdv360AngleText');
+        if (!wrapper || !img) return;
+
+        var mainImg = @Html.Raw(JsonSerializer.Serialize(Model.ImageUrl));
+        var galleryImgs = @Html.Raw(JsonSerializer.Serialize(ViewBag.Gallery != null ? ((List<AsusLaptop.Models.ProductImage>)ViewBag.Gallery).Select(g => g.ImageUrl).ToList() : new List<string>()));
+        var photos = [];
+        if (mainImg) photos.push(mainImg);
+        if (galleryImgs && galleryImgs.length > 0) {
+            galleryImgs.forEach(function(u) { if (u && photos.indexOf(u) === -1) photos.push(u); });
+        }
+
+        var currentAngle = 0;
+        var isDragging = false;
+        var startX = 0;
+
+        function updateAngle(deltaX) {
+            currentAngle = (currentAngle - deltaX * 0.7 + 360000) % 360;
+            if (angleText) angleText.textContent = Math.round(currentAngle) + '°';
+
+            if (photos.length > 1) {
+                var idx = Math.floor((currentAngle / 360) * photos.length) % photos.length;
+                if (photos[idx] && img.src !== photos[idx]) img.src = photos[idx];
+            }
+
+            var rad = (currentAngle * Math.PI) / 180;
+            var scaleX = Math.cos(rad);
+            var absScaleX = Math.max(0.2, Math.abs(scaleX));
+            var skewY = Math.sin(rad) * 0.08;
+
+            img.style.transform = 'perspective(800px) scaleX(' + scaleX + ') skewY(' + skewY + 'rad)';
+            img.style.filter = 'drop-shadow(0 15px 35px rgba(255,77,0,' + (0.25 + (1 - absScaleX) * 0.2) + '))';
+        }
+
+        wrapper.addEventListener('mousedown', function(e) {
+            isDragging = true; startX = e.clientX; wrapper.style.cursor = 'grabbing';
+        });
+
+        window.addEventListener('mousemove', function(e) {
+            if (!isDragging) return;
+            var deltaX = e.clientX - startX; startX = e.clientX; updateAngle(deltaX);
+        });
+
+        window.addEventListener('mouseup', function() {
+            if (isDragging) { isDragging = false; wrapper.style.cursor = 'grab'; }
+        });
+
+        wrapper.addEventListener('touchstart', function(e) {
+            if (e.touches.length === 1) { isDragging = true; startX = e.touches[0].clientX; }
+        });
+
+        wrapper.addEventListener('touchmove', function(e) {
+            if (!isDragging || e.touches.length !== 1) return;
+            var deltaX = e.touches[0].clientX - startX; startX = e.touches[0].clientX; updateAngle(deltaX);
+        });
+
+        wrapper.addEventListener('touchend', function() { isDragging = false; });
+    })();
+
+    function extractYouTubeId(url) {
+        if (!url) return null;
+        var patterns = [
+            /(?:youtube\.com\/watch\?v=|youtube\.com\/embed\/|youtube\.com\/shorts\/|youtu\.be\/)([\w-]{11})/
+        ];
+        for (var i = 0; i < patterns.length; i++) {
+            var m = url.match(patterns[i]);
+            if (m && m[1]) return m[1];
+        }
+        return null;
+    }
+
+    function loadReviewVideo() {
+        var frame = document.getElementById('pdv-video-frame');
+        var adminUrl = frame.dataset.videoUrl;
+        var videoId = extractYouTubeId(adminUrl);
+
+        if (videoId) {
+            frame.src = 'https://www.youtube.com/embed/' + videoId + '?rel=0';
+        } else {
+            var query = frame.dataset.query || encodeURIComponent(productName + ' đánh giá review');
+            frame.src = 'https://www.youtube.com/embed?listType=search&list=' + query + '&rel=0';
+        }
+    }
+})();
+
+function toggleWishlist(productId, btn) {
+    fetch('/Wishlist/Toggle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'productId=' + productId
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.requireLogin) { window.location.href = '/Account/Login'; return; }
+        if (!data.success) { alert(data.message || 'Có lỗi xảy ra.'); return; }
+        const icon = btn.querySelector('i');
+        if (data.added) {
+            btn.style.background = '#fff1eb';
+            btn.style.color = '#ff4d00';
+            icon.className = 'fa fa-heart';
+        } else {
+            btn.style.background = '#fff';
+            btn.style.color = '#9a9a9a';
+            icon.className = 'far fa-heart';
+        }
+    })
+    .catch(() => alert('Không thể kết nối server.'));
+}
+
+// ───── Star rating input ─────
+(function () {
+    const starInput = document.getElementById('starInput');
+    if (!starInput) return;
+    const stars = starInput.querySelectorAll('i');
+    const ratingValue = document.getElementById('ratingValue');
+
+    function paint(value) {
+        stars.forEach(s => {
+            s.className = (parseInt(s.dataset.value) <= value ? 'fa' : 'far') + ' fa-star';
+        });
+    }
+    paint(5); // mặc định 5 sao
+    stars.forEach(s => {
+        s.addEventListener('mouseenter', () => paint(parseInt(s.dataset.value)));
+        s.addEventListener('click', () => {
+            ratingValue.value = s.dataset.value;
+            paint(parseInt(s.dataset.value));
+        });
+    });
+    starInput.addEventListener('mouseleave', () => paint(parseInt(ratingValue.value)));
+})();
+
+async function runFutureFit() {
+    const button = document.getElementById('futureFitBtn');
+    const result = document.getElementById('futureFitResult');
+    button.disabled = true;
+    button.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Đang mô phỏng...';
+    result.style.display = 'block';
+    result.textContent = 'AI đang đánh giá cấu hình theo nhu cầu của bạn...';
+    try {
+        const response = await fetch('/Product/FutureFit', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId: @Model.Id, scenario: document.getElementById('futureScenario').value, years: Number(document.getElementById('futureYears').value) })
+        });
+        if (!response.ok) throw new Error();
+        const data = await response.json();
+        result.innerHTML = '<div style="display:flex;gap:12px;align-items:center;margin-bottom:9px"><strong style="font-size:27px;color:#ff9a67">' + data.score + '%</strong><span><b>' + data.label + '</b><br><small>' + data.milestone + '</small></span></div>' +
+            '<div style="margin-top:8px"><b><i class="fa fa-triangle-exclamation"></i> Điểm cần theo dõi:</b> ' + data.bottleneck + '</div>' +
+            '<div style="margin-top:7px"><b><i class="fa fa-screwdriver-wrench"></i> Kế hoạch nâng cấp:</b> ' + data.upgrade + '</div>' +
+            '<div style="margin-top:10px;color:#f0c6b0;font-size:11px">' + data.disclaimer + '</div>';
+    } catch {
+        result.textContent = 'Chưa thể tạo dự báo. Vui lòng thử lại.';
+    } finally {
+        button.disabled = false;
+        button.innerHTML = '<i class="fa fa-wand-magic-sparkles"></i> Xem dự báo';
+    }
+}
+
+// ───── AI PRICE INTELLIGENCE SCRIPT ─────
+var currentProductId = @Model.Id;
+var priceChartInstance = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    fetchPricePrediction(currentProductId);
+});
+
+function fetchPricePrediction(productId) {
+    fetch('/PriceTracker/GetPrediction/' + productId)
+        .then(function(r) { return r.json(); })
+        .then(function(res) {
+            if (res.success && res.data) {
+                renderPricePredictionWidget(res.data);
+            }
+        })
+        .catch(function(err) { console.error('Price prediction error:', err); });
+}
+
+function renderPricePredictionWidget(data) {
+    document.getElementById('aiRecBadge').innerText = data.recommendationBadge;
+    document.getElementById('aiRecReason').innerText = data.recommendationReason;
+    document.getElementById('aiBuyScore').innerText = data.buyScore + '/100';
+    document.getElementById('aiBuyScoreFill').style.width = data.buyScore + '%';
+
+    var labels = [];
+    var prices = [];
+    var isPredictedFlags = [];
+
+    data.historicalPrices.forEach(function(item) {
+        labels.push(item.monthLabel);
+        prices.push(item.price);
+        isPredictedFlags.push(false);
+    });
+
+    data.predictedPrices.forEach(function(item) {
+        labels.push(item.monthLabel);
+        prices.push(item.price);
+        isPredictedFlags.push(true);
+    });
+
+    var ctx = document.getElementById('aiPriceChart').getContext('2d');
+    if (priceChartInstance) { priceChartInstance.destroy(); }
+
+    priceChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Giá Laptop (VNĐ)',
+                data: prices,
+                borderColor: '#ff4d00',
+                backgroundColor: 'rgba(255, 77, 0, 0.12)',
+                fill: true,
+                tension: 0.35,
+                pointBackgroundColor: function(context) {
+                    var index = context.dataIndex;
+                    return isPredictedFlags[index] ? '#00e676' : '#ff4d00';
+                },
+                pointRadius: 5,
+                borderDash: function(context) {
+                    var index = context.dataIndex;
+                    return index >= data.historicalPrices.length - 1 ? [6, 4] : [];
+                }
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(ctx) {
+                            var val = ctx.parsed.y;
+                            var isPred = isPredictedFlags[ctx.dataIndex];
+                            return (isPred ? '🤖 Dự báo AI: ' : '📊 Lịch sử: ') + val.toLocaleString('vi-VN') + '₫';
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: 'rgba(255,255,255,0.06)' },
+                    ticks: { color: 'rgba(255,255,255,0.6)', font: { size: 11 } }
+                },
+                y: {
+                    grid: { color: 'rgba(255,255,255,0.06)' },
+                    ticks: {
+                        color: 'rgba(255,255,255,0.6)',
+                        font: { size: 11 },
+                        callback: function(v) { return (v / 1000000).toFixed(1) + 'Tr'; }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function openPriceAlertModal() { document.getElementById('priceAlertModal').style.display = 'flex'; }
+function closePriceAlertModal() { document.getElementById('priceAlertModal').style.display = 'none'; }
+
+function submitPriceAlert() {
+    var targetPrice = parseFloat(document.getElementById('alertTargetPrice').value);
+    var email = document.getElementById('alertEmail').value;
+
+    fetch('/PriceTracker/SetAlert', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId: currentProductId, targetPrice: targetPrice, email: email })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+        alert(res.message);
+        closePriceAlertModal();
+    })
+    .catch(function() { alert('Có lỗi xảy ra, vui lòng thử lại.'); });
+}
+</script>
+}

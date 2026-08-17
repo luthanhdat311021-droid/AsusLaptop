@@ -1,0 +1,152 @@
+@model AsusLaptop.Models.WebsiteAutomationSnapshot
+@{
+    ViewData["Title"] = "Tự động hóa Website";
+    Layout = "_Layout";
+    var s = Model.Settings;
+}
+
+<div class="admin-wrap">
+    <div class="admin-header">
+        <h1 class="admin-title"><i class="fa fa-robot"></i> <span>TỰ ĐỘNG HÓA</span> WEBSITE</h1>
+        <div class="d-flex gap-2" style="flex-wrap:wrap">
+            <button type="button" class="btn-add" id="btnSyncMarketPrice" style="background:#ff4d00; border:none; color:#fff; font-weight:700;"><i class="fa fa-chart-line"></i> Đồng bộ giá thị trường & Flash Sale</button>
+            <button type="button" class="btn-add" id="btnRunNow"><i class="fa fa-play"></i> Chạy ngay</button>
+            <a href="/Admin/Dashboard" class="btn-add" style="background:#555"><i class="fa fa-arrow-left"></i> Dashboard</a>
+        </div>
+    </div>
+
+    <div class="stats-grid" style="margin-bottom:24px">
+        <div class="stat-card">
+            <div class="stat-icon orders"><i class="fa fa-clock"></i></div>
+            <div>
+                <div class="stat-card-value">@(Model.LastRunAt?.ToString("HH:mm dd/MM") ?? "—")</div>
+                <div class="stat-card-label">Lần chạy cuối</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon products"><i class="fa fa-sync"></i></div>
+            <div>
+                <div class="stat-card-value">@Model.TotalRuns</div>
+                <div class="stat-card-label">Tổng chu kỳ</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon @(s.Enabled ? "revenue" : "alert")"><i class="fa fa-power-off"></i></div>
+            <div>
+                <div class="stat-card-value">@(s.Enabled ? "BẬT" : "TẮT")</div>
+                <div class="stat-card-label">Trạng thái</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon users"><i class="fa fa-stopwatch"></i></div>
+            <div>
+                <div class="stat-card-value">@s.CheckIntervalMinutes phút</div>
+                <div class="stat-card-label">Chu kỳ quét</div>
+            </div>
+        </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start">
+        <div class="admin-card" style="padding:24px;border:1px solid var(--border);border-radius:8px;background:#fff">
+            <h3 style="margin-bottom:16px;font-weight:800"><i class="fa fa-sliders-h"></i> Cấu hình</h3>
+            <form id="automationForm">
+                <label style="display:flex;align-items:center;gap:10px;margin-bottom:12px;font-weight:600">
+                    <input type="checkbox" name="Enabled" @(s.Enabled ? "checked" : "") /> Bật tự động hóa nền
+                </label>
+                <label style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+                    <input type="checkbox" name="AutoLowStockAlert" @(s.AutoLowStockAlert ? "checked" : "") /> Cảnh báo sắp hết hàng
+                </label>
+                <label style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+                    <input type="checkbox" name="AutoCleanStaleCarts" @(s.AutoCleanStaleCarts ? "checked" : "") /> Dọn giỏ hàng (SP hết hàng)
+                </label>
+                <label style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+                    <input type="checkbox" name="AutoFlashSaleSync" @(s.AutoFlashSaleSync ? "checked" : "") /> Đồng bộ Flash Sale (% đã bán)
+                </label>
+                <label style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+                    <input type="checkbox" name="AutoMarqueeRotate" @(s.AutoMarqueeRotate ? "checked" : "") /> Xoay banner marquee
+                </label>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+                    <div>
+                        <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px">Ngưỡng tồn kho</label>
+                        <input type="number" name="LowStockThreshold" value="@s.LowStockThreshold" min="1" max="50" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px" />
+                    </div>
+                    <div>
+                        <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px">Chu kỳ (phút)</label>
+                        <input type="number" name="CheckIntervalMinutes" value="@s.CheckIntervalMinutes" min="1" max="60" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px" />
+                    </div>
+                </div>
+                <button type="submit" class="btn-add"><i class="fa fa-save"></i> Lưu cấu hình</button>
+            </form>
+        </div>
+
+        <div class="admin-card" style="padding:24px;border:1px solid var(--border);border-radius:8px;background:#fff">
+            <h3 style="margin-bottom:16px;font-weight:800"><i class="fa fa-list"></i> Nhật ký gần đây</h3>
+            <div id="logList" style="max-height:420px;overflow-y:auto;font-size:13px">
+                @if (!Model.RecentLogs.Any())
+                {
+                    <p style="color:#888">Chưa có log.</p>
+                }
+                @foreach (var log in Model.RecentLogs.Take(25))
+                {
+                    <div style="padding:10px 0;border-bottom:1px solid #eee">
+                        <div style="font-weight:700;color:@(log.Level == "Error" ? "#c62828" : "#111")">
+                            [@log.At.ToString("HH:mm dd/MM")] @log.Task
+                        </div>
+                        <div style="color:#666;margin-top:2px">@log.Message</div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    var form = document.getElementById('automationForm');
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var fd = new FormData();
+        ['Enabled','AutoLowStockAlert','AutoCleanStaleCarts','AutoFlashSaleSync','AutoMarqueeRotate'].forEach(function (k) {
+            if (form.querySelector('[name="' + k + '"]').checked) fd.append(k, 'on');
+        });
+        fd.append('LowStockThreshold', form.querySelector('[name="LowStockThreshold"]').value);
+        fd.append('CheckIntervalMinutes', form.querySelector('[name="CheckIntervalMinutes"]').value);
+        fetch('/Admin/Automation/SaveSettings', { method: 'POST', body: fd })
+            .then(function (r) { return r.json(); })
+            .then(function (d) { if (d.success) location.reload(); });
+    });
+
+    document.getElementById('btnRunNow').addEventListener('click', function () {
+        var btn = this;
+        btn.disabled = true;
+        fetch('/Admin/Automation/RunNow', { method: 'POST' })
+            .then(function (r) { return r.json(); })
+            .then(function () { location.reload(); })
+            .finally(function () { btn.disabled = false; });
+    });
+
+    var btnMarket = document.getElementById('btnSyncMarketPrice');
+    if (btnMarket) {
+        btnMarket.addEventListener('click', function () {
+            var btn = this;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Đang tính toán...';
+            fetch('/Admin/Automation/SyncMarketPrice', { method: 'POST' })
+                .then(function (r) { return r.json(); })
+                .then(function (res) {
+                    if (res.success) {
+                        alert('🎉 ' + res.result.message + '\nHệ thống Flash Sale đã tự động tính toán lại giá ưu đãi mượt mà theo nền giá mới nhất!');
+                        location.reload();
+                    }
+                })
+                .catch(function() { alert('Có lỗi xảy ra khi đồng bộ.'); })
+                .finally(function () {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa fa-chart-line"></i> Đồng bộ giá thị trường & Flash Sale';
+                });
+        });
+    }
+})();
+</script>
+}

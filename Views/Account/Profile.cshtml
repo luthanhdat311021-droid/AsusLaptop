@@ -1,0 +1,71 @@
+@model AsusLaptop.Models.User
+@{
+    ViewData["Title"] = "Tài khoản của tôi";
+}
+
+<div class="account-wrap">
+    <div class="account-layout">
+        <!-- Sidebar -->
+        <div class="account-sidebar">
+            <div class="account-sidebar-header">
+                <h3>@Model.FullName</h3>
+                <p>@@Model.Username</p>
+            </div>
+            <a href="/Account/Profile" class="sidebar-link active"><i class="fa fa-user"></i> Thông tin cá nhân</a>
+            <a href="/Account/MyOrders" class="sidebar-link"><i class="fa fa-box"></i> Đơn hàng của tôi</a>
+            <a href="/Account/Addresses" class="sidebar-link"><i class="fa fa-map-marker-alt"></i> Sổ địa chỉ</a>
+            <a href="/Return/MyReturns" class="sidebar-link"><i class="fa fa-undo-alt"></i> Trả hàng/Hoàn tiền</a>
+                                    <a href="/Account/ChangePassword" class="sidebar-link"><i class="fa fa-lock"></i> Đổi mật khẩu</a>
+            <a href="/Account/FaceId" class="sidebar-link"><i class="fa fa-camera"></i> Quản lý Face ID</a>
+            <a href="/Account/Logout" class="sidebar-link" style="color:var(--rog-red)"><i class="fa fa-sign-out-alt"></i> Đăng xuất</a>
+        </div>
+
+        <!-- Main content -->
+        <div>
+            <div class="account-card">
+                <div class="account-card-header">
+                    <h2><i class="fa fa-user"></i> Thông tin cá nhân</h2>
+                </div>
+                <div class="account-card-body">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success mb-2"><i class="fa fa-check-circle"></i> @TempData["SuccessMessage"]</div>
+                    }
+
+                    <form asp-action="Profile" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="profile-grid">
+                            <div class="form-group" style="grid-column:1/-1">
+                                <label class="form-label">Tên đăng nhập</label>
+                                <input type="text" class="form-control" value="@Model.Username" disabled style="opacity:.5" />
+                            </div>
+                            <div class="form-group" style="grid-column:1/-1">
+                                <label class="form-label">Họ và tên *</label>
+                                <input type="text" name="fullName" class="form-control" value="@Model.FullName" required />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email *</label>
+                                <input type="email" name="email" class="form-control" value="@Model.Email" required />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Số điện thoại</label>
+                                <input type="tel" name="phone" class="form-control" value="@Model.Phone" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Vai trò</label>
+                                <input type="text" class="form-control" value="@Model.Role" disabled style="opacity:.5" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Thành viên từ</label>
+                                <input type="text" class="form-control" value="@Model.CreatedAt.ToString("dd/MM/yyyy")" disabled style="opacity:.5" />
+                            </div>
+                        </div>
+                        <div style="margin-top:20px">
+                            <button type="submit" class="btn-primary"><i class="fa fa-save"></i> Lưu thay đổi</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,174 @@
+@model List<AsusLaptop.Models.UserAddress>
+@{
+    ViewData["Title"] = "Sổ địa chỉ";
+    var user = (AsusLaptop.Models.User)ViewBag.User;
+}
+
+<div class="account-wrap">
+    <div class="account-layout">
+        <!-- Sidebar -->
+        <div class="account-sidebar">
+            <div class="account-sidebar-header">
+                <h3>@user.FullName</h3>
+                <p>@@user.Username</p>
+            </div>
+            <a href="/Account/Profile" class="sidebar-link"><i class="fa fa-user"></i> Thông tin cá nhân</a>
+            <a href="/Account/MyOrders" class="sidebar-link"><i class="fa fa-box"></i> Đơn hàng của tôi</a>
+            <a href="/Account/Addresses" class="sidebar-link active"><i class="fa fa-map-marker-alt"></i> Sổ địa chỉ</a>
+            <a href="/Return/MyReturns" class="sidebar-link"><i class="fa fa-undo-alt"></i> Trả hàng/Hoàn tiền</a>
+                        <a href="/Account/ChangePassword" class="sidebar-link"><i class="fa fa-lock"></i> Đổi mật khẩu</a>
+            <a href="/Account/FaceId" class="sidebar-link"><i class="fa fa-camera"></i> Quản lý Face ID</a>
+            <a href="/Account/Logout" class="sidebar-link" style="color:var(--rog-red)"><i class="fa fa-sign-out-alt"></i> Đăng xuất</a>
+        </div>
+
+        <div class="account-content">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+                <h1 class="section-title" style="margin:0;"><i class="fa fa-map-marker-alt" style="color:var(--accent);margin-right:10px;"></i>Sổ địa chỉ</h1>
+                <button class="btn-primary" onclick="openAddrModal()"><i class="fa fa-plus"></i> Thêm địa chỉ mới</button>
+            </div>
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+            }
+
+            @if (!Model.Any())
+            {
+                <div class="empty-state">
+                    <i class="fa fa-map-marker-alt"></i>
+                    <h3>Bạn chưa lưu địa chỉ giao hàng nào</h3>
+                    <p>Lưu sẵn địa chỉ để đặt hàng nhanh hơn ở những lần sau.</p>
+                </div>
+            }
+            else
+            {
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;">
+                    @foreach (var a in Model)
+                    {
+                        <div style="background:var(--bg-card2);border:1px solid var(--border);border-radius:var(--radius,10px);padding:16px;position:relative;">
+                            @if (a.IsDefault)
+                            {
+                                <span style="position:absolute;top:12px;right:12px;background:var(--accent);color:#fff;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:999px;">MẶC ĐỊNH</span>
+                            }
+                            <div style="font-weight:700;font-size:14.5px;margin-bottom:2px;">
+                                @a.RecipientName
+                                @if (!string.IsNullOrEmpty(a.Label))
+                                {
+                                    <span style="font-weight:400;color:var(--text-muted);font-size:12px;">(@a.Label)</span>
+                                }
+                            </div>
+                            <div style="font-size:13px;color:var(--text-muted);margin-bottom:6px;">@a.Phone</div>
+                            <div style="font-size:13px;line-height:1.5;margin-bottom:12px;">
+                                @a.AddressLine@(!string.IsNullOrEmpty(a.Ward) ? ", " + a.Ward : "")@(!string.IsNullOrEmpty(a.District) ? ", " + a.District : ""), @a.City
+                            </div>
+                            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                                <button class="btn-action btn-view" data-address="@System.Text.Json.JsonSerializer.Serialize(a)" onclick="openAddrModalFromBtn(this)">
+                                    <i class="fa fa-edit"></i> Sửa
+                                </button>
+                                @if (!a.IsDefault)
+                                {
+                                    <form method="post" asp-action="SetDefaultAddress" style="display:inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@a.Id" />
+                                        <button type="submit" class="btn-action btn-view"><i class="fa fa-check"></i> Đặt mặc định</button>
+                                    </form>
+                                }
+                                <form method="post" asp-action="DeleteAddress" style="display:inline" onsubmit="return confirm('Xoá địa chỉ này?')">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@a.Id" />
+                                    <button type="submit" class="btn-action btn-delete"><i class="fa fa-trash"></i> Xoá</button>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal thêm/sửa địa chỉ -->
+<div id="addrModalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:20px;">
+    <div style="background:var(--bg-card,#fff);border-radius:var(--radius,10px);padding:24px;width:100%;max-width:460px;max-height:90vh;overflow:auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <h3 id="addrModalTitle" style="margin:0;font-size:17px;">Thêm địa chỉ mới</h3>
+            <button onclick="closeAddrModal()" style="border:none;background:none;font-size:20px;cursor:pointer;color:var(--text-muted);">&times;</button>
+        </div>
+        <form id="addrForm" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="Id" id="addrId" value="0" />
+            <div class="form-group" style="margin-bottom:12px;">
+                <label class="form-label">Tên người nhận *</label>
+                <input type="text" name="RecipientName" id="addrRecipientName" class="form-control" required />
+            </div>
+            <div class="form-group" style="margin-bottom:12px;">
+                <label class="form-label">Số điện thoại *</label>
+                <input type="text" name="Phone" id="addrPhone" class="form-control" required />
+            </div>
+            <div class="form-group" style="margin-bottom:12px;">
+                <label class="form-label">Địa chỉ cụ thể (số nhà, đường) *</label>
+                <input type="text" name="AddressLine" id="addrLine" class="form-control" required />
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+                <div class="form-group">
+                    <label class="form-label">Phường/Xã</label>
+                    <input type="text" name="Ward" id="addrWard" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Quận/Huyện</label>
+                    <input type="text" name="District" id="addrDistrict" class="form-control" />
+                </div>
+            </div>
+            <div class="form-group" style="margin-bottom:12px;">
+                <label class="form-label">Tỉnh/Thành phố *</label>
+                <input type="text" name="City" id="addrCity" class="form-control" required />
+            </div>
+            <div class="form-group" style="margin-bottom:12px;">
+                <label class="form-label">Nhãn (tuỳ chọn)</label>
+                <input type="text" name="Label" id="addrLabel" class="form-control" placeholder="VD: Nhà riêng, Văn phòng" />
+            </div>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:16px;">
+                <input type="checkbox" name="IsDefault" id="addrIsDefault" value="true" style="width:auto;" />
+                Đặt làm địa chỉ mặc định
+            </label>
+            <button type="submit" class="btn-primary" style="width:100%;padding:11px;">Lưu địa chỉ</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openAddrModalFromBtn(btn) {
+        try {
+            var raw = btn.getAttribute('data-address');
+            var addr = raw ? JSON.parse(raw) : null;
+            openAddrModal(addr);
+        } catch (e) {
+            openAddrModal(null);
+        }
+    }
+    function openAddrModal(addr) {
+        var form = document.getElementById('addrForm');
+        document.getElementById('addrModalTitle').textContent = addr ? 'Sửa địa chỉ' : 'Thêm địa chỉ mới';
+        form.action = addr ? '/Account/EditAddress' : '/Account/AddAddress';
+
+        document.getElementById('addrId').value = addr ? addr.Id : 0;
+        document.getElementById('addrRecipientName').value = addr ? addr.RecipientName : '';
+        document.getElementById('addrPhone').value = addr ? addr.Phone : '';
+        document.getElementById('addrLine').value = addr ? addr.AddressLine : '';
+        document.getElementById('addrWard').value = addr ? (addr.Ward || '') : '';
+        document.getElementById('addrDistrict').value = addr ? (addr.District || '') : '';
+        document.getElementById('addrCity').value = addr ? addr.City : '';
+        document.getElementById('addrLabel').value = addr ? (addr.Label || '') : '';
+        document.getElementById('addrIsDefault').checked = addr ? addr.IsDefault : false;
+
+        document.getElementById('addrModalOverlay').style.display = 'flex';
+    }
+    function closeAddrModal() { document.getElementById('addrModalOverlay').style.display = 'none'; }
+    document.getElementById('addrModalOverlay').addEventListener('click', function (e) {
+        if (e.target === this) closeAddrModal();
+    });
+</script>
